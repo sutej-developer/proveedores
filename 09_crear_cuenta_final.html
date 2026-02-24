@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Crear Cuenta de Acceso</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{--vb:#1a3d1f;--vs:#2d6a35;--vh:#4a9e56;--vc:#7dcb87;--vm:#b8e8bc;--crema:#f4f0e6;--dorado:#c9a84c;--blanco:#fff;--sombra:rgba(26,61,31,.18);--error:#c0392b}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;font-family:'DM Sans',sans-serif;background:#eef5ee;display:flex;flex-direction:column}
+  header{background:var(--vb);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.25)}
+  .hl{display:flex;align-items:center;gap:12px}
+  .hl .ico{font-size:22px}
+  .hl .sigla{font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--crema);letter-spacing:2px}
+  .hl .sub{font-size:9px;color:var(--vm);letter-spacing:1.5px;text-transform:uppercase}
+  .barra-prog{background:var(--vs);padding:0 48px}
+  .pasos{display:flex;align-items:center;max-width:900px;margin:0 auto;padding:16px 0}
+  .paso{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;color:rgba(184,232,188,.5);white-space:nowrap}
+  .paso.activo{color:var(--crema)}
+  .paso.completado{color:var(--vc)}
+  .paso .num{width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0}
+  .paso.activo .num{background:var(--vc);border-color:var(--vc);color:var(--vb)}
+  .paso.completado .num{background:var(--vh);border-color:var(--vh);color:var(--blanco)}
+  .linea-paso{flex:1;height:1px;background:rgba(184,232,188,.25);margin:0 12px;min-width:20px}
+  .linea-paso.completa{background:var(--vh)}
+  main{flex:1;padding:40px 48px;max-width:780px;margin:0 auto;width:100%}
+  .form-wrap{background:var(--blanco);border-radius:20px;box-shadow:0 4px 24px var(--sombra);overflow:hidden}
+  .form-hdr{background:linear-gradient(135deg,var(--vb),var(--vs));padding:28px 36px;display:flex;align-items:center;gap:18px}
+  .fh-ico{width:56px;height:56px;border-radius:15px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+  .fh-txt h2{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--crema)}
+  .fh-txt p{font-size:12px;color:var(--vm);margin-top:4px;line-height:1.5}
+  .seccion{padding:32px 36px;border-bottom:1px solid #eef5ee}
+  .seccion:last-of-type{border-bottom:none}
+  .sec-tit{font-size:11px;font-weight:600;color:var(--vh);letter-spacing:1.8px;text-transform:uppercase;margin-bottom:22px;display:flex;align-items:center;gap:10px}
+  .sec-tit .ns{background:var(--vh);color:var(--blanco);width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-weight:700;flex-shrink:0}
+  .grid{display:grid;gap:20px}
+  .g2{grid-template-columns:1fr 1fr}
+  .span2{grid-column:span 2}
+  .campo{display:flex;flex-direction:column;gap:6px}
+  .campo label{font-size:10px;font-weight:500;color:var(--vb);letter-spacing:.9px;text-transform:uppercase}
+  .req{color:var(--error);margin-left:2px}
+  .hint{font-size:10px;color:#9aac9b;line-height:1.4}
+  .iw{position:relative}
+  .iw .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.45;pointer-events:none}
+  input[type=text],input[type=email],input[type=password],select{
+    padding:11px 13px 11px 40px;background:var(--blanco);border:1.5px solid #d4e6d5;border-radius:9px;
+    font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);outline:none;width:100%;
+    transition:border-color .2s,box-shadow .2s}
+  input:focus,select:focus{border-color:var(--vh);box-shadow:0 0 0 3px rgba(74,158,86,.1)}
+  input::placeholder{color:#b0c4b1;font-weight:300}
+  select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;padding-right:34px}
+  /* Sin icono para select */
+  .campo select{padding-left:13px}
+  .fuerza-b{height:5px;border-radius:3px;background:#e0e0e0;margin-top:8px;overflow:hidden}
+  .fuerza-f{height:100%;width:0%;border-radius:3px;transition:width .3s,background .3s}
+  .fuerza-t{font-size:10px;color:#9aac9b;margin-top:4px}
+  /* Requisitos contraseña */
+  .req-lista{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px}
+  .req-item{display:flex;align-items:center;gap:7px;font-size:11px;color:#9aac9b;transition:color .2s}
+  .req-item.ok{color:var(--vh)}
+  .req-item .rcheck{width:16px;height:16px;border-radius:50%;border:1.5px solid #d4e6d5;display:flex;align-items:center;justify-content:center;font-size:9px;transition:all .2s;flex-shrink:0}
+  .req-item.ok .rcheck{background:var(--vh);border-color:var(--vh);color:var(--blanco)}
+  /* Info resaltada */
+  .nota-info{background:linear-gradient(135deg,rgba(74,158,86,.08),rgba(74,158,86,.04));border:1px solid rgba(74,158,86,.2);border-radius:10px;padding:14px 16px;font-size:12px;color:#3a6b3d;line-height:1.7;display:flex;gap:10px;margin-bottom:20px}
+  .nota-gold{background:linear-gradient(135deg,rgba(201,168,76,.1),rgba(201,168,76,.05));border-color:rgba(201,168,76,.25);color:#6b4e1a}
+  .form-footer{padding:20px 36px;background:#f8fbf8;border-top:1px solid #e8f0e8;display:flex;align-items:center;justify-content:space-between}
+  .btn-atras{padding:11px 22px;border:1.5px solid #c4d9c5;border-radius:9px;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);cursor:pointer;transition:all .2s}
+  .btn-atras:hover{background:#eef5ee}
+  .btn-finalizar{padding:12px 36px;background:linear-gradient(135deg,var(--vh),var(--vs));color:var(--blanco);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px var(--sombra)}
+  .btn-finalizar:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--sombra)}
+  @media(max-width:640px){main{padding:20px}.g2{grid-template-columns:1fr}.span2{grid-column:span 1}.form-footer{flex-direction:column;gap:10px}.btn-finalizar,.btn-atras{width:100%;text-align:center}.req-lista{grid-template-columns:1fr}.header{padding:0 20px}.barra-prog{padding:0 20px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">
+    <span class="ico">🌲</span>
+    <div><div class="sigla">SERFOR</div><div class="sub">Servicio Nacional Forestal</div></div>
+  </div>
+</header>
+
+<div class="barra-prog">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Tipo Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Datos</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Validación</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo Registro</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Registro</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">7</span><span>Crear Cuenta</span></div>
+  </div>
+</div>
+
+<main>
+  <div class="form-wrap">
+    <div class="form-hdr">
+      <div class="fh-ico">🔑</div>
+      <div class="fh-txt">
+        <h2>Crear Cuenta de Acceso</h2>
+        <p>Último paso: configure sus credenciales para acceder al sistema SERFOR y consultar el estado de su solicitud.</p>
+      </div>
+    </div>
+
+    <form onsubmit="return false;">
+
+      <!-- Datos de acceso -->
+      <div class="seccion">
+        <div class="sec-tit"><span class="ns">1</span>Datos de Acceso al Sistema</div>
+
+        <div class="nota-info">
+          <span>ℹ️</span>
+          <span>Cree sus credenciales de acceso al Portal del Proveedor SERFOR. Con ellas podrá consultar el estado de su solicitud y, una vez aprobada, gestionar la renovación de su registro.</span>
+        </div>
+
+        <div class="grid g2">
+          <div class="campo span2">
+            <label>Correo Electrónico (será su usuario) <span class="req">*</span></label>
+            <div class="iw"><span class="ico">📧</span>
+              <input type="email" id="inp-correo" placeholder="correo@empresa.com"/>
+            </div>
+            <span class="hint">Utilice un correo corporativo al cual tenga acceso permanente. Aquí recibirá las notificaciones de SERFOR.</span>
+          </div>
+          <div class="campo">
+            <label>Confirmar Correo <span class="req">*</span></label>
+            <div class="iw"><span class="ico">📧</span>
+              <input type="email" placeholder="Repita el correo electrónico"/>
+            </div>
+          </div>
+          <div class="campo">
+            <label>Teléfono de Contacto <span class="req">*</span></label>
+            <div class="iw"><span class="ico">📱</span>
+              <input type="text" placeholder="Ej: 999 888 777"/>
+            </div>
+            <span class="hint">Para notificaciones urgentes por SMS o llamada.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="seccion">
+        <div class="sec-tit"><span class="ns">2</span>Contraseña</div>
+        <div class="grid g2">
+          <div class="campo">
+            <label>Nueva Contraseña <span class="req">*</span></label>
+            <div class="iw"><span class="ico">🔒</span>
+              <input type="password" id="inp-pass" placeholder="••••••••" oninput="medirFuerza(this.value)"/>
+            </div>
+            <div class="fuerza-b"><div class="fuerza-f" id="fuerza-fill"></div></div>
+            <div class="fuerza-t" id="fuerza-txt">Ingrese una contraseña</div>
+            <div class="req-lista">
+              <div class="req-item" id="r-len"><span class="rcheck">✓</span>Mínimo 8 caracteres</div>
+              <div class="req-item" id="r-may"><span class="rcheck">✓</span>Una mayúscula</div>
+              <div class="req-item" id="r-num"><span class="rcheck">✓</span>Un número</div>
+              <div class="req-item" id="r-sim"><span class="rcheck">✓</span>Un símbolo (@#$%)</div>
+            </div>
+          </div>
+          <div class="campo">
+            <label>Confirmar Contraseña <span class="req">*</span></label>
+            <div class="iw"><span class="ico">🔒</span>
+              <input type="password" id="inp-pass2" placeholder="••••••••"/>
+            </div>
+            <span class="hint" style="margin-top:8px">Repita exactamente la contraseña elegida.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pregunta de seguridad -->
+      <div class="seccion">
+        <div class="sec-tit"><span class="ns">3</span>Pregunta de Seguridad</div>
+        <div class="nota-info nota-gold">
+          <span>🛡️</span>
+          <span>La pregunta de seguridad se usará para verificar su identidad en caso de que necesite recuperar su cuenta.</span>
+        </div>
+        <div class="grid g2">
+          <div class="campo">
+            <label>Pregunta <span class="req">*</span></label>
+            <select>
+              <option value="">-- Seleccione una pregunta --</option>
+              <option>¿Cuál es el nombre de su primera mascota?</option>
+              <option>¿En qué ciudad nació su madre?</option>
+              <option>¿Cuál fue el nombre de su escuela primaria?</option>
+              <option>¿Cuál es su película favorita de infancia?</option>
+              <option>¿Cuál es el segundo nombre de su padre?</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Respuesta <span class="req">*</span></label>
+            <div class="iw"><span class="ico">💬</span>
+              <input type="text" placeholder="Su respuesta secreta…"/>
+            </div>
+            <span class="hint">Guarde esta respuesta en un lugar seguro.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Términos -->
+      <div class="seccion">
+        <div class="sec-tit"><span class="ns">4</span>Declaración y Aceptación</div>
+        <div class="nota-info nota-gold" style="margin-bottom:16px">
+          <span>⚖️</span>
+          <span>Al finalizar el registro declara que toda la información proporcionada es verídica y completa. La falsedad de datos conlleva la cancelación del registro y puede acarrear responsabilidad legal.</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:#3a4a3a;line-height:1.6">
+            <input type="checkbox" style="margin-top:3px;accent-color:var(--vh);width:16px;height:16px;flex-shrink:0"/>
+            <span>Declaro que la información proporcionada en este registro es verídica y autorizo a SERFOR a verificarla con las entidades correspondientes (RENIEC, SUNAT).</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:#3a4a3a;line-height:1.6">
+            <input type="checkbox" style="margin-top:3px;accent-color:var(--vh);width:16px;height:16px;flex-shrink:0"/>
+            <span>He leído y acepto los <a href="#" style="color:var(--vh);font-weight:500">Términos y Condiciones</a> del Sistema de Registro de Proveedores de SERFOR.</span>
+          </label>
+          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer;font-size:13px;color:#3a4a3a;line-height:1.6">
+            <input type="checkbox" style="margin-top:3px;accent-color:var(--vh);width:16px;height:16px;flex-shrink:0"/>
+            <span>Autorizo el tratamiento de mis datos personales conforme a la <a href="#" style="color:var(--vh);font-weight:500">Política de Privacidad</a> de SERFOR, de acuerdo con la Ley N° 29733.</span>
+          </label>
+        </div>
+      </div>
+
+    </form>
+
+    <div class="form-footer">
+      <button class="btn-atras" onclick="window.location.href='07_registro_actividad.html'">← Atrás</button>
+      <button class="btn-finalizar" onclick="window.location.href='08_confirmacion.html'">Enviar Solicitud y Crear Cuenta →</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  function medirFuerza(p){
+    const reqs=[
+      {id:'r-len',ok:p.length>=8},
+      {id:'r-may',ok:/[A-Z]/.test(p)},
+      {id:'r-num',ok:/[0-9]/.test(p)},
+      {id:'r-sim',ok:/[^A-Za-z0-9]/.test(p)}
+    ];
+    let f=reqs.filter(r=>r.ok).length;
+    reqs.forEach(r=>document.getElementById(r.id).classList.toggle('ok',r.ok));
+    const datos=[
+      {w:'0%',b:'#e0e0e0',t:'Ingrese una contraseña'},
+      {w:'25%',b:'#e74c3c',t:'Débil — necesita más requisitos'},
+      {w:'50%',b:'#e67e22',t:'Regular — agregue más variedad'},
+      {w:'75%',b:'var(--dorado)',t:'Buena — falta un requisito'},
+      {w:'100%',b:'var(--vh)',t:'Excelente — contraseña segura ✓'}
+    ];
+    const d=datos[f];
+    document.getElementById('fuerza-fill').style.cssText='width:'+d.w+';background:'+d.b;
+    document.getElementById('fuerza-txt').textContent=d.t;
+  }
+</script>
+</body>
+</html>

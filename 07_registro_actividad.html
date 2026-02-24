@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Registro de Actividad Forestal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --verde-bosque:#1a3d1f; --verde-selva:#2d6a35; --verde-hoja:#4a9e56;
+    --verde-claro:#7dcb87; --verde-menta:#b8e8bc; --crema:#f4f0e6;
+    --dorado:#c9a84c; --blanco:#ffffff; --sombra:rgba(26,61,31,0.15);
+    --azul:#2471a3; --azul-bg:#eaf4fb; --error:#c0392b;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:#eef5ee; display:flex; flex-direction:column; }
+
+  header { background:var(--verde-bosque);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.25); }
+  .header-logo { display:flex;align-items:center;gap:12px; }
+  .header-logo .ico { font-size:22px; }
+  .header-logo .sigla { font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--crema);letter-spacing:2px; }
+  .header-logo .sub { font-size:9px;color:var(--verde-menta);letter-spacing:1.5px;text-transform:uppercase; }
+  .usuario { display:flex;align-items:center;gap:8px;font-size:12px;color:var(--verde-menta); }
+  .avatar { width:32px;height:32px;border-radius:50%;background:var(--verde-hoja);display:flex;align-items:center;justify-content:center;font-size:14px; }
+  .btn-salir { padding:6px 16px;border:1px solid rgba(184,232,188,0.3);border-radius:20px;background:transparent;color:var(--verde-menta);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer; }
+
+  .barra-progreso { background:var(--verde-selva);padding:0 48px; }
+  .pasos { display:flex;align-items:center;max-width:900px;margin:0 auto;padding:16px 0; }
+  .paso { display:flex;align-items:center;gap:10px;font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;color:rgba(184,232,188,0.5);white-space:nowrap; }
+  .paso.activo { color:var(--crema); }
+  .paso.completado { color:var(--verde-claro); }
+  .paso .num { width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+  .paso.activo .num { background:var(--verde-claro);border-color:var(--verde-claro);color:var(--verde-bosque); }
+  .paso.completado .num { background:var(--verde-hoja);border-color:var(--verde-hoja);color:var(--blanco); }
+  .linea-paso { flex:1;height:1px;background:rgba(184,232,188,0.25);margin:0 12px;min-width:20px; }
+  .linea-paso.completa { background:var(--verde-hoja); }
+
+  /* MODO selector (bien/servicio/ambos para demo) */
+  .modo-bar { background:rgba(26,61,31,0.06);border-bottom:1px solid #d4e6d5;padding:10px 48px;display:flex;align-items:center;gap:16px; }
+  .modo-bar p { font-size:11px;color:#6b7a6d;font-weight:500; }
+  .modo-btns { display:flex;gap:6px; }
+  .modo-btn { padding:5px 14px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid #c4d9c5;color:var(--verde-selva);background:transparent;transition:all .2s; }
+  .modo-btn.activo { background:var(--verde-hoja);border-color:var(--verde-hoja);color:var(--blanco); }
+
+  main { flex:1;padding:40px 48px;display:flex;gap:28px;max-width:1200px;margin:0 auto;width:100%; }
+
+  /* Resumen lateral */
+  .lateral { width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:16px; }
+  .card-resumen { background:var(--blanco);border-radius:14px;padding:20px;box-shadow:0 2px 12px var(--sombra); }
+  .card-resumen h4 { font-size:10px;font-weight:500;color:var(--verde-hoja);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid #eef5ee; }
+  .resumen-fila { display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid #f5faf5; }
+  .resumen-fila:last-child { border-bottom:none; }
+  .resumen-fila .etiq { font-size:11px;color:#9aac9b; }
+  .resumen-fila .val { font-size:11px;color:var(--verde-bosque);font-weight:500;text-align:right; }
+
+  .card-ayuda { background:linear-gradient(135deg,var(--verde-bosque),var(--verde-selva));border-radius:14px;padding:20px; }
+  .card-ayuda h4 { font-size:10px;font-weight:500;color:var(--verde-menta);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px; }
+  .card-ayuda p { font-size:11px;color:rgba(184,232,188,0.8);line-height:1.6;margin-bottom:10px; }
+  .card-ayuda a { font-size:11px;color:var(--verde-claro);text-decoration:none;display:flex;align-items:center;gap:4px; }
+
+  /* FORMULARIO */
+  .form-contenedor { flex:1;background:var(--blanco);border-radius:20px;box-shadow:0 4px 24px var(--sombra);overflow:hidden; }
+  .form-header { background:linear-gradient(135deg,var(--verde-bosque),var(--verde-selva));padding:24px 32px;display:flex;align-items:center;gap:14px; }
+  .form-header .ico-h { width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:22px; }
+  .form-header h2 { font-family:'Playfair Display',serif;font-size:20px;font-weight:700;color:var(--crema); }
+  .form-header p { font-size:11px;color:var(--verde-menta);margin-top:2px; }
+
+  /* Indicador de modo */
+  .modo-badge { margin-left:auto;display:flex;align-items:center;gap:8px; }
+  .badge { padding:5px 14px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.5px; }
+  .badge.bien { background:rgba(36,113,163,0.25);color:#7cc9f0; }
+  .badge.servicio { background:rgba(74,158,86,0.25);color:var(--verde-claro); }
+  .badge.ambos { background:rgba(201,168,76,0.25);color:#e8c86e; }
+
+  /* Secciones */
+  .seccion-form { padding:28px 32px;border-bottom:1px solid #eef5ee; }
+  .seccion-form:last-child { border-bottom:none; }
+  .seccion-titulo { font-size:11px;font-weight:500;color:var(--verde-hoja);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px; }
+
+  /* Para modo AMBOS: columnas paralelas */
+  .columnas-paralelas { display:grid;grid-template-columns:1fr 1fr;gap:0;border:1.5px solid #d4e6d5;border-radius:14px;overflow:hidden; }
+  .col-bien,.col-servicio { padding:24px; }
+  .col-bien { border-right:1px solid #d4e6d5;background:#f7fbff; }
+  .col-servicio { background:#f7faf7; }
+  .col-header { display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:12px;border-bottom:1.5px solid #e0eae0; }
+  .col-header .ico-col { width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px; }
+  .ico-col.bien { background:var(--azul-bg); }
+  .ico-col.srv { background:#e8f7ea; }
+  .col-header h4 { font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--verde-bosque); }
+
+  .grid-campos { display:grid;gap:16px; }
+  .grid-2 { grid-template-columns:1fr 1fr; }
+  .col-span-2 { grid-column:span 2; }
+
+  .campo { display:flex;flex-direction:column;gap:6px; }
+  .campo label { font-size:10px;font-weight:500;color:var(--verde-bosque);letter-spacing:0.8px;text-transform:uppercase; }
+  .req { color:var(--error);margin-left:3px; }
+  .campo-hint { font-size:9px;color:#9aac9b;margin-top:1px; }
+
+  input[type=text],input[type=number],select,textarea {
+    padding:10px 12px;background:var(--blanco);border:1.5px solid #d4e6d5;border-radius:8px;
+    font-family:'DM Sans',sans-serif;font-size:13px;color:var(--verde-bosque);
+    transition:border-color .2s,box-shadow .2s;outline:none;width:100%;
+  }
+  input:focus,select:focus,textarea:focus { border-color:var(--verde-hoja);box-shadow:0 0 0 3px rgba(74,158,86,0.1); }
+  input::placeholder,textarea::placeholder { color:#aabdab;font-weight:300; }
+  select { cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px; }
+  textarea { resize:vertical;min-height:72px; }
+
+  /* Checkboxes de categorías */
+  .cats-grid { display:grid;grid-template-columns:1fr 1fr;gap:8px; }
+  .cat-item { display:flex;align-items:center;gap:8px;padding:8px 10px;border:1.5px solid #d4e6d5;border-radius:8px;cursor:pointer;transition:all .2s; }
+  .cat-item:hover { border-color:var(--verde-hoja);background:#f0faf1; }
+  .cat-item input { accent-color:var(--verde-hoja);width:14px;height:14px; }
+  .cat-item label { font-size:11px;color:var(--verde-bosque);cursor:pointer; }
+
+  /* Documentos */
+  .docs-grid { display:grid;gap:10px; }
+  .doc-item { display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border:1.5px dashed #c4d9c5;border-radius:10px;background:#fafcfa;cursor:pointer;transition:all .2s; }
+  .doc-item:hover { border-color:var(--verde-hoja);background:#f0faf1; }
+  .doc-item .doc-info { display:flex;align-items:center;gap:10px; }
+  .doc-item .doc-ico { font-size:20px; }
+  .doc-item .doc-txt strong { font-size:12px;color:var(--verde-bosque);display:block; }
+  .doc-item .doc-txt span { font-size:10px;color:#9aac9b; }
+  .doc-estado { font-size:10px;padding:3px 8px;border-radius:10px; }
+  .doc-estado.pendiente { background:#f0f0f0;color:#999; }
+  .doc-estado.cargado { background:#e8f7ea;color:var(--verde-selva); }
+
+  .form-footer { padding:20px 32px;background:#f8fbf8;border-top:1px solid #e8f0e8;display:flex;align-items:center;justify-content:space-between; }
+  .btn-atras { padding:11px 22px;border:1.5px solid #c4d9c5;border-radius:9px;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--verde-bosque);cursor:pointer;transition:all .2s; }
+  .btn-atras:hover { background:#eef5ee; }
+  .btn-continuar { padding:11px 32px;background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque));color:var(--crema);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px var(--sombra); }
+  .btn-continuar:hover { transform:translateY(-1px);box-shadow:0 8px 24px var(--sombra); }
+
+  /* Ocultar/mostrar secciones según modo */
+  .solo-bien, .solo-servicio, .solo-ambos { display:none; }
+  body.modo-bien .solo-bien { display:block; }
+  body.modo-servicio .solo-servicio { display:block; }
+  body.modo-ambos .solo-ambos { display:block; }
+  .siempre { display:block; }
+
+  @media(max-width:900px){ main{flex-direction:column;padding:24px;} .lateral{width:100%;} .columnas-paralelas{grid-template-columns:1fr;} .col-bien{border-right:none;border-bottom:1px solid #d4e6d5;} .grid-2{grid-template-columns:1fr;} .col-span-2{grid-column:span 1;} }
+  @media(max-width:600px){ header{padding:0 16px;} .barra-progreso,.modo-bar{padding-left:16px;padding-right:16px;} .pasos .paso span:not(.num){display:none;} .form-header{padding:16px 20px;} .seccion-form{padding:20px;} .form-footer{flex-direction:column;gap:10px;} .btn-continuar,.btn-atras{width:100%;text-align:center;} }
+</style>
+</head>
+<body class="modo-bien">
+
+<header>
+  <div class="header-logo">
+    <span class="ico">🌲</span>
+    <div>
+      <div class="sigla">SERFOR</div>
+      <div class="sub">Servicio Nacional Forestal</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="usuario"><div class="avatar">👤</div><span>Usuario Externo</span></div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="barra-progreso">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Acceso</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo de Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Datos Personales</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Validación</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo de Registro</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">6</span><span>Detalles</span></div>
+  </div>
+</div>
+
+<div class="modo-bar">
+  <p>🎭 Demo — Ver modo:</p>
+  <div class="modo-btns">
+    <button class="modo-btn activo" onclick="setModo('bien', this)">📦 Solo Bienes</button>
+    <button class="modo-btn" onclick="setModo('servicio', this)">⚙️ Solo Servicios</button>
+    <button class="modo-btn" onclick="setModo('ambos', this)">🌟 Bienes + Servicios</button>
+  </div>
+</div>
+
+<main>
+  <div class="lateral">
+    <div class="card-resumen">
+      <h4>📋 Resumen</h4>
+      <div class="resumen-fila"><span class="etiq">Tipo de persona</span><span class="val">Jurídica</span></div>
+      <div class="resumen-fila"><span class="etiq">Razón social</span><span class="val">FORESTAL AMAZÓNICA S.A.C.</span></div>
+      <div class="resumen-fila"><span class="etiq">RUC</span><span class="val">20123456789</span></div>
+      <div class="resumen-fila"><span class="etiq">Representante</span><span class="val">C. Ramírez</span></div>
+      <div class="resumen-fila"><span class="etiq">Tipo de registro</span><span class="val" id="resumen-tipo">Bienes</span></div>
+    </div>
+    <div class="card-ayuda">
+      <h4>💡 Ayuda</h4>
+      <p>Complete la información de los bienes y/o servicios que desea ofrecer al Estado.</p>
+      <a href="#">Ver guía de registro →</a>
+    </div>
+  </div>
+
+  <div class="form-contenedor">
+    <div class="form-header">
+      <div class="ico-h" id="form-ico">📦</div>
+      <div>
+        <h2 id="form-titulo">Registro de Bienes Forestales</h2>
+        <p id="form-subtitulo">Ingrese los detalles de los bienes que desea registrar</p>
+      </div>
+      <div class="modo-badge">
+        <span class="badge bien" id="modo-badge-el">📦 Bienes</span>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN BIEN ===== -->
+    <div class="seccion-form solo-bien siempre">
+      <div class="seccion-titulo">📦 Datos del Bien Forestal</div>
+      <div class="grid-campos grid-2">
+        <div class="campo col-span-2">
+          <label>Nombre del Bien <span class="req">*</span></label>
+          <input type="text" placeholder="Ej: Madera de cedro aserrada, productos no maderables..."/>
+        </div>
+        <div class="campo">
+          <label>Código de Bien <span class="req">*</span></label>
+          <input type="text" placeholder="Ej: FOR-001"/>
+          <span class="campo-hint">Según catálogo OSCE forestal</span>
+        </div>
+        <div class="campo">
+          <label>Unidad de Medida <span class="req">*</span></label>
+          <select>
+            <option>-- Seleccione --</option>
+            <option>m³ (metros cúbicos)</option><option>Kg (kilogramos)</option>
+            <option>Tonelada</option><option>Unidad</option><option>Docena</option>
+            <option>m² (metros cuadrados)</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Precio Referencial (S/) <span class="req">*</span></label>
+          <input type="number" placeholder="0.00" step="0.01"/>
+        </div>
+        <div class="campo">
+          <label>Capacidad de Abastecimiento</label>
+          <input type="text" placeholder="Ej: 50 m³ / mes"/>
+        </div>
+        <div class="campo col-span-2">
+          <label>Descripción del Bien <span class="req">*</span></label>
+          <textarea placeholder="Describa las características, procedencia y especificaciones técnicas del bien forestal..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion-form solo-bien">
+      <div class="seccion-titulo">🌿 Categorías del Bien</div>
+      <div class="cats-grid">
+        <label class="cat-item"><input type="checkbox"/> <label>Madera y derivados</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Bambú y caña</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Resinas y gomas</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Frutos del bosque</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Plantas medicinales</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Fauna silvestre</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Semillas forestales</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Aceites esenciales</label></label>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN SERVICIO ===== -->
+    <div class="seccion-form solo-servicio">
+      <div class="seccion-titulo">⚙️ Datos del Servicio Forestal</div>
+      <div class="grid-campos grid-2">
+        <div class="campo col-span-2">
+          <label>Nombre del Servicio <span class="req">*</span></label>
+          <input type="text" placeholder="Ej: Consultoría en manejo forestal sostenible..."/>
+        </div>
+        <div class="campo">
+          <label>Código de Servicio <span class="req">*</span></label>
+          <input type="text" placeholder="Ej: SRV-FOR-001"/>
+        </div>
+        <div class="campo">
+          <label>Modalidad <span class="req">*</span></label>
+          <select>
+            <option>Presencial</option><option>Virtual</option><option>Mixta</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label>Tarifa (S/ por hora)</label>
+          <input type="number" placeholder="0.00" step="0.01"/>
+        </div>
+        <div class="campo">
+          <label>Zona de Cobertura <span class="req">*</span></label>
+          <select>
+            <option>Nacional</option><option>Región selva</option><option>Región sierra</option><option>Región costa</option><option>Lima Metropolitana</option>
+          </select>
+        </div>
+        <div class="campo col-span-2">
+          <label>Descripción del Servicio <span class="req">*</span></label>
+          <textarea placeholder="Describa los alcances, metodología y entregables del servicio forestal..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="seccion-form solo-servicio">
+      <div class="seccion-titulo">🌿 Categorías del Servicio</div>
+      <div class="cats-grid">
+        <label class="cat-item"><input type="checkbox"/> <label>Consultoría forestal</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Reforestación</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Monitoreo ambiental</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Inventario forestal</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Capacitación técnica</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Servicios ambientales</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Ecoturismo</label></label>
+        <label class="cat-item"><input type="checkbox"/> <label>Investigación</label></label>
+      </div>
+    </div>
+
+    <!-- ===== SECCIÓN AMBOS (columnas paralelas) ===== -->
+    <div class="seccion-form solo-ambos">
+      <div class="seccion-titulo">🌟 Registro Simultáneo — Bienes y Servicios</div>
+      <div class="columnas-paralelas">
+
+        <div class="col-bien">
+          <div class="col-header">
+            <div class="ico-col bien">📦</div>
+            <div><h4>Bienes Forestales</h4></div>
+          </div>
+          <div class="grid-campos">
+            <div class="campo">
+              <label>Nombre del Bien <span class="req">*</span></label>
+              <input type="text" placeholder="Nombre del bien"/>
+            </div>
+            <div class="campo">
+              <label>Código <span class="req">*</span></label>
+              <input type="text" placeholder="FOR-001"/>
+            </div>
+            <div class="campo">
+              <label>Unidad de Medida</label>
+              <select><option>m³</option><option>Kg</option><option>Unidad</option><option>Tonelada</option></select>
+            </div>
+            <div class="campo">
+              <label>Precio Ref. (S/)</label>
+              <input type="number" placeholder="0.00" step="0.01"/>
+            </div>
+            <div class="campo">
+              <label>Categorías</label>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Madera y derivados</label>
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Productos no maderables</label>
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Semillas y plantas</label>
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Fauna silvestre</label>
+              </div>
+            </div>
+            <div class="campo">
+              <label>Descripción</label>
+              <textarea placeholder="Descripción del bien..." style="min-height:60px;"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-servicio">
+          <div class="col-header">
+            <div class="ico-col srv">⚙️</div>
+            <div><h4>Servicios Forestales</h4></div>
+          </div>
+          <div class="grid-campos">
+            <div class="campo">
+              <label>Nombre del Servicio <span class="req">*</span></label>
+              <input type="text" placeholder="Nombre del servicio"/>
+            </div>
+            <div class="campo">
+              <label>Código <span class="req">*</span></label>
+              <input type="text" placeholder="SRV-001"/>
+            </div>
+            <div class="campo">
+              <label>Modalidad</label>
+              <select><option>Presencial</option><option>Virtual</option><option>Mixta</option></select>
+            </div>
+            <div class="campo">
+              <label>Tarifa (S/h)</label>
+              <input type="number" placeholder="0.00" step="0.01"/>
+            </div>
+            <div class="campo">
+              <label>Categorías</label>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px;">
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Consultoría forestal</label>
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Reforestación</label>
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Monitoreo ambiental</label>
+                <label style="display:flex;gap:6px;align-items:center;font-size:11px;color:#5a7a5c;cursor:pointer;"><input type="checkbox" style="accent-color:var(--verde-hoja)"/> Capacitación</label>
+              </div>
+            </div>
+            <div class="campo">
+              <label>Descripción</label>
+              <textarea placeholder="Descripción del servicio..." style="min-height:60px;"></textarea>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- DOCUMENTOS (común para todos) -->
+    <div class="seccion-form siempre">
+      <div class="seccion-titulo">📎 Documentación Requerida</div>
+      <div class="docs-grid">
+        <div class="doc-item" onclick="simularCarga(this)">
+          <div class="doc-info">
+            <span class="doc-ico">📄</span>
+            <div class="doc-txt">
+              <strong>Permiso / Concesión Forestal</strong>
+              <span>PDF · máx. 5 MB</span>
+            </div>
+          </div>
+          <span class="doc-estado pendiente">Pendiente</span>
+        </div>
+        <div class="doc-item" onclick="simularCarga(this)">
+          <div class="doc-info">
+            <span class="doc-ico">📋</span>
+            <div class="doc-txt">
+              <strong>Certificado de Origen del Producto</strong>
+              <span>PDF · máx. 5 MB</span>
+            </div>
+          </div>
+          <span class="doc-estado pendiente">Pendiente</span>
+        </div>
+        <div class="doc-item" onclick="simularCarga(this)">
+          <div class="doc-info">
+            <span class="doc-ico">🏅</span>
+            <div class="doc-txt">
+              <strong>Certificación de Sostenibilidad (FSC / PEFC)</strong>
+              <span>PDF · Opcional · máx. 5 MB</span>
+            </div>
+          </div>
+          <span class="doc-estado pendiente">Pendiente</span>
+        </div>
+        <div class="doc-item" onclick="simularCarga(this)">
+          <div class="doc-info">
+            <span class="doc-ico">💼</span>
+            <div class="doc-txt">
+              <strong>Ficha Técnica del Bien / Servicio</strong>
+              <span>PDF o DOCX · máx. 5 MB</span>
+            </div>
+          </div>
+          <span class="doc-estado pendiente">Pendiente</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-atras" onclick="window.location.href='06_tipo_registro.html'">← Atrás</button>
+      <button class="btn-continuar" onclick="window.location.href='08_confirmacion.html'">Finalizar Registro →</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  const modos = {
+    bien:     { ico:'📦', titulo:'Registro de Bienes Forestales',          sub:'Ingrese los detalles de los bienes que desea registrar', badge:'📦 Bienes', cls:'bien', resumen:'Bienes' },
+    servicio: { ico:'⚙️', titulo:'Registro de Servicios Forestales',        sub:'Ingrese los detalles de los servicios que ofrece',        badge:'⚙️ Servicios', cls:'servicio', resumen:'Servicios' },
+    ambos:    { ico:'🌟', titulo:'Registro de Bienes y Servicios',           sub:'Complete ambas secciones para un registro completo',      badge:'🌟 Bienes + Servicios', cls:'ambos', resumen:'Bienes y Servicios' }
+  };
+
+  function setModo(modo, btn) {
+    document.querySelectorAll('.modo-btn').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+    document.body.className = 'modo-' + modo;
+    const m = modos[modo];
+    document.getElementById('form-ico').textContent = m.ico;
+    document.getElementById('form-titulo').textContent = m.titulo;
+    document.getElementById('form-subtitulo').textContent = m.sub;
+    document.getElementById('modo-badge-el').textContent = m.badge;
+    document.getElementById('modo-badge-el').className = 'badge ' + m.cls;
+    document.getElementById('resumen-tipo').textContent = m.resumen;
+  }
+
+  function simularCarga(el) {
+    const estado = el.querySelector('.doc-estado');
+    estado.textContent = 'Cargado ✓';
+    estado.className = 'doc-estado cargado';
+    el.style.borderColor = 'var(--verde-hoja)';
+    el.style.background = '#f0faf1';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Registro de Servicio Forestal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --verde-bosque:#1a3d1f; --verde-selva:#2d6a35; --verde-hoja:#4a9e56;
+    --verde-claro:#7dcb87; --verde-menta:#b8e8bc; --crema:#f4f0e6;
+    --dorado:#c9a84c; --blanco:#ffffff; --sombra:rgba(26,61,31,0.15);
+    --error:#c0392b;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:#eef5ee; display:flex; flex-direction:column; }
+
+  header { background:var(--verde-bosque); padding:0 48px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 20px rgba(0,0,0,0.25); }
+  .hl { display:flex; align-items:center; gap:12px; }
+  .hl .ico { font-size:22px; }
+  .hl .sigla { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--crema); letter-spacing:2px; }
+  .hl .sub { font-size:9px; color:var(--verde-menta); letter-spacing:1.5px; text-transform:uppercase; }
+  .hright { display:flex; align-items:center; gap:16px; }
+  .usuario { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--verde-menta); }
+  .avatar { width:32px; height:32px; border-radius:50%; background:var(--verde-hoja); display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .btn-salir { padding:6px 16px; border:1px solid rgba(184,232,188,0.3); border-radius:20px; background:transparent; color:var(--verde-menta); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; }
+  .btn-salir:hover { background:rgba(74,158,86,0.2); }
+
+  .barra-progreso { background:var(--verde-selva); padding:0 48px; }
+  .pasos { display:flex; align-items:center; max-width:900px; margin:0 auto; padding:16px 0; }
+  .paso { display:flex; align-items:center; gap:10px; font-size:11px; font-weight:500; letter-spacing:0.5px; text-transform:uppercase; color:rgba(184,232,188,0.5); white-space:nowrap; }
+  .paso.activo { color:var(--crema); }
+  .paso.completado { color:var(--verde-claro); }
+  .paso .num { width:24px; height:24px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+  .paso.activo .num { background:var(--verde-claro); border-color:var(--verde-claro); color:var(--verde-bosque); }
+  .paso.completado .num { background:var(--verde-hoja); border-color:var(--verde-hoja); color:var(--blanco); }
+  .linea-paso { flex:1; height:1px; background:rgba(184,232,188,0.25); margin:0 12px; min-width:20px; }
+  .linea-paso.completa { background:var(--verde-hoja); }
+
+  main { flex:1; padding:40px 48px; display:flex; gap:28px; max-width:1160px; margin:0 auto; width:100%; }
+
+  .lateral { width:236px; flex-shrink:0; display:flex; flex-direction:column; gap:16px; }
+  .card-lat { background:var(--blanco); border-radius:14px; padding:20px; box-shadow:0 2px 12px var(--sombra); }
+  .card-lat h4 { font-size:10px; font-weight:500; color:var(--verde-hoja); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #eef5ee; }
+  .res-fila { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f5faf5; }
+  .res-fila:last-child { border-bottom:none; }
+  .res-fila .etiq { font-size:11px; color:#9aac9b; }
+  .res-fila .val  { font-size:11px; color:var(--verde-bosque); font-weight:500; text-align:right; max-width:130px; }
+  .secciones-nav { display:flex; flex-direction:column; gap:4px; }
+  .nav-item { padding:8px 12px; border-radius:8px; font-size:12px; color:#6b7a6d; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s; }
+  .nav-item:hover { background:#eef5ee; color:var(--verde-bosque); }
+  .nav-item.activo { background:linear-gradient(135deg,var(--verde-menta),#d8f5db); color:var(--verde-bosque); font-weight:500; }
+  .nav-item .dot { width:7px; height:7px; border-radius:50%; background:#d4e6d5; flex-shrink:0; }
+  .nav-item.activo .dot { background:var(--verde-hoja); }
+
+  .form-wrap { flex:1; background:var(--blanco); border-radius:20px; box-shadow:0 4px 24px var(--sombra); overflow:hidden; }
+  .form-header { background:linear-gradient(135deg,#134a18,#1e5c23); padding:24px 32px; display:flex; align-items:center; gap:16px; }
+  .fh-ico { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+  .fh-txt h2 { font-family:'Playfair Display',serif; font-size:21px; font-weight:700; color:var(--crema); }
+  .fh-txt p  { font-size:11px; color:var(--verde-menta); margin-top:3px; }
+  .fh-badge  { margin-left:auto; background:rgba(74,158,86,0.25); border:1px solid rgba(125,203,135,0.35); color:var(--verde-claro); padding:5px 14px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
+
+  .seccion { padding:28px 32px; border-bottom:1px solid #eef5ee; }
+  .seccion:last-of-type { border-bottom:none; }
+  .sec-titulo { font-size:11px; font-weight:600; color:var(--verde-hoja); letter-spacing:1.8px; text-transform:uppercase; margin-bottom:22px; display:flex; align-items:center; gap:10px; }
+  .sec-titulo span { background:var(--verde-hoja); color:var(--blanco); width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
+
+  .grid { display:grid; gap:20px; }
+  .g2 { grid-template-columns:1fr 1fr; }
+  .g3 { grid-template-columns:1fr 1fr 1fr; }
+  .g4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+  .span2 { grid-column:span 2; }
+  .span3 { grid-column:span 3; }
+  .span4 { grid-column:span 4; }
+
+  .campo { display:flex; flex-direction:column; gap:6px; }
+  .campo label { font-size:10px; font-weight:500; color:var(--verde-bosque); letter-spacing:0.9px; text-transform:uppercase; }
+  .req { color:var(--error); margin-left:2px; }
+  .hint { font-size:10px; color:#9aac9b; margin-top:1px; line-height:1.4; }
+
+  input[type=text], input[type=number], input[type=email], input[type=url],
+  select, textarea {
+    padding:10px 13px; background:var(--blanco); border:1.5px solid #d4e6d5;
+    border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px;
+    color:var(--verde-bosque); transition:border-color .2s, box-shadow .2s;
+    outline:none; width:100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color:var(--verde-hoja); box-shadow:0 0 0 3px rgba(74,158,86,0.1); }
+  input::placeholder, textarea::placeholder { color:#b0c4b1; font-weight:300; }
+  select { cursor:pointer; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 13px center; padding-right:34px; }
+  textarea { resize:vertical; min-height:88px; }
+
+  .input-addon { display:flex; }
+  .input-addon input { border-radius:9px 0 0 9px; border-right:none; }
+  .addon-lbl { padding:10px 14px; background:#eef5ee; border:1.5px solid #d4e6d5; border-left:none; border-radius:0 9px 9px 0; font-size:12px; color:var(--verde-selva); font-weight:500; white-space:nowrap; display:flex; align-items:center; }
+  .addon-pre { padding:10px 14px; background:#eef5ee; border:1.5px solid #d4e6d5; border-right:none; border-radius:9px 0 0 9px; font-size:12px; color:var(--verde-selva); font-weight:500; white-space:nowrap; display:flex; align-items:center; }
+  .addon-pre + input { border-radius:0 9px 9px 0; border-left:none; }
+
+  /* Modalidades checkboxes */
+  .checks-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .check-item { display:flex; align-items:center; gap:10px; padding:10px 12px; border:1.5px solid #d4e6d5; border-radius:9px; cursor:pointer; transition:all .2s; }
+  .check-item:hover { border-color:var(--verde-hoja); background:#f0faf1; }
+  .check-item input[type=checkbox] { accent-color:var(--verde-hoja); width:16px; height:16px; flex-shrink:0; }
+  .check-item label { font-size:12px; color:var(--verde-bosque); cursor:pointer; line-height:1.4; }
+  .check-item label small { display:block; font-size:10px; color:#9aac9b; }
+
+  /* Foto / material referencial */
+  .foto-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .foto-slot { aspect-ratio:1; border:2px dashed #c4d9c5; border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:all .2s; background:#fafcfa; position:relative; overflow:hidden; }
+  .foto-slot:hover { border-color:var(--verde-hoja); background:#f0faf1; }
+  .foto-slot .ico-foto { font-size:28px; }
+  .foto-slot p { font-size:10px; color:#9aac9b; text-align:center; line-height:1.4; }
+  .foto-slot.cargada { border-style:solid; border-color:var(--verde-hoja); }
+  .foto-slot.cargada::after { content:'✓'; position:absolute; top:6px; right:8px; font-size:13px; color:var(--verde-hoja); font-weight:700; }
+  .foto-slot.cargada .foto-preview { position:absolute; inset:0; background:linear-gradient(135deg,#d0edd3,#b8e8bc); display:flex; align-items:center; justify-content:center; font-size:32px; }
+
+  /* Toggle geo */
+  .geo-toggle { display:flex; background:#eef5ee; border-radius:10px; padding:3px; margin-bottom:20px; width:fit-content; }
+  .geo-tab { padding:7px 18px; border-radius:8px; font-size:11px; font-weight:500; cursor:pointer; color:#6b7a6d; transition:all .2s; letter-spacing:0.5px; }
+  .geo-tab.activo { background:var(--verde-hoja); color:var(--blanco); box-shadow:0 2px 8px var(--sombra); }
+  .geo-panel { display:none; }
+  .geo-panel.activo { display:block; animation:fadeIn .25s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  .nota-campo { background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); border-radius:8px; padding:10px 14px; font-size:11px; color:#7a6030; line-height:1.6; margin-bottom:16px; display:flex; gap:8px; }
+
+  .mapa-placeholder { background:linear-gradient(160deg,#d8f0da,#c4e8c7); border:1.5px dashed var(--verde-hoja); border-radius:12px; height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; cursor:pointer; transition:all .2s; margin-top:16px; }
+  .mapa-placeholder:hover { background:linear-gradient(160deg,#c4e8c7,#b0dfb3); }
+  .mapa-placeholder .ico-mapa { font-size:36px; }
+  .mapa-placeholder p { font-size:12px; color:var(--verde-selva); font-weight:500; }
+  .mapa-placeholder span { font-size:10px; color:#6b9e6d; }
+
+  /* Tags de zonas cobertura */
+  .tags-wrap { display:flex; flex-wrap:wrap; gap:8px; margin-top:4px; }
+  .tag { display:flex; align-items:center; gap:6px; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:500; cursor:pointer; border:1.5px solid #d4e6d5; color:var(--verde-bosque); transition:all .2s; }
+  .tag:hover, .tag.activo { background:var(--verde-hoja); border-color:var(--verde-hoja); color:var(--blanco); }
+
+  .form-footer { padding:20px 32px; background:#f8fbf8; border-top:1px solid #e8f0e8; display:flex; align-items:center; justify-content:space-between; }
+  .btn-atras { padding:11px 22px; border:1.5px solid #c4d9c5; border-radius:9px; background:transparent; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--verde-bosque); cursor:pointer; transition:all .2s; }
+  .btn-atras:hover { background:#eef5ee; }
+  .btn-continuar { padding:11px 34px; background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque)); color:var(--crema); border:none; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; letter-spacing:0.8px; text-transform:uppercase; cursor:pointer; transition:all .2s; box-shadow:0 4px 16px var(--sombra); }
+  .btn-continuar:hover { transform:translateY(-1px); box-shadow:0 8px 24px var(--sombra); }
+
+  @media(max-width:960px){ main{flex-direction:column;padding:24px;} .lateral{width:100%;} .g3{grid-template-columns:1fr 1fr;} .g4{grid-template-columns:1fr 1fr;} .span3,.span4{grid-column:span 2;} .foto-grid{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:640px){ main{padding:16px;} header{padding:0 16px;} .barra-progreso{padding:0 16px;} .pasos .paso span:not(.num){display:none;} .seccion{padding:20px;} .g2{grid-template-columns:1fr;} .span2{grid-column:span 1;} .form-footer{flex-direction:column;gap:10px;} .btn-continuar,.btn-atras{width:100%;text-align:center;} .foto-grid{grid-template-columns:repeat(2,1fr);} .checks-grid{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">
+    <span class="ico">🌲</span>
+    <div><div class="sigla">SERFOR</div><div class="sub">Servicio Nacional Forestal</div></div>
+  </div>
+  <div class="hright">
+    <div class="usuario"><div class="avatar">👤</div><span>Usuario Externo</span></div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="barra-progreso">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Acceso</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Datos Personales</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Validación</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo Registro</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">6</span><span>Registro de Servicio</span></div>
+  </div>
+</div>
+
+<main>
+  <div class="lateral">
+    <div class="card-lat">
+      <h4>📋 Proveedor</h4>
+      <div class="res-fila"><span class="etiq">Empresa</span><span class="val">FORESTAL AMAZÓNICA S.A.C.</span></div>
+      <div class="res-fila"><span class="etiq">RUC</span><span class="val">20123456789</span></div>
+      <div class="res-fila"><span class="etiq">Tipo</span><span class="val">Persona Jurídica</span></div>
+      <div class="res-fila"><span class="etiq">Registro</span><span class="val">⚙️ Servicio</span></div>
+    </div>
+    <div class="card-lat">
+      <h4>📑 Secciones</h4>
+      <div class="secciones-nav">
+        <div class="nav-item activo"  onclick="irA('sec1')"><span class="dot"></span>Presentación del Servicio</div>
+        <div class="nav-item"         onclick="irA('sec2')"><span class="dot"></span>Especificaciones</div>
+        <div class="nav-item"         onclick="irA('sec3')"><span class="dot"></span>Material Referencial</div>
+        <div class="nav-item"         onclick="irA('sec4')"><span class="dot"></span>Oferta y Precio</div>
+        <div class="nav-item"         onclick="irA('sec5')"><span class="dot"></span>Georreferenciación</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-wrap">
+    <div class="form-header">
+      <div class="fh-ico">⚙️</div>
+      <div class="fh-txt">
+        <h2>Registro de Servicio Forestal</h2>
+        <p>Complete la información detallada del servicio que desea ofrecer como proveedor</p>
+      </div>
+      <div class="fh-badge">⚙️ Servicio</div>
+    </div>
+
+    <form onsubmit="return false;">
+
+      <!-- ══ 1. PRESENTACIÓN ══ -->
+      <div class="seccion" id="sec1">
+        <div class="sec-titulo"><span>1</span>Presentación del Servicio</div>
+        <div class="grid g2">
+          <div class="campo span2">
+            <label>Nombre del Servicio <span class="req">*</span></label>
+            <input type="text" placeholder="Ej: Consultoría en manejo forestal sostenible, Inventario forestal, Reforestación con especies nativas…"/>
+          </div>
+          <div class="campo">
+            <label>Código de Catálogo OSCE <span class="req">*</span></label>
+            <input type="text" placeholder="Ej: SRV-FOR-012"/>
+            <span class="hint">Código según catálogo de servicios del Estado.</span>
+          </div>
+          <div class="campo">
+            <label>Tipo de Servicio <span class="req">*</span></label>
+            <select>
+              <option value="">-- Seleccione --</option>
+              <option>Consultoría y asesoría forestal</option>
+              <option>Inventario y evaluación forestal</option>
+              <option>Reforestación y restauración</option>
+              <option>Manejo de bosques</option>
+              <option>Monitoreo y vigilancia ambiental</option>
+              <option>Elaboración de planes de manejo</option>
+              <option>Capacitación y asistencia técnica</option>
+              <option>Servicios ambientales (REDD+, carbono)</option>
+              <option>Ecoturismo y recreación en bosques</option>
+              <option>Investigación científica forestal</option>
+              <option>Control de plagas y enfermedades forestales</option>
+              <option>Otros servicios forestales</option>
+            </select>
+          </div>
+
+          <!-- Presentación / Unidad de medida del servicio -->
+          <div class="campo">
+            <label>Presentación del Servicio (Unidad de Medida) <span class="req">*</span></label>
+            <select id="sel-presentacion-srv">
+              <option value="">-- Seleccione --</option>
+              <option value="hora">Hora (h)</option>
+              <option value="dia">Día-persona</option>
+              <option value="mes">Mes-persona</option>
+              <option value="ha">Hectárea (ha)</option>
+              <option value="ha_mes">Hectárea/mes</option>
+              <option value="km">Kilómetro (km)</option>
+              <option value="informe">Informe / Entregable</option>
+              <option value="capacitacion">Evento de capacitación</option>
+              <option value="proyecto">Proyecto completo (suma alzada)</option>
+              <option value="otro">Otra unidad</option>
+            </select>
+            <span class="hint">Ej: si cobra por día de trabajo → "Día-persona"; si por área intervenida → "Hectárea".</span>
+          </div>
+          <div class="campo" id="campo-otra-srv" style="display:none;">
+            <label>Especifique la Unidad</label>
+            <input type="text" placeholder="Ej: Muestra analizada, Árbol plantado…"/>
+          </div>
+
+          <div class="campo">
+            <label>Modalidad de Prestación <span class="req">*</span></label>
+            <select>
+              <option>Presencial – campo</option>
+              <option>Presencial – oficina</option>
+              <option>Virtual / Remoto</option>
+              <option>Mixto (presencial + virtual)</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Número de Profesionales Asignados</label>
+            <input type="number" placeholder="Ej: 3" min="1"/>
+            <span class="hint">Cantidad de especialistas involucrados en la prestación.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 2. ESPECIFICACIONES ══ -->
+      <div class="seccion" id="sec2">
+        <div class="sec-titulo"><span>2</span>Especificación del Servicio</div>
+        <div class="grid g2">
+          <div class="campo span2">
+            <label>Descripción Técnica del Servicio <span class="req">*</span></label>
+            <textarea placeholder="Describa en detalle el alcance, metodología, fases del servicio, resultados esperados, normas técnicas aplicables y cualquier información técnica relevante para la prestación del servicio forestal…"></textarea>
+          </div>
+          <div class="campo span2">
+            <label>Entregables / Productos del Servicio <span class="req">*</span></label>
+            <textarea style="min-height:64px;" placeholder="Ej: Informe de inventario forestal, mapas georreferenciados, base de datos de especies, plan de manejo aprobado por SERFOR…"></textarea>
+          </div>
+
+          <div class="campo">
+            <label>Norma Técnica / Marco Legal Aplicable</label>
+            <input type="text" placeholder="Ej: Ley N° 29763, DS 018-2015-MINAGRI…"/>
+          </div>
+          <div class="campo">
+            <label>Equipo / Herramientas Utilizadas</label>
+            <input type="text" placeholder="Ej: GPS diferencial, drone, sofware ArcGIS…"/>
+          </div>
+
+          <div class="campo span2">
+            <label>Áreas de Especialización del Equipo</label>
+            <div class="checks-grid">
+              <label class="check-item"><input type="checkbox"/><label>Dasonomía y dendrología<small>Medición y clasificación de árboles</small></label></label>
+              <label class="check-item"><input type="checkbox"/><label>Teledetección y SIG<small>Manejo de datos espaciales</small></label></label>
+              <label class="check-item"><input type="checkbox"/><label>Restauración ecológica<small>Recuperación de ecosistemas</small></label></label>
+              <label class="check-item"><input type="checkbox"/><label>Economía ambiental<small>Valoración de servicios ecosistémicos</small></label></label>
+              <label class="check-item"><input type="checkbox"/><label>Fauna silvestre<small>Monitoreo de biodiversidad</small></label></label>
+              <label class="check-item"><input type="checkbox"/><label>Legislación forestal<small>Marco normativo sectorial</small></label></label>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label>Certificaciones del Equipo</label>
+            <input type="text" placeholder="Ej: Regente forestal habilitado, Auditor FSC…"/>
+          </div>
+          <div class="campo">
+            <label>Experiencia Mínima Requerida</label>
+            <select>
+              <option>Sin restricción</option>
+              <option>1 año</option><option>2 años</option><option>3 años</option>
+              <option>5 años</option><option>Más de 5 años</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 3. MATERIAL REFERENCIAL (equivale a "Fotografía" para servicios) ══ -->
+      <div class="seccion" id="sec3">
+        <div class="sec-titulo"><span>3</span>Material Referencial del Servicio</div>
+        <div class="nota-campo">
+          <span>🖼️</span>
+          <span>Adjunte imágenes, fichas técnicas o material visual que represente el servicio ofertado (resultados de proyectos anteriores, mapas, fotos de campo, etc.). Formatos: JPG, PNG, PDF. Máx. <strong>5 MB</strong> por archivo.</span>
+        </div>
+        <div class="foto-grid">
+          <div class="foto-slot" onclick="simFoto(this,'🌲')">
+            <div class="ico-foto">🖼️</div>
+            <p>Foto de campo<br/><em style="font-size:9px;">Referencia 1</em></p>
+          </div>
+          <div class="foto-slot" onclick="simFoto(this,'🗺️')">
+            <div class="ico-foto">🖼️</div>
+            <p>Mapa / croquis</p>
+          </div>
+          <div class="foto-slot" onclick="simFoto(this,'📊')">
+            <div class="ico-foto">🖼️</div>
+            <p>Resultados previos</p>
+          </div>
+          <div class="foto-slot" onclick="simFoto(this,'📋')">
+            <div class="ico-foto">🖼️</div>
+            <p>Ficha técnica</p>
+          </div>
+        </div>
+        <p style="font-size:10px;color:#9aac9b;margin-top:10px;">* Haga clic en cada recuadro para adjuntar el material referencial.</p>
+      </div>
+
+      <!-- ══ 4. OFERTA Y PRECIO ══ -->
+      <div class="seccion" id="sec4">
+        <div class="sec-titulo"><span>4</span>Oferta de Servicio — Cantidad, Periodo y Precio</div>
+        <div class="grid g3">
+          <div class="campo">
+            <label>Capacidad de Atención <span class="req">*</span></label>
+            <div class="input-addon">
+              <input type="number" placeholder="0.00" step="0.01" min="0" id="cant-oferta-srv"/>
+              <span class="addon-lbl" id="addon-srv">unid.</span>
+            </div>
+            <span class="hint">Cantidad de unidades del servicio que puede prestar en el periodo.</span>
+          </div>
+          <div class="campo">
+            <label>Periodo de Disponibilidad <span class="req">*</span></label>
+            <select>
+              <option value="">-- Seleccione --</option>
+              <option value="1">1 mes</option>
+              <option value="2">2 meses</option>
+              <option value="3">3 meses (trimestral)</option>
+              <option value="6">6 meses (semestral)</option>
+              <option value="12">12 meses (anual)</option>
+              <option value="otro">Otro periodo</option>
+            </select>
+            <span class="hint">Ventana de tiempo en que puede prestar el servicio.</span>
+          </div>
+          <div class="campo">
+            <label>Tiempo de Ejecución por Unidad</label>
+            <div class="input-addon">
+              <input type="number" placeholder="Ej: 30" min="1"/>
+              <span class="addon-lbl">días</span>
+            </div>
+            <span class="hint">Duración estimada por contrato / proyecto.</span>
+          </div>
+
+          <div class="campo">
+            <label>Precio Unitario (S/) <span class="req">*</span></label>
+            <div class="input-addon">
+              <span class="addon-pre">S/</span>
+              <input type="number" placeholder="0.00" step="0.01" min="0"/>
+            </div>
+          </div>
+          <div class="campo">
+            <label>IGV</label>
+            <select>
+              <option value="inc">Incluye IGV (18%)</option>
+              <option value="exc">Sin IGV / Exonerado</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Moneda</label>
+            <select>
+              <option value="PEN">Soles (PEN)</option>
+              <option value="USD">Dólares (USD)</option>
+            </select>
+          </div>
+
+          <div class="campo span3">
+            <label>Condiciones y Términos de la Oferta</label>
+            <textarea style="min-height:64px;" placeholder="Ej: Precio incluye desplazamiento, se requiere acceso al predio, pago 50% adelanto y 50% contra entregable, penalidad por extensión de plazo…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 5. GEORREFERENCIACIÓN ══ -->
+      <div class="seccion" id="sec5">
+        <div class="sec-titulo"><span>5</span>Georreferenciación — Zona de Cobertura</div>
+        <div class="nota-campo">
+          <span>🌐</span>
+          <span>Indique el área geográfica donde presta el servicio y/o la ubicación del lugar de intervención. Puede usar coordenadas <strong>UTM (Datum WGS84)</strong>, <strong>Grados Sexagesimales</strong> o seleccionar la zona de cobertura.</span>
+        </div>
+
+        <!-- Zonas de cobertura rápida -->
+        <div class="campo" style="margin-bottom:20px;">
+          <label>Zona de Cobertura (selección rápida)</label>
+          <div class="tags-wrap" id="tags-cobertura">
+            <div class="tag" onclick="toggleTag(this)">🇵🇪 Nacional</div>
+            <div class="tag" onclick="toggleTag(this)">🌳 Loreto</div>
+            <div class="tag" onclick="toggleTag(this)">🌳 Ucayali</div>
+            <div class="tag" onclick="toggleTag(this)">🌳 Madre de Dios</div>
+            <div class="tag" onclick="toggleTag(this)">🌳 San Martín</div>
+            <div class="tag" onclick="toggleTag(this)">🌳 Amazonas</div>
+            <div class="tag" onclick="toggleTag(this)">🏔 Cusco</div>
+            <div class="tag" onclick="toggleTag(this)">🏔 Junín</div>
+            <div class="tag" onclick="toggleTag(this)">🏔 Pasco</div>
+          </div>
+          <span class="hint">Seleccione una o más zonas donde puede prestar el servicio.</span>
+        </div>
+
+        <div class="geo-toggle">
+          <div class="geo-tab activo" onclick="cambiarGeo('utm',this)">🗺 UTM – WGS84</div>
+          <div class="geo-tab"        onclick="cambiarGeo('grados',this)">🔢 Grados Sexagesimales</div>
+          <div class="geo-tab"        onclick="cambiarGeo('desc',this)">📍 Descripción</div>
+        </div>
+
+        <!-- UTM -->
+        <div class="geo-panel activo" id="geo-utm">
+          <div class="grid g4">
+            <div class="campo">
+              <label>Zona UTM <span class="req">*</span></label>
+              <select>
+                <option value="">-- Zona --</option>
+                <option value="17S">17S</option>
+                <option value="18S">18S</option>
+                <option value="19S">19S</option>
+                <option value="18N">18N</option>
+              </select>
+              <span class="hint">Zona UTM predominante del área de intervención.</span>
+            </div>
+            <div class="campo">
+              <label>Este (Easting) – m <span class="req">*</span></label>
+              <input type="number" placeholder="Ej: 356842" min="100000" max="999999"/>
+            </div>
+            <div class="campo">
+              <label>Norte (Northing) – m <span class="req">*</span></label>
+              <input type="number" placeholder="Ej: 8674213" min="1000000" max="9999999"/>
+            </div>
+            <div class="campo">
+              <label>Altitud – m.s.n.m.</label>
+              <div class="input-addon">
+                <input type="number" placeholder="Ej: 300"/>
+                <span class="addon-lbl">m</span>
+              </div>
+            </div>
+            <div class="campo span4">
+              <label>Datum</label>
+              <select><option value="wgs84" selected>WGS84 (recomendado)</option><option value="psad56">PSAD56</option></select>
+              <span class="hint">Se recomienda usar siempre WGS84.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Grados Sexagesimales -->
+        <div class="geo-panel" id="geo-grados">
+          <div class="grid g3">
+            <div class="campo">
+              <label>Latitud <span class="req">*</span></label>
+              <input type="text" placeholder="Ej: -12°03'45.6&quot; S"/>
+              <span class="hint">GG°MM'SS.ss&quot; S o N.</span>
+            </div>
+            <div class="campo">
+              <label>Longitud <span class="req">*</span></label>
+              <input type="text" placeholder="Ej: -75°15'30.2&quot; O"/>
+              <span class="hint">GGG°MM'SS.ss&quot; O.</span>
+            </div>
+            <div class="campo">
+              <label>Altitud – m.s.n.m.</label>
+              <div class="input-addon">
+                <input type="number" placeholder="Ej: 300"/>
+                <span class="addon-lbl">m</span>
+              </div>
+            </div>
+            <div class="campo span3">
+              <label>Datum</label>
+              <select><option value="wgs84" selected>WGS84</option><option value="psad56">PSAD56</option></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Descripción -->
+        <div class="geo-panel" id="geo-desc">
+          <div class="grid g2">
+            <div class="campo">
+              <label>Departamento <span class="req">*</span></label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option>
+                <option>San Martín</option><option>Amazonas</option><option>Cusco</option>
+                <option>Pasco</option><option>Junín</option><option>Huánuco</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Provincia</label>
+              <input type="text" placeholder="Provincia"/>
+            </div>
+            <div class="campo">
+              <label>Distrito</label>
+              <input type="text" placeholder="Distrito"/>
+            </div>
+            <div class="campo">
+              <label>Centro Poblado / Zona</label>
+              <input type="text" placeholder="Nombre del área de intervención"/>
+            </div>
+            <div class="campo span2">
+              <label>Descripción del Área de Intervención</label>
+              <textarea style="min-height:60px;" placeholder="Cuenca hidrográfica, nombre del bosque, comunidad nativa, área de conservación, zona de amortiguamiento…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="mapa-placeholder" onclick="alert('Integración con visor cartográfico IGN en implementación.')">
+          <div class="ico-mapa">🗺️</div>
+          <p>Visor Cartográfico – IGN Perú</p>
+          <span>Haga clic para ubicar visualmente el área de cobertura en el mapa</span>
+        </div>
+      </div>
+
+    </form>
+
+    <div class="form-footer">
+      <button class="btn-atras" onclick="window.location.href='06_tipo_registro.html'">← Atrás</button>
+      <button class="btn-continuar" onclick="window.location.href='08_confirmacion.html'">Finalizar Registro →</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.getElementById('sel-presentacion-srv').addEventListener('change', function(){
+    const mapa = { hora:'h', dia:'día-p.', mes:'mes-p.', ha:'ha', ha_mes:'ha/mes',
+      km:'km', informe:'informe', capacitacion:'evento', proyecto:'proyecto', otro:'' };
+    document.getElementById('addon-srv').textContent = mapa[this.value] || 'unid.';
+    document.getElementById('campo-otra-srv').style.display = this.value === 'otro' ? 'flex':'none';
+  });
+
+  function cambiarGeo(id, el) {
+    document.querySelectorAll('.geo-tab').forEach(t => t.classList.remove('activo'));
+    document.querySelectorAll('.geo-panel').forEach(p => p.classList.remove('activo'));
+    el.classList.add('activo');
+    document.getElementById('geo-' + id).classList.add('activo');
+  }
+
+  function irA(id) { document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' }); }
+
+  function simFoto(el, emoji) {
+    el.classList.add('cargada');
+    el.innerHTML = '<div class="foto-preview">' + emoji + '</div>';
+  }
+
+  function toggleTag(el) { el.classList.toggle('activo'); }
+</script>
+</body>
+</html>

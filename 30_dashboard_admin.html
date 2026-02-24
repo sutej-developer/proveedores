@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Administración de Catálogo</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{--vb:#1a3d1f;--vs:#2d6a35;--vh:#4a9e56;--vc:#7dcb87;--vm:#b8e8bc;--crema:#f4f0e6;--dorado:#c9a84c;--blanco:#fff;--sombra:rgba(26,61,31,.15);--error:#c0392b;--azul:#1a6fa8;--bg-azul:#e8f4fb}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;font-family:'DM Sans',sans-serif;background:#eef5ee;display:flex;flex-direction:column}
+  header{background:var(--vb);padding:0 32px;height:64px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 2px 20px rgba(0,0,0,.25);position:sticky;top:0;z-index:200}
+  .hl{display:flex;align-items:center;gap:12px}
+  .hl .ico{font-size:20px}
+  .hl .sigla{font-family:'Playfair Display',serif;font-size:15px;font-weight:700;color:var(--crema);letter-spacing:2px}
+  .hl .sub{font-size:9px;color:var(--vm);letter-spacing:1.5px;text-transform:uppercase}
+  .hr{display:flex;align-items:center;gap:14px}
+  .usuario{display:flex;align-items:center;gap:9px;padding:6px 12px;background:rgba(255,255,255,.07);border-radius:10px}
+  .avatar{width:30px;height:30px;border-radius:50%;background:var(--dorado);display:flex;align-items:center;justify-content:center;font-size:13px}
+  .usuario span{font-size:12px;color:var(--vm)}
+  .rol-chip{font-size:9px;color:rgba(184,232,188,.6);letter-spacing:.5px;text-transform:uppercase}
+  .btn-salir{padding:6px 14px;border:1px solid rgba(184,232,188,.3);border-radius:20px;background:transparent;color:var(--vm);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer}
+  .btn-salir:hover{background:rgba(255,255,255,.1)}
+
+  /* Layout */
+  .app-body{display:flex;flex:1;overflow:hidden}
+  .sidebar{width:220px;background:var(--blanco);border-right:1px solid #e0ece0;display:flex;flex-direction:column;padding:20px 0}
+  .sidebar-titulo{font-size:9px;font-weight:600;color:#9aac9b;letter-spacing:1.8px;text-transform:uppercase;padding:0 18px 10px}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:10px 18px;font-size:13px;color:#5a7a5c;cursor:pointer;transition:all .2s;border-left:3px solid transparent}
+  .nav-item:hover{background:#f4f9f4;color:var(--vb)}
+  .nav-item.activo{background:linear-gradient(90deg,rgba(74,158,86,.08),transparent);color:var(--vb);font-weight:600;border-left-color:var(--vh)}
+  .nav-item .ni{font-size:16px}
+  .nav-badge{margin-left:auto;background:var(--vh);color:var(--blanco);border-radius:10px;padding:1px 7px;font-size:10px;font-weight:600}
+
+  .contenido{flex:1;overflow-y:auto;padding:28px 32px;display:flex;flex-direction:column;gap:22px}
+
+  /* Tabs bien/servicio */
+  .tabs-catalogo{display:flex;background:var(--blanco);border-radius:12px;padding:4px;box-shadow:0 2px 12px var(--sombra);width:fit-content}
+  .tab-cat{padding:10px 24px;border-radius:9px;font-size:13px;font-weight:500;cursor:pointer;color:#6b7a6d;transition:all .25s;display:flex;align-items:center;gap:8px}
+  .tab-cat.activo.bien{background:var(--bg-azul);color:var(--azul);box-shadow:0 2px 8px rgba(26,111,168,.15)}
+  .tab-cat.activo.serv{background:#e8f5ec;color:var(--vs);box-shadow:0 2px 8px var(--sombra)}
+
+  /* Panel de cada tab */
+  .panel-cat{display:none}
+  .panel-cat.activo{display:block;animation:fadeIn .25s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+  /* KPIs mini */
+  .kpi-mini-row{display:flex;gap:14px}
+  .kpi-mini{background:var(--blanco);border-radius:12px;padding:14px 18px;box-shadow:0 2px 10px var(--sombra);display:flex;align-items:center;gap:12px;flex:1}
+  .kmi-ico{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
+  .kmi-ico.blue{background:rgba(26,111,168,.1)}
+  .kmi-ico.green{background:rgba(74,158,86,.1)}
+  .kmi-ico.gold{background:rgba(201,168,76,.1)}
+  .kmi-ico.red{background:rgba(192,57,43,.1)}
+  .kmi-v{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--vb)}
+  .kmi-l{font-size:10px;color:#9aac9b;margin-top:1px}
+
+  /* Toolbar tabla */
+  .toolbar-cat{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .search-box{position:relative}
+  .search-box input{padding:9px 13px 9px 36px;border:1.5px solid #c4d9c5;border-radius:9px;background:var(--blanco);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);outline:none;width:260px;transition:all .2s}
+  .search-box input:focus{border-color:var(--vh);box-shadow:0 0 0 3px rgba(74,158,86,.1)}
+  .si{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.4;pointer-events:none}
+  .btns-grupo{display:flex;gap:8px}
+  .btn-nuevo{padding:10px 18px;background:linear-gradient(135deg,var(--vh),var(--vs));color:var(--blanco);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;box-shadow:0 3px 12px var(--sombra)}
+  .btn-nuevo:hover{transform:translateY(-1px);box-shadow:0 6px 18px var(--sombra)}
+
+  /* Tabla */
+  .tabla-card{background:var(--blanco);border-radius:14px;box-shadow:0 2px 14px var(--sombra);overflow:hidden}
+  table{width:100%;border-collapse:collapse}
+  thead tr{background:#f8fbf8}
+  th{padding:10px 14px;text-align:left;font-size:10px;font-weight:600;color:#6b7a6d;letter-spacing:1.2px;text-transform:uppercase;white-space:nowrap;border-bottom:1px solid #e8f0e8}
+  tbody tr{border-bottom:1px solid #f0f5f0;transition:background .15s}
+  tbody tr:hover{background:#f8fdf8}
+  tbody tr:last-child{border-bottom:none}
+  td{padding:12px 14px;font-size:13px;color:var(--vb);vertical-align:middle}
+  .td-nom{font-weight:600;font-size:13px}
+  .td-cod{font-family:monospace;font-size:11px;color:#9aac9b;display:block;margin-top:2px}
+  .badge-activo{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:rgba(39,174,96,.1);color:#1e7a45;border:1px solid rgba(39,174,96,.2)}
+  .badge-inactivo{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:rgba(127,140,141,.1);color:#5d6d7e;border:1px solid rgba(127,140,141,.2)}
+  .dot{width:6px;height:6px;border-radius:50%;background:currentColor;flex-shrink:0}
+
+  .acciones-btns{display:flex;gap:6px}
+  .btn-accion{padding:6px 11px;border-radius:7px;border:none;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s}
+  .btn-editar{background:#eef5ee;color:var(--vs)}
+  .btn-editar:hover{background:var(--vm);color:var(--vb)}
+  .btn-toggle-on{background:rgba(127,140,141,.1);color:#5d6d7e}
+  .btn-toggle-on:hover{background:rgba(127,140,141,.2)}
+  .btn-toggle-off{background:rgba(39,174,96,.1);color:#1e7a45}
+  .btn-toggle-off:hover{background:rgba(39,174,96,.2)}
+
+  /* MODAL FORM */
+  .modal-ov{position:fixed;inset:0;z-index:1000;background:rgba(10,24,12,.65);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:20px}
+  .modal-ov.visible{opacity:1;pointer-events:all}
+  .modal{background:var(--blanco);border-radius:18px;width:100%;max-width:640px;max-height:92vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(16px) scale(.98);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+  .modal-ov.visible .modal{transform:translateY(0) scale(1)}
+  .modal-hdr{background:linear-gradient(135deg,var(--vb),var(--vs));padding:22px 26px;display:flex;align-items:center;gap:14px;position:relative}
+  .modal-hdr h3{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--crema)}
+  .modal-hdr p{font-size:11px;color:var(--vm);margin-top:2px}
+  .btn-x{position:absolute;top:12px;right:14px;width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:var(--crema);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .btn-x:hover{background:rgba(255,255,255,.25)}
+  .modal-body{padding:24px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .f-campo{display:flex;flex-direction:column;gap:6px}
+  .f-campo label{font-size:10px;font-weight:500;color:var(--vb);letter-spacing:.9px;text-transform:uppercase}
+  .req{color:var(--error);margin-left:2px}
+  .f-campo input,.f-campo select,.f-campo textarea{padding:10px 13px;border:1.5px solid #d4e6d5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);outline:none;width:100%;transition:border-color .2s,box-shadow .2s}
+  .f-campo input:focus,.f-campo select:focus,.f-campo textarea:focus{border-color:var(--vh);box-shadow:0 0 0 3px rgba(74,158,86,.1)}
+  .f-campo input::placeholder,.f-campo textarea::placeholder{color:#b0c4b1;font-weight:300}
+  .f-campo select{cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px}
+  .f-campo textarea{resize:vertical;min-height:80px}
+  .span2{grid-column:span 2}
+  .modal-footer{padding:0 24px 22px;display:flex;gap:10px;justify-content:flex-end}
+  .btn-guardar{padding:11px 28px;background:linear-gradient(135deg,var(--vh),var(--vs));color:var(--blanco);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s}
+  .btn-guardar:hover{transform:translateY(-1px);box-shadow:0 6px 18px var(--sombra)}
+  .btn-cancel{padding:11px 20px;background:transparent;border:1.5px solid #c4d9c5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);cursor:pointer}
+  .btn-cancel:hover{background:#eef5ee}
+
+  @media(max-width:900px){.sidebar{display:none}.contenido{padding:20px}}
+  @media(max-width:640px){.kpi-mini-row{flex-wrap:wrap}.form-grid{grid-template-columns:1fr}.span2{grid-column:span 1}}
+</style>
+</head>
+<body>
+<header>
+  <div class="hl">
+    <span class="ico">🌲</span>
+    <div><div class="sigla">SERFOR</div><div class="sub">Panel de Administración</div></div>
+  </div>
+  <div class="hr">
+    <div class="usuario">
+      <div class="avatar">⚙️</div>
+      <div><div style="font-size:12px;color:var(--vm)">Administrador del Sistema</div><div class="rol-chip">Admin</div></div>
+    </div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="app-body">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <div class="sidebar-titulo">Mantenimientos</div>
+    <div class="nav-item activo" onclick="irSeccion('catalogo')"><span class="ni">📋</span>Catálogo<span class="nav-badge" id="nb-total">18</span></div>
+    <div class="nav-item" onclick="irSeccion('usuarios')"><span class="ni">👥</span>Usuarios</div>
+    <div class="nav-item" onclick="irSeccion('configuracion')"><span class="ni">⚙️</span>Configuración</div>
+    <div class="nav-item" onclick="irSeccion('reportes')"><span class="ni">📊</span>Reportes</div>
+    <div class="sidebar-titulo" style="margin-top:20px">Accesos directos</div>
+    <div class="nav-item" onclick="window.location.href='20_dashboard_especialista.html'"><span class="ni">🔬</span>Ver Especialista</div>
+    <div class="nav-item" onclick="window.location.href='10_dashboard_proveedor.html'"><span class="ni">🏢</span>Ver Proveedor</div>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="contenido">
+
+    <!-- KPIs -->
+    <div class="kpi-mini-row">
+      <div class="kpi-mini"><div class="kmi-ico blue">📦</div><div><div class="kmi-v" id="tot-bienes">10</div><div class="kmi-l">Bienes en catálogo</div></div></div>
+      <div class="kpi-mini"><div class="kmi-ico green">⚙️</div><div><div class="kmi-v" id="tot-servicios">8</div><div class="kmi-l">Servicios en catálogo</div></div></div>
+      <div class="kpi-mini"><div class="kmi-ico gold">✅</div><div><div class="kmi-v" id="tot-activos">15</div><div class="kmi-l">Ítems activos</div></div></div>
+      <div class="kpi-mini"><div class="kmi-ico red">⛔</div><div><div class="kmi-v" id="tot-inactivos">3</div><div class="kmi-l">Ítems inactivos</div></div></div>
+    </div>
+
+    <!-- Tabs bien/servicio -->
+    <div class="tabs-catalogo">
+      <div class="tab-cat activo bien" id="tab-bien" onclick="cambiarTab('bien')">📦 Bienes</div>
+      <div class="tab-cat serv" id="tab-serv" onclick="cambiarTab('servicio')">⚙️ Servicios</div>
+    </div>
+
+    <!-- ═══ PANEL BIENES ═══ -->
+    <div class="panel-cat activo" id="panel-bien">
+      <div class="toolbar-cat">
+        <div class="search-box">
+          <span class="si">🔍</span>
+          <input type="text" placeholder="Buscar bien…" oninput="filtrarBienes(this.value)"/>
+        </div>
+        <div class="btns-grupo">
+          <button class="btn-nuevo" onclick="abrirFormulario('bien','nuevo',null)">＋ Nuevo Bien</button>
+        </div>
+      </div>
+      <div class="tabla-card" style="margin-top:14px">
+        <div style="overflow-x:auto">
+          <table id="tabla-bienes">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Código</th>
+                <th>Nombre del Bien</th>
+                <th>Categoría</th>
+                <th>Unidad de Medida</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-bienes"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PANEL SERVICIOS ═══ -->
+    <div class="panel-cat" id="panel-servicio">
+      <div class="toolbar-cat">
+        <div class="search-box">
+          <span class="si">🔍</span>
+          <input type="text" placeholder="Buscar servicio…" oninput="filtrarServicios(this.value)"/>
+        </div>
+        <div class="btns-grupo">
+          <button class="btn-nuevo" onclick="abrirFormulario('servicio','nuevo',null)">＋ Nuevo Servicio</button>
+        </div>
+      </div>
+      <div class="tabla-card" style="margin-top:14px">
+        <div style="overflow-x:auto">
+          <table id="tabla-servicios">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Código</th>
+                <th>Nombre del Servicio</th>
+                <th>Categoría</th>
+                <th>Unidad de Medida</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-servicios"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL FORMULARIO BIEN/SERVICIO -->
+<div class="modal-ov" id="modal-form" onclick="cerrarSiOv(event)">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div><h3 id="mf-titulo">Nuevo Bien</h3><p id="mf-sub">Agregar al catálogo de bienes forestales</p></div>
+      <button class="btn-x" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="f-campo">
+          <label>Código OSCE <span class="req">*</span></label>
+          <input type="text" id="mf-codigo" placeholder="Ej: FOR-MAD-001"/>
+        </div>
+        <div class="f-campo">
+          <label>Nombre <span class="req">*</span></label>
+          <input type="text" id="mf-nombre" placeholder="Nombre del bien o servicio…"/>
+        </div>
+        <div class="f-campo">
+          <label>Categoría <span class="req">*</span></label>
+          <select id="mf-categoria">
+            <option value="">-- Seleccione --</option>
+            <option>Madera y derivados</option>
+            <option>Productos no maderables</option>
+            <option>Resinas y gomas naturales</option>
+            <option>Semillas y material vegetal</option>
+            <option>Plantas medicinales</option>
+            <option>Bambú y fibras vegetales</option>
+            <option>Consultoría forestal</option>
+            <option>Inventario y evaluación</option>
+            <option>Reforestación</option>
+            <option>Manejo de bosques</option>
+            <option>Monitoreo ambiental</option>
+            <option>Capacitación técnica</option>
+          </select>
+        </div>
+        <div class="f-campo">
+          <label>Unidad de Medida <span class="req">*</span></label>
+          <select id="mf-unidad">
+            <option value="">-- Seleccione --</option>
+            <option>Kilogramo (Kg)</option>
+            <option>Tonelada Métrica (TM)</option>
+            <option>Metro Cúbico (m³)</option>
+            <option>Metro Lineal (ml)</option>
+            <option>Galón (Gal)</option>
+            <option>Litro (L)</option>
+            <option>Unidad (und)</option>
+            <option>Hora (h)</option>
+            <option>Día-persona</option>
+            <option>Hectárea (ha)</option>
+            <option>Informe/Entregable</option>
+          </select>
+        </div>
+        <div class="f-campo span2">
+          <label>Descripción</label>
+          <textarea id="mf-descripcion" placeholder="Descripción técnica del bien o servicio forestal…"></textarea>
+        </div>
+        <div class="f-campo">
+          <label>Estado</label>
+          <select id="mf-estado">
+            <option value="activo">✅ Activo</option>
+            <option value="inactivo">⛔ Inactivo</option>
+          </select>
+        </div>
+        <div class="f-campo">
+          <label>Norma Técnica</label>
+          <input type="text" id="mf-norma" placeholder="Ej: NTP 251.104…"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-guardar" onclick="guardarItem()">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let tabActual='bien';
+let modoModal='nuevo';
+let itemEditando=null;
+
+const bienes=[
+  {id:1,codigo:'FOR-MAD-001',nombre:'Madera de cedro aserrada',categoria:'Madera y derivados',unidad:'Metro Cúbico (m³)',estado:'activo',norma:'NTP 251.104'},
+  {id:2,codigo:'FOR-MAD-002',nombre:'Madera de caoba rolliza',categoria:'Madera y derivados',unidad:'Metro Cúbico (m³)',estado:'activo',norma:'NTP 251.011'},
+  {id:3,codigo:'FOR-RES-001',nombre:'Resina de copaiba',categoria:'Resinas y gomas naturales',unidad:'Litro (L)',estado:'activo',norma:''},
+  {id:4,codigo:'FOR-SEM-001',nombre:'Semillas de caoba (Swietenia macrophylla)',categoria:'Semillas y material vegetal',unidad:'Kilogramo (Kg)',estado:'activo',norma:''},
+  {id:5,codigo:'FOR-PLM-001',nombre:'Uña de gato (Uncaria tomentosa)',categoria:'Plantas medicinales',unidad:'Kilogramo (Kg)',estado:'activo',norma:''},
+  {id:6,codigo:'FOR-BAM-001',nombre:'Culmos de bambú (Guadua angustifolia)',categoria:'Bambú y fibras vegetales',unidad:'Unidad (und)',estado:'activo',norma:''},
+  {id:7,codigo:'FOR-MAD-003',nombre:'Parquet de shihuahuaco',categoria:'Madera y derivados',unidad:'Metro Cúbico (m³)',estado:'activo',norma:'NTP 251.013'},
+  {id:8,codigo:'FOR-NMD-001',nombre:'Aceite esencial de palo santo',categoria:'Productos no maderables',unidad:'Litro (L)',estado:'activo',norma:''},
+  {id:9,codigo:'FOR-SEM-002',nombre:'Semillas de tornillo (Cedrelinga cateniformis)',categoria:'Semillas y material vegetal',unidad:'Kilogramo (Kg)',estado:'inactivo',norma:''},
+  {id:10,codigo:'FOR-MAD-004',nombre:'Carbón vegetal certificado',categoria:'Madera y derivados',unidad:'Tonelada Métrica (TM)',estado:'activo',norma:''},
+];
+
+const servicios=[
+  {id:1,codigo:'SRV-CON-001',nombre:'Consultoría en manejo forestal sostenible',categoria:'Consultoría forestal',unidad:'Día-persona',estado:'activo',norma:'Ley 29763'},
+  {id:2,codigo:'SRV-INV-001',nombre:'Inventario forestal participativo',categoria:'Inventario y evaluación',unidad:'Hectárea (ha)',estado:'activo',norma:'DS 018-2015-MINAGRI'},
+  {id:3,codigo:'SRV-REF-001',nombre:'Reforestación con especies nativas',categoria:'Reforestación',unidad:'Hectárea (ha)',estado:'activo',norma:''},
+  {id:4,codigo:'SRV-MAN-001',nombre:'Elaboración de Plan de Manejo Forestal',categoria:'Manejo de bosques',unidad:'Informe/Entregable',estado:'activo',norma:'Ley 29763'},
+  {id:5,codigo:'SRV-MON-001',nombre:'Monitoreo de biodiversidad forestal',categoria:'Monitoreo ambiental',unidad:'Día-persona',estado:'activo',norma:''},
+  {id:6,codigo:'SRV-CAP-001',nombre:'Capacitación en sistemas agroforestales',categoria:'Capacitación técnica',unidad:'Hora (h)',estado:'activo',norma:''},
+  {id:7,codigo:'SRV-INV-002',nombre:'Evaluación de daños por incendio forestal',categoria:'Inventario y evaluación',unidad:'Informe/Entregable',estado:'activo',norma:''},
+  {id:8,codigo:'SRV-CON-002',nombre:'Asesoría en certificación FSC',categoria:'Consultoría forestal',unidad:'Día-persona',estado:'inactivo',norma:'FSC-STD'},
+];
+
+function renderBienes(data){
+  document.getElementById('tbody-bienes').innerHTML=data.map(b=>`
+    <tr id="row-b-${b.id}">
+      <td style="font-weight:600;color:var(--azul)">${b.id}</td>
+      <td><code style="font-size:11px;color:#6b7a6d;background:#f0f4f0;padding:2px 6px;border-radius:4px">${b.codigo}</code></td>
+      <td><span class="td-nom">${b.nombre}</span></td>
+      <td style="font-size:12px">${b.categoria}</td>
+      <td style="font-size:12px">${b.unidad}</td>
+      <td>${b.estado==='activo'?'<span class="badge-activo"><span class="dot"></span>Activo</span>':'<span class="badge-inactivo"><span class="dot"></span>Inactivo</span>'}</td>
+      <td><div class="acciones-btns">
+        <button class="btn-accion btn-editar" onclick="abrirFormulario('bien','editar',${b.id})">✏️ Editar</button>
+        <button class="btn-accion ${b.estado==='activo'?'btn-toggle-on':'btn-toggle-off'}" onclick="toggleEstado('bien',${b.id})">${b.estado==='activo'?'⛔ Desactivar':'✅ Activar'}</button>
+      </div></td>
+    </tr>`).join('');
+  actualizarKPIs();
+}
+
+function renderServicios(data){
+  document.getElementById('tbody-servicios').innerHTML=data.map(s=>`
+    <tr id="row-s-${s.id}">
+      <td style="font-weight:600;color:var(--vs)">${s.id}</td>
+      <td><code style="font-size:11px;color:#6b7a6d;background:#f0f4f0;padding:2px 6px;border-radius:4px">${s.codigo}</code></td>
+      <td><span class="td-nom">${s.nombre}</span></td>
+      <td style="font-size:12px">${s.categoria}</td>
+      <td style="font-size:12px">${s.unidad}</td>
+      <td>${s.estado==='activo'?'<span class="badge-activo"><span class="dot"></span>Activo</span>':'<span class="badge-inactivo"><span class="dot"></span>Inactivo</span>'}</td>
+      <td><div class="acciones-btns">
+        <button class="btn-accion btn-editar" onclick="abrirFormulario('servicio','editar',${s.id})">✏️ Editar</button>
+        <button class="btn-accion ${s.estado==='activo'?'btn-toggle-on':'btn-toggle-off'}" onclick="toggleEstado('servicio',${s.id})">${s.estado==='activo'?'⛔ Desactivar':'✅ Activar'}</button>
+      </div></td>
+    </tr>`).join('');
+  actualizarKPIs();
+}
+
+function actualizarKPIs(){
+  document.getElementById('tot-bienes').textContent=bienes.length;
+  document.getElementById('tot-servicios').textContent=servicios.length;
+  const totalActivos=[...bienes,...servicios].filter(x=>x.estado==='activo').length;
+  const totalInactivos=[...bienes,...servicios].filter(x=>x.estado==='inactivo').length;
+  document.getElementById('tot-activos').textContent=totalActivos;
+  document.getElementById('tot-inactivos').textContent=totalInactivos;
+  document.getElementById('nb-total').textContent=bienes.length+servicios.length;
+}
+
+function filtrarBienes(q){const ql=q.toLowerCase();renderBienes(bienes.filter(b=>b.nombre.toLowerCase().includes(ql)||b.codigo.toLowerCase().includes(ql)||b.categoria.toLowerCase().includes(ql)));}
+function filtrarServicios(q){const ql=q.toLowerCase();renderServicios(servicios.filter(s=>s.nombre.toLowerCase().includes(ql)||s.codigo.toLowerCase().includes(ql)||s.categoria.toLowerCase().includes(ql)));}
+
+function cambiarTab(tab){
+  tabActual=tab;
+  document.getElementById('tab-bien').className='tab-cat'+(tab==='bien'?' activo bien':'');
+  document.getElementById('tab-serv').className='tab-cat'+(tab==='servicio'?' activo serv':'');
+  document.getElementById('panel-bien').className='panel-cat'+(tab==='bien'?' activo':'');
+  document.getElementById('panel-servicio').className='panel-cat'+(tab==='servicio'?' activo':'');
+}
+
+function toggleEstado(tipo,id){
+  const arr=tipo==='bien'?bienes:servicios;
+  const item=arr.find(x=>x.id===id);
+  if(!item)return;
+  item.estado=item.estado==='activo'?'inactivo':'activo';
+  tipo==='bien'?renderBienes(bienes):renderServicios(servicios);
+}
+
+function abrirFormulario(tipo,modo,id){
+  modoModal=modo; tabActual=tipo;
+  const esNuevo=modo==='nuevo';
+  document.getElementById('mf-titulo').textContent=(esNuevo?'Nuevo ':'Editar ')+(tipo==='bien'?'Bien':'Servicio');
+  document.getElementById('mf-sub').textContent=esNuevo?'Agregar al catálogo de '+(tipo==='bien'?'bienes':'servicios')+' forestales':'Modificar información del '+(tipo==='bien'?'bien':'servicio');
+  if(!esNuevo){
+    const arr=tipo==='bien'?bienes:servicios;
+    itemEditando=arr.find(x=>x.id===id);
+    if(itemEditando){
+      document.getElementById('mf-codigo').value=itemEditando.codigo;
+      document.getElementById('mf-nombre').value=itemEditando.nombre;
+      document.getElementById('mf-categoria').value=itemEditando.categoria;
+      document.getElementById('mf-unidad').value=itemEditando.unidad;
+      document.getElementById('mf-descripcion').value=itemEditando.descripcion||'';
+      document.getElementById('mf-estado').value=itemEditando.estado;
+      document.getElementById('mf-norma').value=itemEditando.norma||'';
+    }
+  } else {
+    ['mf-codigo','mf-nombre','mf-descripcion','mf-norma'].forEach(id=>document.getElementById(id).value='');
+    ['mf-categoria','mf-unidad'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('mf-estado').value='activo';
+    itemEditando=null;
+  }
+  document.getElementById('modal-form').classList.add('visible');
+}
+
+function guardarItem(){
+  const codigo=document.getElementById('mf-codigo').value.trim();
+  const nombre=document.getElementById('mf-nombre').value.trim();
+  if(!codigo||!nombre){alert('El código y el nombre son obligatorios.');return;}
+  const item={
+    codigo,nombre,
+    categoria:document.getElementById('mf-categoria').value,
+    unidad:document.getElementById('mf-unidad').value,
+    descripcion:document.getElementById('mf-descripcion').value,
+    estado:document.getElementById('mf-estado').value,
+    norma:document.getElementById('mf-norma').value,
+  };
+  const arr=tabActual==='bien'?bienes:servicios;
+  if(modoModal==='nuevo'){
+    item.id=Math.max(...arr.map(x=>x.id))+1;
+    arr.push(item);
+  } else if(itemEditando){
+    Object.assign(itemEditando,item);
+  }
+  tabActual==='bien'?renderBienes(bienes):renderServicios(servicios);
+  cerrarModal();
+  alert(`✅ ${tabActual==='bien'?'Bien':'Servicio'} ${modoModal==='nuevo'?'creado':'actualizado'} correctamente.`);
+}
+
+function cerrarModal(){document.getElementById('modal-form').classList.remove('visible');}
+function cerrarSiOv(e){if(e.target===document.getElementById('modal-form'))cerrarModal();}
+function irSeccion(s){if(s==='catalogo')return;alert('Sección "'+s+'" en construcción.');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarModal();});
+
+renderBienes(bienes);
+renderServicios(servicios);
+</script>
+</body>
+</html>

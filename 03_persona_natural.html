@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Datos Persona Natural</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --verde-bosque:#1a3d1f; --verde-selva:#2d6a35; --verde-hoja:#4a9e56;
+    --verde-claro:#7dcb87; --verde-menta:#b8e8bc; --crema:#f4f0e6;
+    --dorado:#c9a84c; --blanco:#ffffff; --sombra:rgba(26,61,31,0.15);
+    --error:#c0392b; --error-bg:#fdf0ee;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:#eef5ee; display:flex; flex-direction:column; }
+
+  header {
+    background:var(--verde-bosque); padding:0 48px; height:64px;
+    display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:100;
+    box-shadow:0 2px 20px rgba(0,0,0,0.25);
+  }
+  .header-logo { display:flex; align-items:center; gap:12px; }
+  .header-logo .ico { font-size:22px; }
+  .header-logo .sigla { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--crema); letter-spacing:2px; }
+  .header-logo .sub { font-size:9px; color:var(--verde-menta); letter-spacing:1.5px; text-transform:uppercase; }
+  .usuario { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--verde-menta); }
+  .avatar { width:32px;height:32px;border-radius:50%; background:var(--verde-hoja); display:flex;align-items:center;justify-content:center;font-size:14px; }
+  .btn-salir { padding:6px 16px; border:1px solid rgba(184,232,188,0.3); border-radius:20px; background:transparent; color:var(--verde-menta); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; }
+  .btn-salir:hover { background:rgba(74,158,86,0.2); }
+
+  .barra-progreso { background:var(--verde-selva); padding:0 48px; }
+  .pasos { display:flex; align-items:center; max-width:900px; margin:0 auto; padding:16px 0; }
+  .paso { display:flex;align-items:center;gap:10px;font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;color:rgba(184,232,188,0.5);white-space:nowrap; }
+  .paso.activo { color:var(--crema); }
+  .paso.completado { color:var(--verde-claro); }
+  .paso .num { width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+  .paso.activo .num { background:var(--verde-claro);border-color:var(--verde-claro);color:var(--verde-bosque); }
+  .paso.completado .num { background:var(--verde-hoja);border-color:var(--verde-hoja);color:var(--blanco); }
+  .linea-paso { flex:1;height:1px;background:rgba(184,232,188,0.25);margin:0 12px;min-width:20px; }
+  .linea-paso.completa { background:var(--verde-hoja); }
+
+  main { flex:1; padding:48px; display:flex; gap:32px; max-width:1100px; margin:0 auto; width:100%; }
+
+  /* COLUMNA LATERAL */
+  .lateral {
+    width:260px; flex-shrink:0;
+  }
+  .card-lateral {
+    background:var(--blanco); border-radius:16px;
+    padding:24px; margin-bottom:16px;
+    box-shadow:0 2px 12px var(--sombra);
+  }
+  .card-lateral h4 {
+    font-size:11px; font-weight:500; color:var(--verde-hoja);
+    letter-spacing:1.5px; text-transform:uppercase;
+    margin-bottom:14px;
+    padding-bottom:10px; border-bottom:1px solid #eef5ee;
+  }
+  .info-item { display:flex;gap:10px;margin-bottom:10px;align-items:flex-start; }
+  .info-item .ico-info { font-size:15px;flex-shrink:0;margin-top:1px; }
+  .info-item p { font-size:12px;color:#6b7a6d;line-height:1.6; }
+  .info-item strong { color:var(--verde-bosque); }
+
+  .requisito-list { list-style:none; }
+  .requisito-list li {
+    font-size:12px;color:#5a7a5c;padding:6px 0;
+    border-bottom:1px solid #f0f7f0;
+    display:flex;align-items:center;gap:8px;
+  }
+  .requisito-list li:last-child { border-bottom:none; }
+  .requisito-list li::before { content:'📋';font-size:12px; }
+
+  /* FORMULARIO PRINCIPAL */
+  .form-contenedor {
+    flex:1;
+    background:var(--blanco);
+    border-radius:20px;
+    box-shadow:0 4px 24px var(--sombra);
+    overflow:hidden;
+  }
+  .form-header {
+    background:linear-gradient(135deg,var(--verde-bosque),var(--verde-selva));
+    padding:28px 36px;
+    display:flex;align-items:center;gap:16px;
+  }
+  .form-header .ico-header {
+    width:52px;height:52px;border-radius:14px;
+    background:rgba(255,255,255,0.12);
+    display:flex;align-items:center;justify-content:center;
+    font-size:24px;
+  }
+  .form-header h2 { font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--crema); }
+  .form-header p { font-size:12px;color:var(--verde-menta);margin-top:2px; }
+
+  .form-body { padding:36px; }
+
+  .seccion-form { margin-bottom:32px; }
+  .seccion-titulo {
+    font-size:11px;font-weight:500;color:var(--verde-hoja);
+    letter-spacing:1.5px;text-transform:uppercase;
+    margin-bottom:20px;padding-bottom:10px;
+    border-bottom:2px solid #eef5ee;
+    display:flex;align-items:center;gap:8px;
+  }
+
+  .grid-campos { display:grid;gap:20px; }
+  .grid-2 { grid-template-columns:1fr 1fr; }
+  .grid-3 { grid-template-columns:1fr 1fr 1fr; }
+  .col-span-2 { grid-column:span 2; }
+  .col-span-3 { grid-column:span 3; }
+
+  .campo { display:flex;flex-direction:column;gap:7px; }
+  .campo label { font-size:11px;font-weight:500;color:var(--verde-bosque);letter-spacing:0.8px;text-transform:uppercase; }
+  .campo label .requerido { color:var(--error);margin-left:3px; }
+
+  input[type=text], input[type=email], input[type=tel], input[type=date], select, textarea {
+    padding:11px 14px;
+    background:var(--blanco);
+    border:1.5px solid #d4e6d5;
+    border-radius:9px;
+    font-family:'DM Sans',sans-serif;
+    font-size:13px;color:var(--verde-bosque);
+    transition:border-color .2s,box-shadow .2s;
+    outline:none; width:100%;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color:var(--verde-hoja);
+    box-shadow:0 0 0 3px rgba(74,158,86,0.1);
+  }
+  input::placeholder, textarea::placeholder { color:#aabdab;font-weight:300; }
+  select { cursor:pointer; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center;
+    padding-right:36px;
+  }
+  textarea { resize:vertical; min-height:80px; }
+
+  .campo-hint { font-size:10px;color:#9aac9b;margin-top:2px; }
+  .campo-error { font-size:10px;color:var(--error);display:none; }
+
+  /* DNI destacado */
+  .campo-dni-wrap {
+    position:relative;
+  }
+  .campo-dni-wrap input {
+    padding-right:100px;
+    font-size:16px;letter-spacing:3px;font-weight:500;
+    color:var(--verde-bosque);
+  }
+  .btn-verificar-dni {
+    position:absolute;right:8px;top:50%;transform:translateY(-50%);
+    padding:6px 14px;
+    background:var(--verde-hoja);color:var(--blanco);
+    border:none;border-radius:6px;
+    font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;
+    cursor:pointer;letter-spacing:0.5px;
+    transition:background .2s;
+  }
+  .btn-verificar-dni:hover { background:var(--verde-selva); }
+
+  /* ACCIONES */
+  .form-footer {
+    padding:24px 36px;
+    background:#f8fbf8;
+    border-top:1px solid #e8f0e8;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .btn-atras { padding:12px 24px;border:1.5px solid #c4d9c5;border-radius:9px;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--verde-bosque);cursor:pointer;transition:all .2s; }
+  .btn-atras:hover { background:#eef5ee; }
+  .btn-continuar { padding:12px 36px;background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque));color:var(--crema);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px var(--sombra); }
+  .btn-continuar:hover { transform:translateY(-1px);box-shadow:0 8px 24px var(--sombra); }
+
+  @media(max-width:900px){ main{flex-direction:column;padding:24px;} .lateral{width:100%;} .grid-2,.grid-3{grid-template-columns:1fr;} .col-span-2,.col-span-3{grid-column:span 1;} }
+  @media(max-width:600px){ header{padding:0 16px;} .barra-progreso{padding:0 16px;} .pasos .paso span:not(.num){display:none;} .form-body{padding:20px;} .form-footer{flex-direction:column;gap:12px;} .btn-continuar,.btn-atras{width:100%;text-align:center;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <span class="ico">🌲</span>
+    <div>
+      <div class="sigla">SERFOR</div>
+      <div class="sub">Servicio Nacional Forestal</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="usuario"><div class="avatar">👤</div><span>Usuario Externo</span></div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="barra-progreso">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Acceso</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo de Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">3</span><span>Datos Personales</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">4</span><span>Validación</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">5</span><span>Tipo de Registro</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">6</span><span>Confirmación</span></div>
+  </div>
+</div>
+
+<main>
+  <!-- Lateral -->
+  <div class="lateral">
+    <div class="card-lateral">
+      <h4>📋 Requisitos</h4>
+      <ul class="requisito-list">
+        <li>DNI vigente</li>
+        <li>Correo electrónico activo</li>
+        <li>Número de teléfono</li>
+        <li>Dirección completa</li>
+        <li>Actividad forestal principal</li>
+      </ul>
+    </div>
+    <div class="card-lateral">
+      <h4>ℹ️ Información</h4>
+      <div class="info-item">
+        <span class="ico-info">🔒</span>
+        <p>Sus datos serán <strong>verificados en línea</strong> con la base de datos del RENIEC.</p>
+      </div>
+      <div class="info-item">
+        <span class="ico-info">⚠️</span>
+        <p>El DNI ingresado debe coincidir con sus datos personales. Caso contrario el registro será rechazado.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario -->
+  <div class="form-contenedor">
+    <div class="form-header">
+      <div class="ico-header">🧑</div>
+      <div>
+        <h2>Datos de Persona Natural</h2>
+        <p>Complete todos los campos obligatorios marcados con *</p>
+      </div>
+    </div>
+
+    <div class="form-body">
+      <form onsubmit="return false;">
+
+        <!-- Identificación -->
+        <div class="seccion-form">
+          <div class="seccion-titulo">🪪 Identificación Personal</div>
+          <div class="grid-campos grid-2">
+
+            <div class="campo col-span-2">
+              <label>Número de DNI <span class="requerido">*</span></label>
+              <div class="campo-dni-wrap">
+                <input type="text" id="dni" placeholder="12345678" maxlength="8" oninput="this.value=this.value.replace(/\D/g,'')"/>
+                <button class="btn-verificar-dni" onclick="verificarDNI()">Verificar</button>
+              </div>
+              <span class="campo-hint">Ingrese los 8 dígitos de su DNI sin puntos ni espacios.</span>
+            </div>
+
+            <div class="campo">
+              <label>Apellido Paterno <span class="requerido">*</span></label>
+              <input type="text" id="ap-paterno" placeholder="Ej: García"/>
+            </div>
+            <div class="campo">
+              <label>Apellido Materno <span class="requerido">*</span></label>
+              <input type="text" id="ap-materno" placeholder="Ej: Torres"/>
+            </div>
+            <div class="campo">
+              <label>Nombres <span class="requerido">*</span></label>
+              <input type="text" id="nombres" placeholder="Ej: Juan Carlos"/>
+            </div>
+            <div class="campo">
+              <label>Fecha de Nacimiento <span class="requerido">*</span></label>
+              <input type="date" id="fecha-nac"/>
+            </div>
+
+            <div class="campo">
+              <label>Género</label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Masculino</option>
+                <option>Femenino</option>
+                <option>Prefiero no indicar</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Nacionalidad <span class="requerido">*</span></label>
+              <select>
+                <option value="pe">Peruana</option>
+                <option>Extranjera</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contacto -->
+        <div class="seccion-form">
+          <div class="seccion-titulo">📞 Datos de Contacto</div>
+          <div class="grid-campos grid-2">
+            <div class="campo">
+              <label>Correo Electrónico <span class="requerido">*</span></label>
+              <input type="email" placeholder="correo@ejemplo.com"/>
+            </div>
+            <div class="campo">
+              <label>Teléfono / Celular <span class="requerido">*</span></label>
+              <input type="tel" placeholder="999 888 777"/>
+            </div>
+            <div class="campo">
+              <label>Teléfono Fijo</label>
+              <input type="tel" placeholder="01 234 5678"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Domicilio -->
+        <div class="seccion-form">
+          <div class="seccion-titulo">📍 Domicilio</div>
+          <div class="grid-campos grid-3">
+            <div class="campo">
+              <label>Departamento <span class="requerido">*</span></label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Lima</option><option>Cusco</option><option>Loreto</option>
+                <option>Ucayali</option><option>Madre de Dios</option><option>San Martín</option>
+                <option>Puno</option><option>Junín</option><option>Otros</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Provincia <span class="requerido">*</span></label>
+              <input type="text" placeholder="Ej: Lima"/>
+            </div>
+            <div class="campo">
+              <label>Distrito <span class="requerido">*</span></label>
+              <input type="text" placeholder="Ej: Miraflores"/>
+            </div>
+            <div class="campo col-span-3">
+              <label>Dirección <span class="requerido">*</span></label>
+              <input type="text" placeholder="Av. / Jr. / Calle, número, referencia"/>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividad -->
+        <div class="seccion-form">
+          <div class="seccion-titulo">🌿 Actividad Forestal</div>
+          <div class="grid-campos grid-2">
+            <div class="campo">
+              <label>Actividad Principal <span class="requerido">*</span></label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Extracción de madera</option>
+                <option>Reforestación</option>
+                <option>Agroforestería</option>
+                <option>Ecoturismo forestal</option>
+                <option>Fauna silvestre</option>
+                <option>Servicios ambientales</option>
+                <option>Procesamiento de productos forestales</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Años de Experiencia</label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Menos de 1 año</option>
+                <option>1 – 3 años</option>
+                <option>3 – 5 años</option>
+                <option>5 – 10 años</option>
+                <option>Más de 10 años</option>
+              </select>
+            </div>
+            <div class="campo col-span-2">
+              <label>Descripción de Actividades</label>
+              <textarea placeholder="Describa brevemente las actividades forestales que realiza o planea realizar..."></textarea>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-atras" onclick="window.location.href='02_tipo_persona.html'">← Atrás</button>
+      <button class="btn-continuar" onclick="window.location.href='05_validacion.html'">Continuar →</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  function verificarDNI() {
+    const dni = document.getElementById('dni').value;
+    if (dni.length === 8) {
+      // Simula autocompletado
+      document.getElementById('ap-paterno').value = 'García';
+      document.getElementById('ap-materno').value = 'Torres';
+      document.getElementById('nombres').value = 'Juan Carlos';
+      document.getElementById('fecha-nac').value = '1985-06-15';
+    } else {
+      alert('Ingrese un DNI válido de 8 dígitos.');
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Datos Persona Jurídica</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --verde-bosque:#1a3d1f; --verde-selva:#2d6a35; --verde-hoja:#4a9e56;
+    --verde-claro:#7dcb87; --verde-menta:#b8e8bc; --crema:#f4f0e6;
+    --dorado:#c9a84c; --blanco:#ffffff; --sombra:rgba(26,61,31,0.15);
+    --error:#c0392b;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:#eef5ee; display:flex; flex-direction:column; }
+
+  header { background:var(--verde-bosque); padding:0 48px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 20px rgba(0,0,0,0.25); }
+  .header-logo { display:flex; align-items:center; gap:12px; }
+  .header-logo .ico { font-size:22px; }
+  .header-logo .sigla { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--crema); letter-spacing:2px; }
+  .header-logo .sub { font-size:9px; color:var(--verde-menta); letter-spacing:1.5px; text-transform:uppercase; }
+  .usuario { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--verde-menta); }
+  .avatar { width:32px;height:32px;border-radius:50%;background:var(--verde-hoja);display:flex;align-items:center;justify-content:center;font-size:14px; }
+  .btn-salir { padding:6px 16px;border:1px solid rgba(184,232,188,0.3);border-radius:20px;background:transparent;color:var(--verde-menta);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer; }
+
+  .barra-progreso { background:var(--verde-selva); padding:0 48px; }
+  .pasos { display:flex;align-items:center;max-width:900px;margin:0 auto;padding:16px 0; }
+  .paso { display:flex;align-items:center;gap:10px;font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;color:rgba(184,232,188,0.5);white-space:nowrap; }
+  .paso.activo { color:var(--crema); }
+  .paso.completado { color:var(--verde-claro); }
+  .paso .num { width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+  .paso.activo .num { background:var(--verde-claro);border-color:var(--verde-claro);color:var(--verde-bosque); }
+  .paso.completado .num { background:var(--verde-hoja);border-color:var(--verde-hoja);color:var(--blanco); }
+  .linea-paso { flex:1;height:1px;background:rgba(184,232,188,0.25);margin:0 12px;min-width:20px; }
+  .linea-paso.completa { background:var(--verde-hoja); }
+
+  main { flex:1;padding:48px;display:flex;gap:32px;max-width:1100px;margin:0 auto;width:100%; }
+
+  .lateral { width:260px;flex-shrink:0; }
+  .card-lateral { background:var(--blanco);border-radius:16px;padding:24px;margin-bottom:16px;box-shadow:0 2px 12px var(--sombra); }
+  .card-lateral h4 { font-size:11px;font-weight:500;color:var(--verde-hoja);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #eef5ee; }
+  .requisito-list { list-style:none; }
+  .requisito-list li { font-size:12px;color:#5a7a5c;padding:6px 0;border-bottom:1px solid #f0f7f0;display:flex;align-items:center;gap:8px; }
+  .requisito-list li:last-child { border-bottom:none; }
+  .requisito-list li::before { content:'📋';font-size:12px; }
+  .info-item { display:flex;gap:10px;margin-bottom:10px;align-items:flex-start; }
+  .info-item .ico-info { font-size:15px;flex-shrink:0;margin-top:1px; }
+  .info-item p { font-size:12px;color:#6b7a6d;line-height:1.6; }
+  .info-item strong { color:var(--verde-bosque); }
+
+  /* Flujo de validación visual */
+  .flujo-val { margin-top:0; }
+  .flujo-paso { display:flex;gap:12px;align-items:flex-start;margin-bottom:14px;position:relative; }
+  .flujo-paso::before { content:'';position:absolute;left:12px;top:28px;width:2px;height:calc(100% + 8px);background:#d4e6d5; }
+  .flujo-paso:last-child::before { display:none; }
+  .flujo-num { width:24px;height:24px;border-radius:50%;background:var(--verde-menta);color:var(--verde-bosque);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .flujo-txt p { font-size:12px;color:#5a7a5c;line-height:1.5; }
+  .flujo-txt strong { font-size:12px;color:var(--verde-bosque); }
+
+  .form-contenedor { flex:1;background:var(--blanco);border-radius:20px;box-shadow:0 4px 24px var(--sombra);overflow:hidden; }
+  .form-header { background:linear-gradient(135deg,var(--verde-bosque),var(--verde-selva));padding:28px 36px;display:flex;align-items:center;gap:16px; }
+  .form-header .ico-header { width:52px;height:52px;border-radius:14px;background:rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;font-size:24px; }
+  .form-header h2 { font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--crema); }
+  .form-header p { font-size:12px;color:var(--verde-menta);margin-top:2px; }
+
+  .tabs { display:flex;border-bottom:2px solid #eef5ee;background:#fafcfa; }
+  .tab { padding:14px 28px;font-size:12px;font-weight:500;color:#9aac9b;cursor:pointer;letter-spacing:0.5px;text-transform:uppercase;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s; }
+  .tab.activo { color:var(--verde-hoja);border-bottom-color:var(--verde-hoja);background:var(--blanco); }
+  .tab:hover:not(.activo) { color:var(--verde-bosque); }
+
+  .form-body { padding:36px; }
+  .tab-content { display:none; }
+  .tab-content.activo { display:block; }
+
+  .seccion-form { margin-bottom:32px; }
+  .seccion-titulo { font-size:11px;font-weight:500;color:var(--verde-hoja);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #eef5ee;display:flex;align-items:center;gap:8px; }
+
+  .grid-campos { display:grid;gap:20px; }
+  .grid-2 { grid-template-columns:1fr 1fr; }
+  .grid-3 { grid-template-columns:1fr 1fr 1fr; }
+  .col-span-2 { grid-column:span 2; }
+  .col-span-3 { grid-column:span 3; }
+
+  .campo { display:flex;flex-direction:column;gap:7px; }
+  .campo label { font-size:11px;font-weight:500;color:var(--verde-bosque);letter-spacing:0.8px;text-transform:uppercase; }
+  .campo label .req { color:var(--error);margin-left:3px; }
+  .campo-hint { font-size:10px;color:#9aac9b;margin-top:2px; }
+
+  input[type=text],input[type=email],input[type=tel],input[type=date],select,textarea {
+    padding:11px 14px;background:var(--blanco);border:1.5px solid #d4e6d5;border-radius:9px;
+    font-family:'DM Sans',sans-serif;font-size:13px;color:var(--verde-bosque);
+    transition:border-color .2s,box-shadow .2s;outline:none;width:100%;
+  }
+  input:focus,select:focus,textarea:focus { border-color:var(--verde-hoja);box-shadow:0 0 0 3px rgba(74,158,86,0.1); }
+  input::placeholder,textarea::placeholder { color:#aabdab;font-weight:300; }
+  select { cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px; }
+  textarea { resize:vertical;min-height:80px; }
+
+  .ruc-wrap { position:relative; }
+  .ruc-wrap input { padding-right:110px;font-size:15px;letter-spacing:2px;font-weight:500; }
+  .btn-ver-ruc { position:absolute;right:8px;top:50%;transform:translateY(-50%);padding:6px 14px;background:var(--verde-hoja);color:var(--blanco);border:none;border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;cursor:pointer;transition:background .2s; }
+  .btn-ver-ruc:hover { background:var(--verde-selva); }
+
+  /* Panel datos empresa autocompletados */
+  .panel-autocompletado { background:#f0faf1;border:1.5px solid var(--verde-menta);border-radius:12px;padding:20px;margin-bottom:20px;display:none; }
+  .panel-autocompletado.visible { display:block;animation:fadeIn .3s ease; }
+  .panel-autocompletado h5 { font-size:11px;font-weight:500;color:var(--verde-hoja);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px; }
+  .dato-empresa { display:grid;grid-template-columns:140px 1fr;gap:4px 16px;margin-bottom:8px; }
+  .dato-empresa .etiq { font-size:11px;color:#6b7a6d;font-weight:500; }
+  .dato-empresa .val { font-size:12px;color:var(--verde-bosque);font-weight:500; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(-6px)} to{opacity:1;transform:translateY(0)} }
+
+  .form-footer { padding:24px 36px;background:#f8fbf8;border-top:1px solid #e8f0e8;display:flex;align-items:center;justify-content:space-between; }
+  .btn-atras { padding:12px 24px;border:1.5px solid #c4d9c5;border-radius:9px;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--verde-bosque);cursor:pointer;transition:all .2s; }
+  .btn-atras:hover { background:#eef5ee; }
+  .btn-continuar { padding:12px 36px;background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque));color:var(--crema);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px var(--sombra); }
+  .btn-continuar:hover { transform:translateY(-1px);box-shadow:0 8px 24px var(--sombra); }
+
+  @media(max-width:900px){ main{flex-direction:column;padding:24px;} .lateral{width:100%;} .grid-2,.grid-3{grid-template-columns:1fr;} .col-span-2,.col-span-3{grid-column:span 1;} }
+  @media(max-width:600px){ header{padding:0 16px;} .barra-progreso{padding:0 16px;} .pasos .paso span:not(.num){display:none;} .form-body{padding:20px;} .form-footer{flex-direction:column;gap:12px;} .btn-continuar,.btn-atras{width:100%;text-align:center;} .tabs{overflow-x:auto;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <span class="ico">🌲</span>
+    <div>
+      <div class="sigla">SERFOR</div>
+      <div class="sub">Servicio Nacional Forestal</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="usuario"><div class="avatar">👤</div><span>Usuario Externo</span></div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="barra-progreso">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Acceso</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo de Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">3</span><span>Datos Personales</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">4</span><span>Validación</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">5</span><span>Tipo de Registro</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">6</span><span>Confirmación</span></div>
+  </div>
+</div>
+
+<main>
+  <div class="lateral">
+    <div class="card-lateral">
+      <h4>📋 Requisitos</h4>
+      <ul class="requisito-list">
+        <li>RUC activo (20 dígitos)</li>
+        <li>DNI del representante legal</li>
+        <li>Razón social vigente</li>
+        <li>Dirección fiscal registrada</li>
+        <li>Correo y teléfono corporativo</li>
+      </ul>
+    </div>
+    <div class="card-lateral">
+      <h4>🔄 Flujo de Validación</h4>
+      <div class="flujo-val">
+        <div class="flujo-paso">
+          <div class="flujo-num">1</div>
+          <div class="flujo-txt"><strong>Ingreso de DNI</strong><p>Del representante legal</p></div>
+        </div>
+        <div class="flujo-paso">
+          <div class="flujo-num">2</div>
+          <div class="flujo-txt"><strong>Validación DNI</strong><p>Consulta en RENIEC</p></div>
+        </div>
+        <div class="flujo-paso">
+          <div class="flujo-num">3</div>
+          <div class="flujo-txt"><strong>Ingreso de RUC</strong><p>De la empresa</p></div>
+        </div>
+        <div class="flujo-paso">
+          <div class="flujo-num">4</div>
+          <div class="flujo-txt"><strong>Validación RUC</strong><p>Consulta en SUNAT</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-contenedor">
+    <div class="form-header">
+      <div class="ico-header">🏢</div>
+      <div>
+        <h2>Datos de Persona Jurídica</h2>
+        <p>Complete los datos de la empresa y del representante legal</p>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab activo" onclick="cambiarTab('empresa', this)">🏢 Datos de la Empresa</div>
+      <div class="tab" onclick="cambiarTab('representante', this)">🧑‍💼 Representante Legal</div>
+      <div class="tab" onclick="cambiarTab('actividad', this)">🌿 Actividad Forestal</div>
+    </div>
+
+    <div class="form-body">
+
+      <!-- TAB 1: Empresa -->
+      <div class="tab-content activo" id="tab-empresa">
+        <div class="seccion-form">
+          <div class="seccion-titulo">🏛️ Identificación de la Empresa</div>
+          <div class="grid-campos grid-2">
+            <div class="campo col-span-2">
+              <label>RUC de la Empresa <span class="req">*</span></label>
+              <div class="ruc-wrap">
+                <input type="text" id="ruc" placeholder="20123456789" maxlength="11" oninput="this.value=this.value.replace(/\D/g,'')"/>
+                <button class="btn-ver-ruc" onclick="consultarRUC()">Consultar</button>
+              </div>
+              <span class="campo-hint">Ingrese los 11 dígitos del RUC de la empresa.</span>
+            </div>
+
+            <div class="panel-autocompletado col-span-2" id="panel-ruc">
+              <h5>✅ Datos encontrados en SUNAT</h5>
+              <div class="dato-empresa"><span class="etiq">Razón Social:</span><span class="val" id="razon-social">—</span></div>
+              <div class="dato-empresa"><span class="etiq">Estado:</span><span class="val" style="color:var(--verde-hoja)">ACTIVO</span></div>
+              <div class="dato-empresa"><span class="etiq">Condición:</span><span class="val">HABIDO</span></div>
+              <div class="dato-empresa"><span class="etiq">Dirección Fiscal:</span><span class="val" id="dir-fiscal">—</span></div>
+              <div class="dato-empresa"><span class="etiq">Tipo:</span><span class="val" id="tipo-empresa">—</span></div>
+            </div>
+
+            <div class="campo col-span-2">
+              <label>Razón Social <span class="req">*</span></label>
+              <input type="text" id="input-razon" placeholder="Se autocompleta al consultar el RUC"/>
+            </div>
+            <div class="campo">
+              <label>Nombre Comercial</label>
+              <input type="text" placeholder="Nombre comercial (si aplica)"/>
+            </div>
+            <div class="campo">
+              <label>Tipo de Empresa <span class="req">*</span></label>
+              <select>
+                <option>S.A.C.</option><option>S.A.</option><option>S.R.L.</option>
+                <option>E.I.R.L.</option><option>Asociación</option><option>Cooperativa</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="seccion-form">
+          <div class="seccion-titulo">📞 Contacto Corporativo</div>
+          <div class="grid-campos grid-2">
+            <div class="campo">
+              <label>Correo Corporativo <span class="req">*</span></label>
+              <input type="email" placeholder="empresa@dominio.com"/>
+            </div>
+            <div class="campo">
+              <label>Teléfono Corporativo <span class="req">*</span></label>
+              <input type="tel" placeholder="01 234 5678"/>
+            </div>
+            <div class="campo">
+              <label>Sitio Web</label>
+              <input type="text" placeholder="https://www.empresa.com"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="seccion-form">
+          <div class="seccion-titulo">📍 Dirección</div>
+          <div class="grid-campos grid-3">
+            <div class="campo">
+              <label>Departamento <span class="req">*</span></label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Lima</option><option>Loreto</option><option>Ucayali</option>
+                <option>Madre de Dios</option><option>San Martín</option><option>Cusco</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Provincia <span class="req">*</span></label>
+              <input type="text" placeholder="Provincia"/>
+            </div>
+            <div class="campo">
+              <label>Distrito <span class="req">*</span></label>
+              <input type="text" placeholder="Distrito"/>
+            </div>
+            <div class="campo col-span-3">
+              <label>Dirección Fiscal <span class="req">*</span></label>
+              <input type="text" id="input-dir" placeholder="Dirección completa"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: Representante Legal -->
+      <div class="tab-content" id="tab-representante">
+        <div class="seccion-form">
+          <div class="seccion-titulo">🪪 Identificación del Representante</div>
+          <div class="grid-campos grid-2">
+            <div class="campo col-span-2">
+              <label>DNI del Representante Legal <span class="req">*</span></label>
+              <div class="ruc-wrap">
+                <input type="text" id="dni-rep" placeholder="12345678" maxlength="8"/>
+                <button class="btn-ver-ruc" onclick="consultarDNIRep()">Verificar</button>
+              </div>
+            </div>
+            <div class="campo">
+              <label>Apellido Paterno <span class="req">*</span></label>
+              <input type="text" id="rep-ap-pat" placeholder="Apellido paterno"/>
+            </div>
+            <div class="campo">
+              <label>Apellido Materno <span class="req">*</span></label>
+              <input type="text" id="rep-ap-mat" placeholder="Apellido materno"/>
+            </div>
+            <div class="campo">
+              <label>Nombres <span class="req">*</span></label>
+              <input type="text" id="rep-nombres" placeholder="Nombres completos"/>
+            </div>
+            <div class="campo">
+              <label>Cargo <span class="req">*</span></label>
+              <select>
+                <option>Gerente General</option><option>Director</option>
+                <option>Presidente</option><option>Apoderado</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Correo Personal <span class="req">*</span></label>
+              <input type="email" placeholder="representante@correo.com"/>
+            </div>
+            <div class="campo">
+              <label>Celular <span class="req">*</span></label>
+              <input type="tel" placeholder="999 888 777"/>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Actividad -->
+      <div class="tab-content" id="tab-actividad">
+        <div class="seccion-form">
+          <div class="seccion-titulo">🌿 Actividad Forestal de la Empresa</div>
+          <div class="grid-campos grid-2">
+            <div class="campo">
+              <label>Actividad Principal <span class="req">*</span></label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Extracción y comercialización de madera</option>
+                <option>Reforestación y plantaciones</option>
+                <option>Procesamiento industrial forestal</option>
+                <option>Exportación de productos forestales</option>
+                <option>Ecoturismo y servicios ambientales</option>
+                <option>Fauna silvestre</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Código CIIU</label>
+              <input type="text" placeholder="Ej: 0210"/>
+            </div>
+            <div class="campo">
+              <label>Capital Social (S/)</label>
+              <input type="text" placeholder="Ej: 50,000.00"/>
+            </div>
+            <div class="campo">
+              <label>Número de Trabajadores</label>
+              <select>
+                <option>1 – 5</option><option>6 – 20</option><option>21 – 50</option>
+                <option>51 – 100</option><option>Más de 100</option>
+              </select>
+            </div>
+            <div class="campo col-span-2">
+              <label>Descripción de Actividades</label>
+              <textarea placeholder="Describa la actividad principal de la empresa en el sector forestal..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="form-footer">
+      <button class="btn-atras" onclick="window.location.href='02_tipo_persona.html'">← Atrás</button>
+      <button class="btn-continuar" onclick="window.location.href='05_validacion.html'">Continuar →</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  function cambiarTab(id, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('activo'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('activo'));
+    el.classList.add('activo');
+    document.getElementById('tab-' + id).classList.add('activo');
+  }
+
+  function consultarRUC() {
+    const ruc = document.getElementById('ruc').value;
+    if (ruc.length === 11) {
+      document.getElementById('panel-ruc').classList.add('visible');
+      document.getElementById('razon-social').textContent = 'FORESTAL AMAZÓNICA S.A.C.';
+      document.getElementById('dir-fiscal').textContent = 'Av. Forestal 1245, Lima';
+      document.getElementById('tipo-empresa').textContent = 'S.A.C.';
+      document.getElementById('input-razon').value = 'FORESTAL AMAZÓNICA S.A.C.';
+      document.getElementById('input-dir').value = 'Av. Forestal 1245, Lima';
+    } else {
+      alert('Ingrese un RUC válido de 11 dígitos.');
+    }
+  }
+
+  function consultarDNIRep() {
+    const dni = document.getElementById('dni-rep').value;
+    if (dni.length === 8) {
+      document.getElementById('rep-ap-pat').value = 'Ramírez';
+      document.getElementById('rep-ap-mat').value = 'Huanca';
+      document.getElementById('rep-nombres').value = 'Carlos Eduardo';
+    } else {
+      alert('Ingrese un DNI válido de 8 dígitos.');
+    }
+  }
+</script>
+</body>
+</html>

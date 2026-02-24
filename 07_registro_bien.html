@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Registro de Bien Forestal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --verde-bosque:#1a3d1f; --verde-selva:#2d6a35; --verde-hoja:#4a9e56;
+    --verde-claro:#7dcb87; --verde-menta:#b8e8bc; --crema:#f4f0e6;
+    --dorado:#c9a84c; --blanco:#ffffff; --sombra:rgba(26,61,31,0.15);
+    --azul:#1a6fa8; --azul-bg:#e8f4fb; --error:#c0392b;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:#eef5ee; display:flex; flex-direction:column; }
+
+  /* ── HEADER ── */
+  header { background:var(--verde-bosque); padding:0 48px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 20px rgba(0,0,0,0.25); }
+  .hl { display:flex; align-items:center; gap:12px; }
+  .hl .ico { font-size:22px; }
+  .hl .sigla { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--crema); letter-spacing:2px; }
+  .hl .sub { font-size:9px; color:var(--verde-menta); letter-spacing:1.5px; text-transform:uppercase; }
+  .hright { display:flex; align-items:center; gap:16px; }
+  .usuario { display:flex; align-items:center; gap:8px; font-size:12px; color:var(--verde-menta); }
+  .avatar { width:32px; height:32px; border-radius:50%; background:var(--verde-hoja); display:flex; align-items:center; justify-content:center; font-size:14px; }
+  .btn-salir { padding:6px 16px; border:1px solid rgba(184,232,188,0.3); border-radius:20px; background:transparent; color:var(--verde-menta); font-family:'DM Sans',sans-serif; font-size:11px; cursor:pointer; }
+  .btn-salir:hover { background:rgba(74,158,86,0.2); }
+
+  /* ── BARRA PROGRESO ── */
+  .barra-progreso { background:var(--verde-selva); padding:0 48px; }
+  .pasos { display:flex; align-items:center; max-width:900px; margin:0 auto; padding:16px 0; }
+  .paso { display:flex; align-items:center; gap:10px; font-size:11px; font-weight:500; letter-spacing:0.5px; text-transform:uppercase; color:rgba(184,232,188,0.5); white-space:nowrap; }
+  .paso.activo  { color:var(--crema); }
+  .paso.completado { color:var(--verde-claro); }
+  .paso .num { width:24px; height:24px; border-radius:50%; border:1.5px solid currentColor; display:flex; align-items:center; justify-content:center; font-size:10px; flex-shrink:0; }
+  .paso.activo   .num { background:var(--verde-claro); border-color:var(--verde-claro); color:var(--verde-bosque); }
+  .paso.completado .num { background:var(--verde-hoja); border-color:var(--verde-hoja); color:var(--blanco); }
+  .linea-paso { flex:1; height:1px; background:rgba(184,232,188,0.25); margin:0 12px; min-width:20px; }
+  .linea-paso.completa { background:var(--verde-hoja); }
+
+  /* ── LAYOUT ── */
+  main { flex:1; padding:40px 48px; display:flex; gap:28px; max-width:1160px; margin:0 auto; width:100%; }
+
+  /* ── LATERAL ── */
+  .lateral { width:236px; flex-shrink:0; display:flex; flex-direction:column; gap:16px; }
+  .card-lat { background:var(--blanco); border-radius:14px; padding:20px; box-shadow:0 2px 12px var(--sombra); }
+  .card-lat h4 { font-size:10px; font-weight:500; color:var(--verde-hoja); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid #eef5ee; }
+  .res-fila { display:flex; justify-content:space-between; padding:5px 0; border-bottom:1px solid #f5faf5; }
+  .res-fila:last-child { border-bottom:none; }
+  .res-fila .etiq { font-size:11px; color:#9aac9b; }
+  .res-fila .val  { font-size:11px; color:var(--verde-bosque); font-weight:500; text-align:right; max-width:130px; }
+  .secciones-nav { display:flex; flex-direction:column; gap:4px; }
+  .nav-item { padding:8px 12px; border-radius:8px; font-size:12px; color:#6b7a6d; cursor:pointer; display:flex; align-items:center; gap:8px; transition:all .2s; }
+  .nav-item:hover { background:#eef5ee; color:var(--verde-bosque); }
+  .nav-item.activo { background:linear-gradient(135deg,var(--verde-menta),#d8f5db); color:var(--verde-bosque); font-weight:500; }
+  .nav-item .dot { width:7px; height:7px; border-radius:50%; background:#d4e6d5; flex-shrink:0; }
+  .nav-item.activo .dot { background:var(--verde-hoja); }
+  .nav-item.completo .dot { background:var(--verde-hoja); }
+  .nav-item.completo { color:var(--verde-selva); }
+
+  /* ── FORMULARIO ── */
+  .form-wrap { flex:1; background:var(--blanco); border-radius:20px; box-shadow:0 4px 24px var(--sombra); overflow:hidden; }
+
+  .form-header { background:linear-gradient(135deg,var(--verde-bosque),var(--verde-selva)); padding:24px 32px; display:flex; align-items:center; gap:16px; }
+  .fh-ico { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,0.12); display:flex; align-items:center; justify-content:center; font-size:26px; flex-shrink:0; }
+  .fh-txt h2 { font-family:'Playfair Display',serif; font-size:21px; font-weight:700; color:var(--crema); }
+  .fh-txt p  { font-size:11px; color:var(--verde-menta); margin-top:3px; }
+  .fh-badge  { margin-left:auto; background:rgba(74,158,86,0.25); border:1px solid rgba(125,203,135,0.35); color:var(--verde-claro); padding:5px 14px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; }
+
+  /* secciones */
+  .seccion { padding:28px 32px; border-bottom:1px solid #eef5ee; }
+  .seccion:last-of-type { border-bottom:none; }
+  .sec-titulo { font-size:11px; font-weight:600; color:var(--verde-hoja); letter-spacing:1.8px; text-transform:uppercase; margin-bottom:22px; display:flex; align-items:center; gap:10px; }
+  .sec-titulo span { background:var(--verde-hoja); color:var(--blanco); width:22px; height:22px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; flex-shrink:0; }
+
+  /* grid campos */
+  .grid { display:grid; gap:20px; }
+  .g2 { grid-template-columns:1fr 1fr; }
+  .g3 { grid-template-columns:1fr 1fr 1fr; }
+  .g4 { grid-template-columns:1fr 1fr 1fr 1fr; }
+  .span2 { grid-column:span 2; }
+  .span3 { grid-column:span 3; }
+  .span4 { grid-column:span 4; }
+
+  .campo { display:flex; flex-direction:column; gap:6px; }
+  .campo label { font-size:10px; font-weight:500; color:var(--verde-bosque); letter-spacing:0.9px; text-transform:uppercase; }
+  .req { color:var(--error); margin-left:2px; }
+  .hint { font-size:10px; color:#9aac9b; margin-top:1px; line-height:1.4; }
+
+  input[type=text], input[type=number], input[type=email], input[type=url],
+  select, textarea {
+    padding:10px 13px; background:var(--blanco); border:1.5px solid #d4e6d5;
+    border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px;
+    color:var(--verde-bosque); transition:border-color .2s, box-shadow .2s;
+    outline:none; width:100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color:var(--verde-hoja); box-shadow:0 0 0 3px rgba(74,158,86,0.1); }
+  input::placeholder, textarea::placeholder { color:#b0c4b1; font-weight:300; }
+  select { cursor:pointer; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 13px center; padding-right:34px; }
+  textarea { resize:vertical; min-height:88px; }
+
+  /* input con unidad adherida */
+  .input-addon { display:flex; }
+  .input-addon input { border-radius:9px 0 0 9px; border-right:none; }
+  .addon-lbl { padding:10px 14px; background:#eef5ee; border:1.5px solid #d4e6d5; border-left:none;
+    border-radius:0 9px 9px 0; font-size:12px; color:var(--verde-selva); font-weight:500;
+    white-space:nowrap; display:flex; align-items:center; }
+
+  /* toggle UTM / Grados */
+  .geo-toggle { display:flex; background:#eef5ee; border-radius:10px; padding:3px; margin-bottom:20px; width:fit-content; }
+  .geo-tab { padding:7px 18px; border-radius:8px; font-size:11px; font-weight:500; cursor:pointer;
+    color:#6b7a6d; transition:all .2s; letter-spacing:0.5px; }
+  .geo-tab.activo { background:var(--verde-hoja); color:var(--blanco); box-shadow:0 2px 8px var(--sombra); }
+  .geo-panel { display:none; }
+  .geo-panel.activo { display:block; animation:fadeIn .25s ease; }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Nota de campo */
+  .nota-campo { background:rgba(201,168,76,0.1); border:1px solid rgba(201,168,76,0.3); border-radius:8px;
+    padding:10px 14px; font-size:11px; color:#7a6030; line-height:1.6; margin-bottom:16px; display:flex; gap:8px; }
+
+  /* Mapa placeholder */
+  .mapa-placeholder { background:linear-gradient(160deg,#d8f0da,#c4e8c7); border:1.5px dashed var(--verde-hoja);
+    border-radius:12px; height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; cursor:pointer; transition:all .2s; margin-top:16px; }
+  .mapa-placeholder:hover { background:linear-gradient(160deg,#c4e8c7,#b0dfb3); }
+  .mapa-placeholder .ico-mapa { font-size:36px; }
+  .mapa-placeholder p { font-size:12px; color:var(--verde-selva); font-weight:500; }
+  .mapa-placeholder span { font-size:10px; color:#6b9e6d; }
+
+  /* Zona de foto */
+  .foto-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; }
+  .foto-slot { aspect-ratio:1; border:2px dashed #c4d9c5; border-radius:12px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; gap:6px; cursor:pointer; transition:all .2s; background:#fafcfa;
+    position:relative; overflow:hidden; }
+  .foto-slot:hover { border-color:var(--verde-hoja); background:#f0faf1; }
+  .foto-slot .ico-foto { font-size:28px; }
+  .foto-slot p { font-size:10px; color:#9aac9b; text-align:center; line-height:1.4; }
+  .foto-slot.cargada { border-style:solid; border-color:var(--verde-hoja); }
+  .foto-slot.cargada::after { content:'✓'; position:absolute; top:6px; right:8px;
+    font-size:13px; color:var(--verde-hoja); font-weight:700; }
+  .foto-slot.cargada .foto-preview { position:absolute; inset:0; background:linear-gradient(135deg,#d0edd3,#b8e8bc);
+    display:flex; align-items:center; justify-content:center; font-size:32px; }
+  .foto-nota { font-size:10px; color:#9aac9b; margin-top:10px; }
+
+  /* Precio destacado */
+  .precio-grande { font-size:28px; font-family:'Playfair Display',serif; font-weight:700;
+    color:var(--verde-bosque); border-bottom:2px solid var(--verde-claro); padding-bottom:4px; }
+
+  /* ── FOOTER ── */
+  .form-footer { padding:20px 32px; background:#f8fbf8; border-top:1px solid #e8f0e8;
+    display:flex; align-items:center; justify-content:space-between; }
+  .btn-atras { padding:11px 22px; border:1.5px solid #c4d9c5; border-radius:9px; background:transparent;
+    font-family:'DM Sans',sans-serif; font-size:13px; color:var(--verde-bosque); cursor:pointer; transition:all .2s; }
+  .btn-atras:hover { background:#eef5ee; }
+  .btn-continuar { padding:11px 34px; background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque));
+    color:var(--crema); border:none; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px;
+    font-weight:500; letter-spacing:0.8px; text-transform:uppercase; cursor:pointer; transition:all .2s;
+    box-shadow:0 4px 16px var(--sombra); }
+  .btn-continuar:hover { transform:translateY(-1px); box-shadow:0 8px 24px var(--sombra); }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:960px){ main{flex-direction:column;padding:24px;} .lateral{width:100%;} .g3{grid-template-columns:1fr 1fr;} .g4{grid-template-columns:1fr 1fr;} .span3,.span4{grid-column:span 2;} .foto-grid{grid-template-columns:repeat(3,1fr);} }
+  @media(max-width:640px){ main{padding:16px;} header{padding:0 16px;} .barra-progreso{padding:0 16px;} .pasos .paso span:not(.num){display:none;} .seccion{padding:20px;} .g2{grid-template-columns:1fr;} .span2{grid-column:span 1;} .form-footer{flex-direction:column;gap:10px;} .btn-continuar,.btn-atras{width:100%;text-align:center;} .foto-grid{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hl">
+    <span class="ico">🌲</span>
+    <div><div class="sigla">SERFOR</div><div class="sub">Servicio Nacional Forestal</div></div>
+  </div>
+  <div class="hright">
+    <div class="usuario"><div class="avatar">👤</div><span>Usuario Externo</span></div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="barra-progreso">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Acceso</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Datos Personales</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Validación</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo Registro</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">6</span><span>Registro de Bien</span></div>
+  </div>
+</div>
+
+<main>
+
+  <!-- ── LATERAL ── -->
+  <div class="lateral">
+    <div class="card-lat">
+      <h4>📋 Proveedor</h4>
+      <div class="res-fila"><span class="etiq">Empresa</span><span class="val">FORESTAL AMAZÓNICA S.A.C.</span></div>
+      <div class="res-fila"><span class="etiq">RUC</span><span class="val">20123456789</span></div>
+      <div class="res-fila"><span class="etiq">Tipo</span><span class="val">Persona Jurídica</span></div>
+      <div class="res-fila"><span class="etiq">Registro</span><span class="val">📦 Bien</span></div>
+    </div>
+    <div class="card-lat">
+      <h4>📑 Secciones</h4>
+      <div class="secciones-nav">
+        <div class="nav-item activo"  onclick="irA('sec1')"><span class="dot"></span>Presentación del Bien</div>
+        <div class="nav-item"         onclick="irA('sec2')"><span class="dot"></span>Especificaciones</div>
+        <div class="nav-item"         onclick="irA('sec3')"><span class="dot"></span>Fotografías</div>
+        <div class="nav-item"         onclick="irA('sec4')"><span class="dot"></span>Oferta y Precio</div>
+        <div class="nav-item"         onclick="irA('sec5')"><span class="dot"></span>Georreferenciación</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FORMULARIO ── -->
+  <div class="form-wrap">
+
+    <div class="form-header">
+      <div class="fh-ico">📦</div>
+      <div class="fh-txt">
+        <h2>Registro de Bien Forestal</h2>
+        <p>Complete la información detallada del bien que desea registrar como proveedor</p>
+      </div>
+      <div class="fh-badge">📦 Bien</div>
+    </div>
+
+    <form onsubmit="return false;">
+
+      <!-- ══ 1. PRESENTACIÓN DEL BIEN ══ -->
+      <div class="seccion" id="sec1">
+        <div class="sec-titulo"><span>1</span>Presentación del Bien</div>
+        <div class="grid g2">
+          <div class="campo span2">
+            <label>Nombre del Bien <span class="req">*</span></label>
+            <input type="text" placeholder="Ej: Madera de cedro aserrada, resina de copaiba, semillas de caoba…"/>
+          </div>
+          <div class="campo">
+            <label>Código de Catálogo OSCE <span class="req">*</span></label>
+            <input type="text" placeholder="Ej: FOR-MAD-001"/>
+            <span class="hint">Código según catálogo de bienes del Estado.</span>
+          </div>
+          <div class="campo">
+            <label>Tipo de Bien <span class="req">*</span></label>
+            <select>
+              <option value="">-- Seleccione --</option>
+              <option>Madera y derivados</option>
+              <option>Productos no maderables</option>
+              <option>Resinas y gomas naturales</option>
+              <option>Semillas y material vegetal</option>
+              <option>Plantas medicinales</option>
+              <option>Fauna silvestre (legal)</option>
+              <option>Bambú y fibras vegetales</option>
+              <option>Aceites esenciales</option>
+              <option>Carbón vegetal</option>
+              <option>Otros productos forestales</option>
+            </select>
+          </div>
+
+          <!-- Presentación / Unidad de medida -->
+          <div class="campo">
+            <label>Presentación del Producto <span class="req">*</span></label>
+            <select id="sel-presentacion" onchange="actualizarUnidad()">
+              <option value="">-- Seleccione presentación --</option>
+              <option value="unidad">Unidad (und)</option>
+              <option value="kg">Kilogramo (Kg)</option>
+              <option value="tm">Tonelada métrica (TM)</option>
+              <option value="galon">Galón (Gal)</option>
+              <option value="litro">Litro (L)</option>
+              <option value="m3">Metro cúbico (m³)</option>
+              <option value="m2">Metro cuadrado (m²)</option>
+              <option value="ml">Metro lineal (ml)</option>
+              <option value="pie2">Pie cuadrado (pie²)</option>
+              <option value="pie3">Pie cúbico (pie³)</option>
+              <option value="docena">Docena</option>
+              <option value="saco">Saco (50 Kg)</option>
+              <option value="bolsa">Bolsa</option>
+              <option value="otro">Otra unidad</option>
+            </select>
+          </div>
+          <div class="campo" id="campo-otra-unidad" style="display:none;">
+            <label>Especifique la Unidad</label>
+            <input type="text" id="otra-unidad" placeholder="Ej: Fardo, Rollo, Plancha…"/>
+          </div>
+
+          <div class="campo">
+            <label>Marca / Denominación Comercial</label>
+            <input type="text" placeholder="Ej: Madera Selva Verde, Sin marca…"/>
+          </div>
+          <div class="campo">
+            <label>País / Región de Origen <span class="req">*</span></label>
+            <select>
+              <option value="pe-lor">Perú – Loreto</option>
+              <option value="pe-uca">Perú – Ucayali</option>
+              <option value="pe-mdm">Perú – Madre de Dios</option>
+              <option value="pe-sam">Perú – San Martín</option>
+              <option value="pe-ama">Perú – Amazonas</option>
+              <option value="pe-cus">Perú – Cusco</option>
+              <option value="pe-otro">Perú – Otra región</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Especie Forestal / Nombre Científico</label>
+            <input type="text" placeholder="Ej: Cedrela odorata, Swietenia macrophylla…"/>
+            <span class="hint">Incluya nombre científico cuando aplique.</span>
+          </div>
+          <div class="campo">
+            <label>Categoría CITES (si aplica)</label>
+            <select>
+              <option value="">No aplica / No registrado</option>
+              <option value="ap1">Apéndice I</option>
+              <option value="ap2">Apéndice II</option>
+              <option value="ap3">Apéndice III</option>
+            </select>
+            <span class="hint">Convención sobre el Comercio Internacional de Especies.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 2. ESPECIFICACIONES ══ -->
+      <div class="seccion" id="sec2">
+        <div class="sec-titulo"><span>2</span>Especificación del Producto</div>
+        <div class="grid g2">
+          <div class="campo span2">
+            <label>Descripción Técnica <span class="req">*</span></label>
+            <textarea placeholder="Describa detalladamente las características físicas, propiedades, proceso de obtención, estado del producto (fresco, seco, procesado), calidad y cualquier información técnica relevante del bien forestal…"></textarea>
+          </div>
+          <div class="campo">
+            <label>Dimensiones / Tamaño</label>
+            <input type="text" placeholder="Ej: 2.4m x 0.15m x 0.05m"/>
+          </div>
+          <div class="campo">
+            <label>Peso por Unidad</label>
+            <div class="input-addon">
+              <input type="number" placeholder="0.00" step="0.01"/>
+              <span class="addon-lbl">Kg / unid.</span>
+            </div>
+          </div>
+          <div class="campo">
+            <label>Contenido de Humedad (%)</label>
+            <div class="input-addon">
+              <input type="number" placeholder="Ej: 12" min="0" max="100"/>
+              <span class="addon-lbl">%</span>
+            </div>
+            <span class="hint">Aplicable a madera y fibras.</span>
+          </div>
+          <div class="campo">
+            <label>Densidad / Concentración</label>
+            <input type="text" placeholder="Ej: 500 Kg/m³, 95% pureza…"/>
+          </div>
+          <div class="campo">
+            <label>Norma Técnica Aplicable</label>
+            <input type="text" placeholder="Ej: NTP 251.104, ASTM D143…"/>
+          </div>
+          <div class="campo">
+            <label>Certificación de Calidad</label>
+            <select>
+              <option value="">Sin certificación</option>
+              <option>FSC (Forest Stewardship Council)</option>
+              <option>PEFC</option>
+              <option>ISO 9001</option>
+              <option>Comercio Justo</option>
+              <option>Orgánico certificado</option>
+              <option>Otra</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Estado del Producto <span class="req">*</span></label>
+            <select>
+              <option>En bruto / Natural</option>
+              <option>Semiprocesado</option>
+              <option>Procesado / Terminado</option>
+              <option>Deshidratado</option>
+              <option>Envasado</option>
+            </select>
+          </div>
+          <div class="campo span2">
+            <label>Condiciones de Almacenamiento y Transporte</label>
+            <textarea style="min-height:64px;" placeholder="Ej: Ambiente seco, temperatura ambiente, no exponer a la humedad directa, transporte en camión cubierto…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 3. FOTOGRAFÍAS ══ -->
+      <div class="seccion" id="sec3">
+        <div class="sec-titulo"><span>3</span>Fotografía del Producto</div>
+        <div class="nota-campo">
+          <span>📷</span>
+          <span>Adjunte hasta <strong>4 fotografías</strong> del bien. Formatos aceptados: JPG, PNG, WEBP. Peso máximo por imagen: <strong>5 MB</strong>. Se recomienda imágenes nítidas con buena iluminación que muestren el producto desde distintos ángulos.</span>
+        </div>
+        <div class="foto-grid">
+          <div class="foto-slot" onclick="simFoto(this, '🌲')">
+            <div class="ico-foto">📷</div>
+            <p>Vista principal<br/><em style="font-size:9px;">Foto 1 (requerida)</em></p>
+          </div>
+          <div class="foto-slot" onclick="simFoto(this, '🪵')">
+            <div class="ico-foto">📷</div>
+            <p>Vista lateral</p>
+          </div>
+          <div class="foto-slot" onclick="simFoto(this, '🌿')">
+            <div class="ico-foto">📷</div>
+            <p>Vista detalle</p>
+          </div>
+          <div class="foto-slot" onclick="simFoto(this, '📦')">
+            <div class="ico-foto">📷</div>
+            <p>Presentación / empaque</p>
+          </div>
+        </div>
+        <p class="foto-nota">* Haga clic en cada recuadro para adjuntar la fotografía correspondiente.</p>
+      </div>
+
+      <!-- ══ 4. OFERTA Y PRECIO ══ -->
+      <div class="seccion" id="sec4">
+        <div class="sec-titulo"><span>4</span>Oferta de Servicio — Cantidad, Periodo y Precio</div>
+        <div class="grid g3">
+          <div class="campo">
+            <label>Cantidad Ofertada <span class="req">*</span></label>
+            <div class="input-addon">
+              <input type="number" id="cant-oferta" placeholder="0.00" step="0.01" min="0"/>
+              <span class="addon-lbl" id="addon-unidad">unid.</span>
+            </div>
+            <span class="hint">Cantidad disponible para proveer en el periodo indicado.</span>
+          </div>
+          <div class="campo">
+            <label>Periodo de Oferta <span class="req">*</span></label>
+            <select>
+              <option value="">-- Seleccione --</option>
+              <option value="1">1 mes</option>
+              <option value="2">2 meses</option>
+              <option value="3">3 meses (trimestral)</option>
+              <option value="6">6 meses (semestral)</option>
+              <option value="12">12 meses (anual)</option>
+              <option value="otro">Otro periodo</option>
+            </select>
+            <span class="hint">Tiempo durante el cual puede garantizar el abastecimiento.</span>
+          </div>
+          <div class="campo">
+            <label>Frecuencia de Entrega</label>
+            <select>
+              <option>Única entrega</option>
+              <option>Semanal</option>
+              <option>Quincenal</option>
+              <option>Mensual</option>
+              <option>A pedido</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Precio Unitario (S/) <span class="req">*</span></label>
+            <div class="input-addon">
+              <span class="addon-lbl" style="border-left:1.5px solid #d4e6d5;border-right:none;border-radius:9px 0 0 9px;">S/</span>
+              <input type="number" placeholder="0.00" step="0.01" min="0" style="border-radius:0 9px 9px 0;border-left:none;"/>
+            </div>
+          </div>
+          <div class="campo">
+            <label>IGV</label>
+            <select>
+              <option value="inc">Incluye IGV (18%)</option>
+              <option value="exc">Sin IGV / Exonerado</option>
+              <option value="exp">Exportación (0%)</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Precio Mínimo de Lote</label>
+            <div class="input-addon">
+              <span class="addon-lbl" style="border-left:1.5px solid #d4e6d5;border-right:none;border-radius:9px 0 0 9px;">S/</span>
+              <input type="number" placeholder="0.00" step="0.01" min="0" style="border-radius:0 9px 9px 0;border-left:none;"/>
+            </div>
+            <span class="hint">Monto mínimo por pedido (opcional).</span>
+          </div>
+          <div class="campo">
+            <label>Moneda de Negociación</label>
+            <select>
+              <option value="PEN">Soles (PEN)</option>
+              <option value="USD">Dólares (USD)</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Plazo de Entrega</label>
+            <div class="input-addon">
+              <input type="number" placeholder="Ej: 15" min="1"/>
+              <span class="addon-lbl">días</span>
+            </div>
+          </div>
+          <div class="campo">
+            <label>Lugar de Entrega / Despacho</label>
+            <select>
+              <option>En almacén del proveedor</option>
+              <option>Puesto en planta cliente</option>
+              <option>Puerto / aeropuerto</option>
+              <option>Lugar acordado</option>
+            </select>
+          </div>
+          <div class="campo span3">
+            <label>Condiciones Comerciales Adicionales</label>
+            <textarea style="min-height:64px;" placeholder="Ej: Descuento por volumen a partir de 10 TM, pago al contado, garantía de calidad por 30 días…"></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══ 5. GEORREFERENCIACIÓN ══ -->
+      <div class="seccion" id="sec5">
+        <div class="sec-titulo"><span>5</span>Georreferenciación del Bien</div>
+
+        <div class="nota-campo">
+          <span>🌐</span>
+          <span>Indique la ubicación geográfica del lugar de extracción, producción o acopio del bien. Puede ingresar las coordenadas en formato <strong>UTM (Datum WGS84)</strong> o en <strong>Grados Sexagesimales (Lat/Long)</strong>.</span>
+        </div>
+
+        <div class="geo-toggle">
+          <div class="geo-tab activo" onclick="cambiarGeo('utm', this)">🗺 UTM – WGS84</div>
+          <div class="geo-tab"        onclick="cambiarGeo('grados', this)">🔢 Grados Sexagesimales</div>
+          <div class="geo-tab"        onclick="cambiarGeo('desc', this)">📍 Descripción</div>
+        </div>
+
+        <!-- Panel UTM -->
+        <div class="geo-panel activo" id="geo-utm">
+          <div class="grid g4">
+            <div class="campo">
+              <label>Zona UTM <span class="req">*</span></label>
+              <select>
+                <option value="">-- Zona --</option>
+                <option value="17S">17S</option>
+                <option value="18S">18S</option>
+                <option value="19S">19S</option>
+                <option value="18N">18N</option>
+                <option value="17N">17N</option>
+              </select>
+              <span class="hint">Zona UTM para Perú: 17S, 18S, 19S.</span>
+            </div>
+            <div class="campo">
+              <label>Este (Easting) – m <span class="req">*</span></label>
+              <input type="number" placeholder="Ej: 356842" min="100000" max="999999"/>
+              <span class="hint">6 dígitos, entre 100000 y 999999 m.</span>
+            </div>
+            <div class="campo">
+              <label>Norte (Northing) – m <span class="req">*</span></label>
+              <input type="number" placeholder="Ej: 8674213" min="1000000" max="9999999"/>
+              <span class="hint">7 dígitos. Sur del ecuador: > 0.</span>
+            </div>
+            <div class="campo">
+              <label>Altitud – m.s.n.m.</label>
+              <div class="input-addon">
+                <input type="number" placeholder="Ej: 450"/>
+                <span class="addon-lbl">m</span>
+              </div>
+            </div>
+            <div class="campo span4">
+              <label>Datum de Referencia</label>
+              <select>
+                <option value="wgs84" selected>WGS84 (recomendado)</option>
+                <option value="psad56">PSAD56 (antiguo)</option>
+              </select>
+              <span class="hint">Se recomienda usar siempre WGS84 como datum de referencia internacional.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Panel Grados Sexagesimales -->
+        <div class="geo-panel" id="geo-grados">
+          <div class="grid g3">
+            <div class="campo">
+              <label>Latitud <span class="req">*</span></label>
+              <input type="text" placeholder="Ej: -12°03'45.6&quot; S"/>
+              <span class="hint">Formato: GG°MM'SS.ss&quot; S (sur) o N (norte).</span>
+            </div>
+            <div class="campo">
+              <label>Longitud <span class="req">*</span></label>
+              <input type="text" placeholder="Ej: -75°15'30.2&quot; O"/>
+              <span class="hint">Formato: GGG°MM'SS.ss&quot; O (oeste).</span>
+            </div>
+            <div class="campo">
+              <label>Altitud – m.s.n.m.</label>
+              <div class="input-addon">
+                <input type="number" placeholder="Ej: 450"/>
+                <span class="addon-lbl">m</span>
+              </div>
+            </div>
+            <div class="campo span3">
+              <label>Datum de Referencia</label>
+              <select>
+                <option value="wgs84" selected>WGS84</option>
+                <option value="psad56">PSAD56</option>
+              </select>
+            </div>
+          </div>
+          <div class="nota-campo" style="margin-top:16px;">
+            <span>ℹ️</span>
+            <span>Equivalencia decimal orientativa: Latitud S <em>negativa</em>, Longitud O <em>negativa</em>. Ej: -12.0627° lat, -75.2584° lon.</span>
+          </div>
+        </div>
+
+        <!-- Panel Descripción -->
+        <div class="geo-panel" id="geo-desc">
+          <div class="grid g2">
+            <div class="campo">
+              <label>Departamento <span class="req">*</span></label>
+              <select>
+                <option value="">-- Seleccione --</option>
+                <option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option>
+                <option>San Martín</option><option>Amazonas</option><option>Cusco</option>
+                <option>Pasco</option><option>Junín</option><option>Huánuco</option>
+              </select>
+            </div>
+            <div class="campo">
+              <label>Provincia <span class="req">*</span></label>
+              <input type="text" placeholder="Provincia de extracción"/>
+            </div>
+            <div class="campo">
+              <label>Distrito <span class="req">*</span></label>
+              <input type="text" placeholder="Distrito"/>
+            </div>
+            <div class="campo">
+              <label>Centro Poblado / Localidad</label>
+              <input type="text" placeholder="Nombre del centro poblado…"/>
+            </div>
+            <div class="campo span2">
+              <label>Referencia Geográfica</label>
+              <textarea style="min-height:60px;" placeholder="Descripción de la ubicación, cuenca hidrográfica, nombre del predio forestal, concesión o comunidad…"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Mapa -->
+        <div class="mapa-placeholder" onclick="alert('Integración con visor cartográfico IGN en implementación.')">
+          <div class="ico-mapa">🗺️</div>
+          <p>Visor Cartográfico – IGN Perú</p>
+          <span>Haga clic para ubicar visualmente en el mapa</span>
+        </div>
+
+        <div class="grid g2" style="margin-top:20px;">
+          <div class="campo">
+            <label>Número de Expediente / Concesión</label>
+            <input type="text" placeholder="Ej: EXP-2024-SERFOR-00321"/>
+            <span class="hint">Número del permiso o concesión forestal de extracción.</span>
+          </div>
+          <div class="campo">
+            <label>Área Total del Predio (ha)</label>
+            <div class="input-addon">
+              <input type="number" placeholder="0.00" step="0.01"/>
+              <span class="addon-lbl">ha</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </form>
+
+    <div class="form-footer">
+      <button class="btn-atras" onclick="window.location.href='06_tipo_registro.html'">← Atrás</button>
+      <button class="btn-continuar" onclick="window.location.href='08_confirmacion.html'">Finalizar Registro →</button>
+    </div>
+  </div><!-- /form-wrap -->
+</main>
+
+<script>
+  /* Actualizar addon unidad según presentación */
+  function actualizarUnidad() {
+    const mapa = { unidad:'und.', kg:'Kg', tm:'TM', galon:'Gal', litro:'L',
+      m3:'m³', m2:'m²', ml:'ml', pie2:'pie²', pie3:'pie³',
+      docena:'doc.', saco:'sacos', bolsa:'bolsas', otro:'' };
+    const sel = document.getElementById('sel-presentacion').value;
+    document.getElementById('addon-unidad').textContent = mapa[sel] || 'unid.';
+    document.getElementById('campo-otra-unidad').style.display = sel === 'otro' ? 'flex' : 'none';
+  }
+
+  /* Cambiar panel georreferenciación */
+  function cambiarGeo(id, el) {
+    document.querySelectorAll('.geo-tab').forEach(t => t.classList.remove('activo'));
+    document.querySelectorAll('.geo-panel').forEach(p => p.classList.remove('activo'));
+    el.classList.add('activo');
+    document.getElementById('geo-' + id).classList.add('activo');
+  }
+
+  /* Navegar a sección */
+  function irA(id) {
+    document.getElementById(id).scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  /* Simular carga de foto */
+  function simFoto(el, emoji) {
+    el.classList.add('cargada');
+    el.innerHTML = '<div class="foto-preview">' + emoji + '</div>';
+  }
+</script>
+</body>
+</html>

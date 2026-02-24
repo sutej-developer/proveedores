@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Validación de Identidad</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --verde-bosque:#1a3d1f; --verde-selva:#2d6a35; --verde-hoja:#4a9e56;
+    --verde-claro:#7dcb87; --verde-menta:#b8e8bc; --crema:#f4f0e6;
+    --dorado:#c9a84c; --blanco:#ffffff; --sombra:rgba(26,61,31,0.15);
+    --rojo:#c0392b; --rojo-bg:#fdf0ee; --rojo-borde:#e8b4b0;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:#eef5ee; display:flex; flex-direction:column; }
+
+  header { background:var(--verde-bosque); padding:0 48px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; box-shadow:0 2px 20px rgba(0,0,0,0.25); }
+  .header-logo { display:flex;align-items:center;gap:12px; }
+  .header-logo .ico { font-size:22px; }
+  .header-logo .sigla { font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--crema);letter-spacing:2px; }
+  .header-logo .sub { font-size:9px;color:var(--verde-menta);letter-spacing:1.5px;text-transform:uppercase; }
+  .usuario { display:flex;align-items:center;gap:8px;font-size:12px;color:var(--verde-menta); }
+  .avatar { width:32px;height:32px;border-radius:50%;background:var(--verde-hoja);display:flex;align-items:center;justify-content:center;font-size:14px; }
+  .btn-salir { padding:6px 16px;border:1px solid rgba(184,232,188,0.3);border-radius:20px;background:transparent;color:var(--verde-menta);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer; }
+
+  .barra-progreso { background:var(--verde-selva);padding:0 48px; }
+  .pasos { display:flex;align-items:center;max-width:900px;margin:0 auto;padding:16px 0; }
+  .paso { display:flex;align-items:center;gap:10px;font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;color:rgba(184,232,188,0.5);white-space:nowrap; }
+  .paso.activo { color:var(--crema); }
+  .paso.completado { color:var(--verde-claro); }
+  .paso .num { width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+  .paso.activo .num { background:var(--verde-claro);border-color:var(--verde-claro);color:var(--verde-bosque); }
+  .paso.completado .num { background:var(--verde-hoja);border-color:var(--verde-hoja);color:var(--blanco); }
+  .linea-paso { flex:1;height:1px;background:rgba(184,232,188,0.25);margin:0 12px;min-width:20px; }
+  .linea-paso.completa { background:var(--verde-hoja); }
+
+  /* Selector modo demo */
+  .demo-bar {
+    background:rgba(201,168,76,0.12); border-bottom:1px solid rgba(201,168,76,0.3);
+    padding:10px 48px; display:flex;align-items:center;gap:16px;
+  }
+  .demo-bar p { font-size:11px;color:#7a6030;font-weight:500; }
+  .demo-btns { display:flex;gap:8px; }
+  .demo-btn { padding:5px 14px;border-radius:20px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:500;border:1.5px solid;transition:all .2s; }
+  .demo-btn.ok { border-color:var(--verde-hoja);color:var(--verde-hoja);background:transparent; }
+  .demo-btn.ok.activo { background:var(--verde-hoja);color:var(--blanco); }
+  .demo-btn.err { border-color:var(--rojo);color:var(--rojo);background:transparent; }
+  .demo-btn.err.activo { background:var(--rojo);color:var(--blanco); }
+
+  main { flex:1;padding:60px 48px;display:flex;flex-direction:column;align-items:center; }
+
+  /* ESTADO: PROCESANDO */
+  .estado { display:none;flex-direction:column;align-items:center;max-width:600px;width:100%; }
+  .estado.visible { display:flex;animation:aparecer .4s ease; }
+  @keyframes aparecer { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  /* PROCESANDO */
+  .icono-estado { width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:44px;margin-bottom:24px; }
+  .icono-estado.procesando { background:linear-gradient(135deg,#e8f4f9,#d0ebf5);
+    animation:girar 1.5s linear infinite; }
+  @keyframes girar { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+
+  .estado h2 { font-family:'Playfair Display',serif;font-size:28px;font-weight:700;text-align:center;margin-bottom:12px; }
+  .estado p { font-size:14px;color:#6b7a6d;text-align:center;line-height:1.7;max-width:440px; }
+
+  /* Pasos de validación */
+  .pasos-val { background:var(--blanco);border-radius:16px;padding:28px;width:100%;margin-top:32px;box-shadow:0 4px 20px var(--sombra); }
+  .paso-val { display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid #eef5ee; }
+  .paso-val:last-child { border-bottom:none; }
+  .paso-val .ico-v { width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0; }
+  .ico-v.espera { background:#f0f0f0;color:#aaa; }
+  .ico-v.procesando { background:#e8f4f9;animation:pulsar .8s ease-in-out infinite alternate; }
+  @keyframes pulsar { from{opacity:0.5} to{opacity:1} }
+  .ico-v.ok { background:#e8f7ea;color:var(--verde-hoja); }
+  .ico-v.error { background:var(--rojo-bg);color:var(--rojo); }
+  .paso-val .desc { flex:1; }
+  .paso-val .desc strong { font-size:13px;color:var(--verde-bosque);display:block; }
+  .paso-val .desc span { font-size:11px;color:#9aac9b; }
+  .paso-val .estado-txt { font-size:11px;font-weight:500;padding:4px 10px;border-radius:12px; }
+  .estado-txt.espera { background:#f0f0f0;color:#999; }
+  .estado-txt.procesando { background:#e0f0f8;color:#2a7aa0; }
+  .estado-txt.ok { background:#e8f7ea;color:var(--verde-selva); }
+  .estado-txt.error { background:var(--rojo-bg);color:var(--rojo); }
+
+  /* RESULTADO VÁLIDO */
+  .icono-estado.valido { background:linear-gradient(135deg,var(--verde-menta),#c8f0cc); }
+  .card-resultado { background:var(--blanco);border-radius:20px;padding:32px;width:100%;margin-top:28px;box-shadow:0 4px 20px var(--sombra);border-top:4px solid var(--verde-hoja); }
+  .card-resultado h3 { font-size:12px;font-weight:500;color:var(--verde-hoja);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid #eef5ee; }
+  .fila-dato { display:flex;gap:16px;padding:8px 0;border-bottom:1px solid #f5faf5; }
+  .fila-dato:last-child { border-bottom:none; }
+  .fila-dato .lbl { font-size:11px;color:#9aac9b;min-width:150px;font-weight:500; }
+  .fila-dato .val { font-size:13px;color:var(--verde-bosque);font-weight:500; }
+  .badge-val { display:inline-flex;align-items:center;gap:6px;background:#e8f7ea;color:var(--verde-selva);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600; }
+
+  /* RESULTADO INVÁLIDO */
+  .icono-estado.invalido { background:linear-gradient(135deg,#fde8e6,#f5cbc8); }
+  .card-error { background:var(--rojo-bg);border:1.5px solid var(--rojo-borde);border-radius:16px;padding:24px;width:100%;margin-top:28px; }
+  .card-error h3 { font-size:14px;font-weight:700;color:var(--rojo);margin-bottom:8px; }
+  .card-error p { font-size:13px;color:#8b3030;line-height:1.7;margin-bottom:16px; }
+  .error-code { background:rgba(192,57,43,0.1);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--rojo);font-family:monospace; }
+  .pasos-correctivos { margin-top:20px; }
+  .pasos-correctivos h4 { font-size:11px;font-weight:700;color:#8b3030;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px; }
+  .paso-correctivo { display:flex;gap:10px;margin-bottom:10px;align-items:flex-start; }
+  .paso-correctivo .n { width:20px;height:20px;border-radius:50%;background:var(--rojo);color:var(--blanco);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0; }
+  .paso-correctivo p { font-size:12px;color:#8b3030;line-height:1.5; }
+
+  /* BOTONES */
+  .acciones { margin-top:32px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center; }
+  .btn-primario { padding:13px 36px;background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque));color:var(--crema);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px var(--sombra); }
+  .btn-primario:hover { transform:translateY(-1px);box-shadow:0 8px 24px var(--sombra); }
+  .btn-secundario { padding:13px 28px;border:1.5px solid #c4d9c5;border-radius:10px;background:var(--blanco);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--verde-bosque);cursor:pointer;transition:all .2s; }
+  .btn-secundario:hover { background:#eef5ee; }
+  .btn-peligro { padding:13px 28px;border:1.5px solid var(--rojo-borde);border-radius:10px;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--rojo);cursor:pointer;transition:all .2s; }
+  .btn-peligro:hover { background:var(--rojo-bg); }
+
+  @media(max-width:600px){ main{padding:32px 20px;} header,div.barra-progreso,div.demo-bar{padding-left:16px;padding-right:16px;} .pasos .paso span:not(.num){display:none;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <span class="ico">🌲</span>
+    <div>
+      <div class="sigla">SERFOR</div>
+      <div class="sub">Servicio Nacional Forestal</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="usuario"><div class="avatar">👤</div><span>Usuario Externo</span></div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="barra-progreso">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Acceso</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo de Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Datos Personales</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">4</span><span>Validación</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">5</span><span>Tipo de Registro</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">6</span><span>Confirmación</span></div>
+  </div>
+</div>
+
+<!-- Barra demo -->
+<div class="demo-bar">
+  <p>🎭 Demo — Simular resultado:</p>
+  <div class="demo-btns">
+    <button class="demo-btn ok activo" onclick="mostrarEstado('valido', this)">✓ Validación exitosa</button>
+    <button class="demo-btn err" onclick="mostrarEstado('invalido_dni', this)">✗ DNI inválido</button>
+    <button class="demo-btn err" onclick="mostrarEstado('invalido_ruc', this)">✗ RUC inválido</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- ESTADO: PROCESANDO -->
+  <div class="estado" id="estado-procesando">
+    <div class="icono-estado procesando">⏳</div>
+    <h2 style="color:var(--verde-bosque)">Validando Identidad...</h2>
+    <p>Estamos consultando las bases de datos de RENIEC y SUNAT. Por favor espere.</p>
+    <div class="pasos-val">
+      <div class="paso-val">
+        <div class="ico-v procesando">🔍</div>
+        <div class="desc"><strong>Validación de DNI</strong><span>Consultando RENIEC...</span></div>
+        <span class="estado-txt procesando">En proceso</span>
+      </div>
+      <div class="paso-val">
+        <div class="ico-v espera">⏸</div>
+        <div class="desc"><strong>Validación de RUC</strong><span>En espera</span></div>
+        <span class="estado-txt espera">Pendiente</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADO: VÁLIDO -->
+  <div class="estado" id="estado-valido">
+    <div class="icono-estado valido">✅</div>
+    <h2 style="color:var(--verde-bosque)">Identidad Verificada</h2>
+    <p>Su información ha sido validada exitosamente. Puede continuar con el proceso de registro.</p>
+
+    <div class="pasos-val">
+      <div class="paso-val">
+        <div class="ico-v ok">✓</div>
+        <div class="desc"><strong>Validación de DNI</strong><span>RENIEC · Consulta exitosa</span></div>
+        <span class="estado-txt ok">Válido</span>
+      </div>
+      <div class="paso-val">
+        <div class="ico-v ok">✓</div>
+        <div class="desc"><strong>Validación de RUC</strong><span>SUNAT · Consulta exitosa</span></div>
+        <span class="estado-txt ok">Válido</span>
+      </div>
+    </div>
+
+    <div class="card-resultado">
+      <h3>✅ Datos Confirmados</h3>
+      <div class="fila-dato"><span class="lbl">Razón Social</span><span class="val">FORESTAL AMAZÓNICA S.A.C.</span></div>
+      <div class="fila-dato"><span class="lbl">RUC</span><span class="val">20123456789 <span class="badge-val">✓ Activo</span></span></div>
+      <div class="fila-dato"><span class="lbl">Representante Legal</span><span class="val">CARLOS EDUARDO RAMÍREZ HUANCA</span></div>
+      <div class="fila-dato"><span class="lbl">DNI Representante</span><span class="val">12345678 <span class="badge-val">✓ Verificado</span></span></div>
+      <div class="fila-dato"><span class="lbl">Estado en SUNAT</span><span class="val"><span class="badge-val">✓ Activo y Habido</span></span></div>
+      <div class="fila-dato"><span class="lbl">Hora de validación</span><span class="val" id="hora-val"></span></div>
+    </div>
+
+    <div class="acciones">
+      <button class="btn-secundario" onclick="window.location.href='03_persona_natural.html'">← Editar Datos</button>
+      <button class="btn-primario" onclick="window.location.href='06_tipo_registro.html'">Continuar al Registro →</button>
+    </div>
+  </div>
+
+  <!-- ESTADO: DNI INVÁLIDO -->
+  <div class="estado" id="estado-invalido_dni">
+    <div class="icono-estado invalido">❌</div>
+    <h2 style="color:var(--rojo)">DNI No Válido</h2>
+    <p>No fue posible verificar el DNI ingresado. El registro no puede continuar hasta solucionar este problema.</p>
+
+    <div class="pasos-val">
+      <div class="paso-val">
+        <div class="ico-v error">✗</div>
+        <div class="desc"><strong>Validación de DNI</strong><span>RENIEC · Sin coincidencia</span></div>
+        <span class="estado-txt error">Inválido</span>
+      </div>
+      <div class="paso-val">
+        <div class="ico-v espera">—</div>
+        <div class="desc"><strong>Validación de RUC</strong><span>No ejecutada (bloqueada)</span></div>
+        <span class="estado-txt espera">Bloqueada</span>
+      </div>
+    </div>
+
+    <div class="card-error">
+      <h3>⛔ Registro Rechazado</h3>
+      <p>El DNI <strong>87654321</strong> no figura en el padrón de RENIEC o los datos no coinciden con los registrados.</p>
+      <div class="error-code">Código de error: RENIEC-404 · Timestamp: <span id="ts-error"></span></div>
+
+      <div class="pasos-correctivos">
+        <h4>¿Qué puede hacer?</h4>
+        <div class="paso-correctivo"><div class="n">1</div><p>Verifique que el número de DNI ingresado sea correcto (8 dígitos sin espacios).</p></div>
+        <div class="paso-correctivo"><div class="n">2</div><p>Asegúrese de que el DNI se encuentre vigente y no haya sido anulado.</p></div>
+        <div class="paso-correctivo"><div class="n">3</div><p>Si el problema persiste, contacte al soporte de SERFOR para asistencia.</p></div>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button class="btn-peligro" onclick="window.location.href='01_login.html'">Cancelar Registro</button>
+      <button class="btn-secundario" onclick="window.location.href='03_persona_natural.html'">← Corregir DNI</button>
+    </div>
+  </div>
+
+  <!-- ESTADO: RUC INVÁLIDO -->
+  <div class="estado" id="estado-invalido_ruc">
+    <div class="icono-estado invalido">❌</div>
+    <h2 style="color:var(--rojo)">RUC No Válido</h2>
+    <p>El DNI fue verificado correctamente, pero el RUC de la empresa no pudo validarse. El registro no puede continuar.</p>
+
+    <div class="pasos-val">
+      <div class="paso-val">
+        <div class="ico-v ok">✓</div>
+        <div class="desc"><strong>Validación de DNI</strong><span>RENIEC · Verificado correctamente</span></div>
+        <span class="estado-txt ok">Válido</span>
+      </div>
+      <div class="paso-val">
+        <div class="ico-v error">✗</div>
+        <div class="desc"><strong>Validación de RUC</strong><span>SUNAT · No activo o no encontrado</span></div>
+        <span class="estado-txt error">Inválido</span>
+      </div>
+    </div>
+
+    <div class="card-error">
+      <h3>⛔ RUC Rechazado por SUNAT</h3>
+      <p>El RUC <strong>20987654321</strong> no se encuentra activo en SUNAT, está dado de baja o la condición es "No Habido".</p>
+      <div class="error-code">Código de error: SUNAT-403 · Timestamp: <span id="ts-error-ruc"></span></div>
+
+      <div class="pasos-correctivos">
+        <h4>¿Qué puede hacer?</h4>
+        <div class="paso-correctivo"><div class="n">1</div><p>Confirme que el RUC ingresado pertenece a la empresa y tenga 11 dígitos.</p></div>
+        <div class="paso-correctivo"><div class="n">2</div><p>Verifique el estado de su empresa en el portal de SUNAT (sunat.gob.pe).</p></div>
+        <div class="paso-correctivo"><div class="n">3</div><p>Si el RUC está dado de baja, regularice su situación ante SUNAT antes de reintentar.</p></div>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button class="btn-peligro" onclick="window.location.href='01_login.html'">Cancelar Registro</button>
+      <button class="btn-secundario" onclick="window.location.href='04_persona_juridica.html'">← Corregir RUC</button>
+    </div>
+  </div>
+
+</main>
+
+<script>
+  const ahora = new Date().toLocaleString('es-PE');
+  const el = document.getElementById('hora-val');
+  if (el) el.textContent = ahora;
+  ['ts-error','ts-error-ruc'].forEach(id => {
+    const e = document.getElementById(id);
+    if(e) e.textContent = ahora;
+  });
+
+  function mostrarEstado(id, btn) {
+    document.querySelectorAll('.estado').forEach(e => e.classList.remove('visible'));
+    document.querySelectorAll('.demo-btn').forEach(b => b.classList.remove('activo'));
+    btn.classList.add('activo');
+    document.getElementById('estado-' + id).classList.add('visible');
+  }
+
+  // Mostrar estado válido por defecto
+  mostrarEstado('valido', document.querySelector('.demo-btn.ok'));
+</script>
+</body>
+</html>

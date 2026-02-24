@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Tipo de Registro</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --verde-bosque:#1a3d1f; --verde-selva:#2d6a35; --verde-hoja:#4a9e56;
+    --verde-claro:#7dcb87; --verde-menta:#b8e8bc; --crema:#f4f0e6;
+    --dorado:#c9a84c; --blanco:#ffffff; --sombra:rgba(26,61,31,0.15);
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans',sans-serif; background:var(--crema); display:flex; flex-direction:column; }
+
+  header { background:var(--verde-bosque);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,0.25); }
+  .header-logo { display:flex;align-items:center;gap:12px; }
+  .header-logo .ico { font-size:22px; }
+  .header-logo .sigla { font-family:'Playfair Display',serif;font-size:16px;font-weight:700;color:var(--crema);letter-spacing:2px; }
+  .header-logo .sub { font-size:9px;color:var(--verde-menta);letter-spacing:1.5px;text-transform:uppercase; }
+  .usuario { display:flex;align-items:center;gap:8px;font-size:12px;color:var(--verde-menta); }
+  .avatar { width:32px;height:32px;border-radius:50%;background:var(--verde-hoja);display:flex;align-items:center;justify-content:center;font-size:14px; }
+  .btn-salir { padding:6px 16px;border:1px solid rgba(184,232,188,0.3);border-radius:20px;background:transparent;color:var(--verde-menta);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer; }
+
+  .barra-progreso { background:var(--verde-selva);padding:0 48px; }
+  .pasos { display:flex;align-items:center;max-width:900px;margin:0 auto;padding:16px 0; }
+  .paso { display:flex;align-items:center;gap:10px;font-size:11px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;color:rgba(184,232,188,0.5);white-space:nowrap; }
+  .paso.activo { color:var(--crema); }
+  .paso.completado { color:var(--verde-claro); }
+  .paso .num { width:24px;height:24px;border-radius:50%;border:1.5px solid currentColor;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0; }
+  .paso.activo .num { background:var(--verde-claro);border-color:var(--verde-claro);color:var(--verde-bosque); }
+  .paso.completado .num { background:var(--verde-hoja);border-color:var(--verde-hoja);color:var(--blanco); }
+  .linea-paso { flex:1;height:1px;background:rgba(184,232,188,0.25);margin:0 12px;min-width:20px; }
+  .linea-paso.completa { background:var(--verde-hoja); }
+
+  main { flex:1;padding:60px 48px;display:flex;flex-direction:column;align-items:center; }
+
+  .cabecera { text-align:center;margin-bottom:48px; }
+  .cabecera .etiqueta { font-size:11px;font-weight:500;color:var(--verde-hoja);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px; }
+  .cabecera h2 { font-family:'Playfair Display',serif;font-size:clamp(26px,3vw,36px);font-weight:700;color:var(--verde-bosque);line-height:1.3; }
+  .cabecera p { font-size:14px;color:#6b7a6d;margin-top:10px; }
+
+  /* Banner proveedor verificado */
+  .banner-verificado {
+    max-width:860px;width:100%;
+    background:linear-gradient(135deg,var(--verde-bosque),var(--verde-selva));
+    border-radius:16px;padding:20px 28px;margin-bottom:40px;
+    display:flex;align-items:center;gap:20px;
+  }
+  .banner-verificado .ico-ban { font-size:32px;flex-shrink:0; }
+  .banner-verificado .txt-ban { flex:1; }
+  .banner-verificado .txt-ban p { font-size:13px;color:var(--verde-menta);margin-top:2px; }
+  .banner-verificado .txt-ban strong { font-size:15px;color:var(--crema);font-family:'Playfair Display',serif; }
+  .badge-ok { display:inline-flex;align-items:center;gap:6px;background:rgba(125,203,135,0.25);border:1px solid rgba(125,203,135,0.4);color:var(--verde-claro);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:500;flex-shrink:0; }
+
+  /* TARJETAS DE REGISTRO */
+  .tarjetas-grid { display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;max-width:860px;width:100%; }
+
+  .tarjeta-tipo {
+    background:var(--blanco);border-radius:20px;
+    border:2px solid #d4e6d5;
+    padding:36px 28px;cursor:pointer;
+    position:relative;overflow:hidden;
+    transition:all .28s ease;
+    display:flex;flex-direction:column;align-items:center;text-align:center;
+  }
+  .tarjeta-tipo::after {
+    content:'';position:absolute;bottom:0;left:0;right:0;height:4px;
+    background:linear-gradient(90deg,var(--verde-hoja),var(--verde-claro));
+    transform:scaleX(0);transform-origin:center;transition:transform .3s;
+  }
+  .tarjeta-tipo:hover, .tarjeta-tipo.seleccionada {
+    border-color:var(--verde-hoja);
+    box-shadow:0 16px 48px var(--sombra);
+    transform:translateY(-6px);
+  }
+  .tarjeta-tipo:hover::after, .tarjeta-tipo.seleccionada::after { transform:scaleX(1); }
+  .tarjeta-tipo.seleccionada { background:linear-gradient(180deg,#f0faf1,var(--blanco)); }
+
+  /* Tarjeta "Ambos" destacada */
+  .tarjeta-tipo.destacada {
+    border-color:var(--dorado);
+    background:linear-gradient(160deg,#fffdf0,var(--blanco));
+  }
+  .tarjeta-tipo.destacada::after { background:linear-gradient(90deg,var(--dorado),#e8c86e); }
+  .tarjeta-tipo.destacada:hover, .tarjeta-tipo.destacada.seleccionada {
+    border-color:var(--dorado);
+    box-shadow:0 16px 48px rgba(201,168,76,0.2);
+  }
+
+  .badge-popular { position:absolute;top:14px;right:14px;background:var(--dorado);color:var(--blanco);font-size:9px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:0.8px;text-transform:uppercase; }
+
+  .icono-tipo {
+    width:76px;height:76px;border-radius:20px;margin-bottom:20px;
+    display:flex;align-items:center;justify-content:center;font-size:34px;
+    transition:all .3s;
+  }
+  .icono-tipo.azul { background:linear-gradient(135deg,#e0f0ff,#c8e6ff); }
+  .icono-tipo.verde { background:linear-gradient(135deg,var(--verde-menta),#c8f0cc); }
+  .icono-tipo.dorado { background:linear-gradient(135deg,#fff3d0,#ffe599); }
+
+  .tarjeta-tipo:hover .icono-tipo, .tarjeta-tipo.seleccionada .icono-tipo { transform:scale(1.1) rotate(-3deg); }
+
+  .tarjeta-tipo h3 { font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--verde-bosque);margin-bottom:10px; }
+  .tarjeta-tipo p { font-size:12px;color:#6b7a6d;line-height:1.7;margin-bottom:20px;flex:1; }
+
+  .lista-tipo { text-align:left;width:100%; }
+  .lista-tipo li { font-size:11px;color:#5a7a5c;padding:5px 0;border-bottom:1px solid #eef5ee;display:flex;align-items:center;gap:8px; }
+  .lista-tipo li:last-child { border-bottom:none; }
+  .lista-tipo li .dot { width:6px;height:6px;border-radius:50%;background:var(--verde-claro);flex-shrink:0; }
+
+  .check-sel { position:absolute;top:14px;left:14px;width:24px;height:24px;border-radius:50%;background:var(--verde-hoja);color:var(--blanco);font-size:12px;display:flex;align-items:center;justify-content:center;opacity:0;transform:scale(0);transition:all .25s; }
+  .tarjeta-tipo.seleccionada .check-sel { opacity:1;transform:scale(1); }
+  .tarjeta-tipo.destacada.seleccionada .check-sel { background:var(--dorado); }
+
+  /* Nota */
+  .nota { max-width:860px;width:100%;margin-top:24px;background:rgba(201,168,76,0.1);border:1px solid rgba(201,168,76,0.3);border-radius:12px;padding:14px 20px;display:flex;align-items:flex-start;gap:12px; }
+  .nota p { font-size:12px;color:#7a6030;line-height:1.6; }
+
+  /* Acciones */
+  .acciones { margin-top:40px;display:flex;gap:16px;align-items:center; }
+  .btn-atras { padding:13px 28px;border:1.5px solid #c4d9c5;border-radius:10px;background:transparent;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--verde-bosque);cursor:pointer;transition:all .2s; }
+  .btn-atras:hover { background:#eef5ee; }
+  .btn-continuar { padding:13px 40px;background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque));color:var(--crema);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;letter-spacing:0.8px;text-transform:uppercase;cursor:pointer;transition:all .2s;box-shadow:0 4px 16px var(--sombra); }
+  .btn-continuar:hover { transform:translateY(-1px);box-shadow:0 8px 24px var(--sombra); }
+  .btn-continuar:disabled { opacity:0.4;cursor:not-allowed;transform:none; }
+
+  @media(max-width:860px){ .tarjetas-grid{grid-template-columns:1fr;max-width:400px;} }
+  @media(max-width:600px){ main{padding:32px 16px;} header,div.barra-progreso{padding-left:16px;padding-right:16px;} .pasos .paso span:not(.num){display:none;} .banner-verificado{flex-direction:column;gap:12px;text-align:center;} }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-logo">
+    <span class="ico">🌲</span>
+    <div>
+      <div class="sigla">SERFOR</div>
+      <div class="sub">Servicio Nacional Forestal</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div class="usuario"><div class="avatar">👤</div><span>Usuario Externo</span></div>
+    <button class="btn-salir" onclick="window.location.href='01_login.html'">Salir</button>
+  </div>
+</header>
+
+<div class="barra-progreso">
+  <div class="pasos">
+    <div class="paso completado"><span class="num">✓</span><span>Acceso</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Tipo de Persona</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Datos Personales</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso completado"><span class="num">✓</span><span>Validación</span></div>
+    <div class="linea-paso completa"></div>
+    <div class="paso activo"><span class="num">5</span><span>Tipo de Registro</span></div>
+    <div class="linea-paso"></div>
+    <div class="paso"><span class="num">6</span><span>Confirmación</span></div>
+  </div>
+</div>
+
+<main>
+  <div class="cabecera">
+    <div class="etiqueta">Paso 5 de 6</div>
+    <h2>Seleccione el Tipo de Registro</h2>
+    <p>Indique si desea registrarse como proveedor de bienes, servicios o ambos.</p>
+  </div>
+
+  <div class="banner-verificado">
+    <span class="ico-ban">✅</span>
+    <div class="txt-ban">
+      <strong>FORESTAL AMAZÓNICA S.A.C. — DNI y RUC verificados</strong>
+      <p>Identidad validada exitosamente. Puede proceder con el registro de su actividad forestal.</p>
+    </div>
+    <span class="badge-ok">✓ Verificado</span>
+  </div>
+
+  <div class="tarjetas-grid">
+
+    <!-- Solo Bien -->
+    <div class="tarjeta-tipo" id="card-bien" onclick="seleccionar('bien')">
+      <div class="check-sel">✓</div>
+      <div class="icono-tipo azul">📦</div>
+      <h3>Bienes</h3>
+      <p>Registro como proveedor de productos y bienes forestales tangibles.</p>
+      <ul class="lista-tipo">
+        <li><span class="dot"></span>Madera y derivados</li>
+        <li><span class="dot"></span>Productos no maderables</li>
+        <li><span class="dot"></span>Plantas y semillas</li>
+        <li><span class="dot"></span>Fauna silvestre</li>
+      </ul>
+    </div>
+
+    <!-- Solo Servicio -->
+    <div class="tarjeta-tipo" id="card-servicio" onclick="seleccionar('servicio')">
+      <div class="check-sel">✓</div>
+      <div class="icono-tipo verde">⚙️</div>
+      <h3>Servicios</h3>
+      <p>Registro como proveedor de servicios técnicos y especializados del sector forestal.</p>
+      <ul class="lista-tipo">
+        <li><span class="dot"></span>Consultoría forestal</li>
+        <li><span class="dot"></span>Reforestación</li>
+        <li><span class="dot"></span>Monitoreo ambiental</li>
+        <li><span class="dot"></span>Capacitación técnica</li>
+      </ul>
+    </div>
+
+    <!-- Ambos -->
+    <div class="tarjeta-tipo destacada" id="card-ambos" onclick="seleccionar('ambos')">
+      <div class="check-sel">✓</div>
+      <span class="badge-popular">Más completo</span>
+      <div class="icono-tipo dorado">🌟</div>
+      <h3>Bienes y Servicios</h3>
+      <p>Registro completo como proveedor de bienes y servicios forestales al mismo tiempo.</p>
+      <ul class="lista-tipo">
+        <li><span class="dot"></span>Todos los bienes forestales</li>
+        <li><span class="dot"></span>Todos los servicios técnicos</li>
+        <li><span class="dot"></span>Mayor visibilidad</li>
+        <li><span class="dot"></span>Acceso a más licitaciones</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <div class="nota">
+    <span style="font-size:18px;flex-shrink:0;">ℹ️</span>
+    <p><strong>Nota:</strong> El tipo de registro puede modificarse en el futuro a través de su perfil de proveedor. Sin embargo, para ampliar el registro deberá completar un nuevo proceso de validación de datos.</p>
+  </div>
+
+  <div class="acciones">
+    <button class="btn-atras" onclick="window.location.href='05_validacion.html'">← Atrás</button>
+    <button class="btn-continuar" id="btn-continuar" disabled onclick="continuar()">Continuar →</button>
+  </div>
+</main>
+
+<script>
+  let seleccion = null;
+  function seleccionar(tipo) {
+    seleccion = tipo;
+    document.querySelectorAll('.tarjeta-tipo').forEach(c => c.classList.remove('seleccionada'));
+    document.getElementById('card-' + tipo).classList.add('seleccionada');
+    document.getElementById('btn-continuar').disabled = false;
+  }
+  function continuar() {
+    if (!seleccion) return;
+    if (seleccion === 'bien') window.location.href = '07_registro_bien.html';
+    else if (seleccion === 'servicio') window.location.href = '07_registro_servicio.html';
+    else window.location.href = '07_registro_ambos.html';
+  }
+</script>
+</body>
+</html>
