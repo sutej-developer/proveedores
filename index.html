@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SERFOR – Acceso al Sistema</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root{--vb:#1a3d1f;--vs:#2d6a35;--vh:#4a9e56;--vc:#7dcb87;--vm:#b8e8bc;--crema:#f4f0e6;--dorado:#c9a84c;--blanco:#fff;--sombra:rgba(26,61,31,.18);--error:#c0392b}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{min-height:100vh;font-family:'DM Sans',sans-serif;background:var(--vb);display:flex;overflow:hidden}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 15% 85%,rgba(74,158,86,.18) 0%,transparent 50%),radial-gradient(ellipse at 85% 15%,rgba(45,106,53,.22) 0%,transparent 50%);pointer-events:none}
+  .panel-l{flex:1;position:relative;display:flex;flex-direction:column;justify-content:flex-end;padding:52px 48px;overflow:hidden}
+  .panel-l::before{content:'';position:absolute;inset:0;background:linear-gradient(160deg,var(--vs) 0%,var(--vb) 65%)}
+  .arboles{position:absolute;bottom:0;left:0;right:0;height:65%;opacity:.15}
+  .deco-ring{position:absolute;border-radius:50%;border:1px solid rgba(184,232,188,.18)}
+  .deco-ring:nth-child(1){width:420px;height:420px;top:-90px;right:-110px}
+  .deco-ring:nth-child(2){width:260px;height:260px;top:50px;right:10px;border-color:rgba(184,232,188,.1)}
+  .logo-panel{position:relative;z-index:2;display:flex;align-items:center;gap:14px;margin-bottom:auto}
+  .logo-ico{width:54px;height:54px;background:var(--vh);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px}
+  .logo-panel .sigla{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--crema);letter-spacing:2px}
+  .logo-panel .sub{font-size:10px;font-weight:300;color:var(--vm);letter-spacing:1.5px;text-transform:uppercase}
+  .tagline{position:relative;z-index:2}
+  .tagline h1{font-family:'Playfair Display',serif;font-size:clamp(26px,3vw,40px);font-weight:900;color:var(--crema);line-height:1.2;margin-bottom:14px}
+  .tagline h1 em{color:var(--vc);font-style:normal}
+  .tagline p{font-size:13px;font-weight:300;color:var(--vm);line-height:1.75;max-width:320px}
+  .badge-live{position:relative;z-index:2;margin-top:36px;display:inline-flex;align-items:center;gap:8px;background:rgba(74,158,86,.15);border:1px solid rgba(125,203,135,.25);border-radius:20px;padding:6px 14px;font-size:11px;color:var(--vm)}
+  .dot-live{width:6px;height:6px;border-radius:50%;background:var(--vc);animation:pulso 2s ease-in-out infinite}
+  @keyframes pulso{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+  .panel-r{width:490px;min-height:100vh;background:var(--crema);display:flex;flex-direction:column;justify-content:center;padding:48px 44px;position:relative;box-shadow:-20px 0 60px rgba(0,0,0,.28);overflow-y:auto}
+  .panel-r::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--vh),var(--dorado),var(--vc))}
+  /* Rol selector */
+  .rol-selector{display:flex;background:#e8f0e8;border-radius:12px;padding:4px;margin-bottom:28px;gap:2px}
+  .rol-btn{flex:1;padding:9px 6px;border-radius:9px;border:none;background:transparent;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;color:#6b7a6d;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.4px;display:flex;align-items:center;justify-content:center;gap:4px}
+  .rol-btn.activo{background:var(--blanco);color:var(--vb);box-shadow:0 2px 8px var(--sombra);font-weight:600}
+  .rol-btn span{font-size:14px}
+  .form-cabecera{margin-bottom:24px}
+  .form-cabecera .etiq{font-size:10px;font-weight:600;color:var(--vh);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px}
+  .form-cabecera h2{font-family:'Playfair Display',serif;font-size:25px;font-weight:700;color:var(--vb);line-height:1.3}
+  .form-cabecera p{font-size:12px;color:#6b7a6d;margin-top:5px;line-height:1.6}
+  .sep{height:1px;background:linear-gradient(90deg,var(--vm),transparent);margin-bottom:22px}
+  .campo{margin-bottom:16px}
+  .campo label{display:block;font-size:10px;font-weight:500;color:var(--vb);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+  .iw{position:relative}
+  .iw .ico{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:15px;opacity:.5;pointer-events:none}
+  input[type=text],input[type=password],input[type=email]{width:100%;padding:12px 13px 12px 40px;background:var(--blanco);border:1.5px solid #d4e6d5;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--vb);outline:none;transition:border-color .2s,box-shadow .2s}
+  input:focus{border-color:var(--vh);box-shadow:0 0 0 3px rgba(74,158,86,.1)}
+  input::placeholder{color:#aabdab;font-weight:300}
+  .fila-opc{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .check-lbl{display:flex;align-items:center;gap:7px;font-size:12px;color:#6b7a6d;cursor:pointer}
+  .check-lbl input{accent-color:var(--vh);width:14px;height:14px}
+  .link-olvide{font-size:12px;color:var(--vh);font-weight:500;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;transition:color .2s}
+  .link-olvide:hover{color:var(--vb)}
+  .btn-ingresar{width:100%;padding:14px;background:linear-gradient(135deg,var(--vs),var(--vb));color:var(--crema);border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:transform .15s,box-shadow .2s}
+  .btn-ingresar:hover{transform:translateY(-1px);box-shadow:0 8px 24px var(--sombra)}
+  /* Sección proveedor nuevo */
+  .nuevo-proveedor{margin-top:22px}
+  .div-reg{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .div-reg::before,.div-reg::after{content:'';flex:1;height:1px;background:#d4e6d5}
+  .div-reg span{font-size:11px;color:#9aac9b;white-space:nowrap}
+  .btn-reg{width:100%;padding:13px;background:transparent;border:2px solid var(--vh);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--vh);cursor:pointer;transition:all .25s;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-reg:hover{background:var(--vh);color:var(--blanco);transform:translateY(-1px);box-shadow:0 6px 20px rgba(74,158,86,.25)}
+  /* Aviso interno */
+  .aviso-int{background:rgba(26,61,31,.06);border:1px solid #c4d9c5;border-radius:10px;padding:12px 14px;font-size:11px;color:#5a7a5c;line-height:1.6;display:flex;gap:8px;margin-top:20px;align-items:flex-start}
+  .pie{margin-top:24px;text-align:center;font-size:11px;color:#9aac9b}
+  .pie a{color:var(--vh);text-decoration:none}
+  /* MODAL RECUPERAR */
+  .modal-ov{position:fixed;inset:0;z-index:1000;background:rgba(10,24,12,.72);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+  .modal-ov.vis{opacity:1;pointer-events:all}
+  .modal{background:var(--crema);border-radius:20px;width:100%;max-width:420px;margin:20px;box-shadow:0 24px 64px rgba(0,0,0,.4);overflow:hidden;transform:translateY(20px) scale(.97);transition:transform .3s cubic-bezier(.34,1.56,.64,1)}
+  .modal-ov.vis .modal{transform:translateY(0) scale(1)}
+  .m-hdr{background:linear-gradient(135deg,var(--vb),var(--vs));padding:22px 26px;display:flex;align-items:center;gap:14px;position:relative}
+  .m-hdr .mico{width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .m-hdr h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:700;color:var(--crema)}
+  .m-hdr p{font-size:11px;color:var(--vm);margin-top:2px}
+  .btn-x{position:absolute;top:12px;right:14px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.12);border:none;color:var(--crema);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .btn-x:hover{background:rgba(255,255,255,.25)}
+  .m-dots{display:flex;gap:6px;justify-content:center;padding:14px 0 0}
+  .ms-d{width:8px;height:8px;border-radius:50%;background:#d4e6d5;transition:all .3s}
+  .ms-d.act{background:var(--vh);width:20px;border-radius:4px}
+  .ms-d.done{background:var(--vh)}
+  .m-paso{display:none}
+  .m-paso.act{display:block;animation:fu .3s ease}
+  @keyframes fu{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .m-body{padding:20px 26px 6px}
+  .m-desc{font-size:12px;color:#5a7a5c;line-height:1.7;margin-bottom:16px;background:rgba(74,158,86,.07);border-left:3px solid var(--vh);padding:9px 13px;border-radius:0 7px 7px 0}
+  .mc{margin-bottom:14px}
+  .mc label{display:block;font-size:10px;font-weight:500;color:var(--vb);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+  .mc .miw{position:relative}
+  .mc .mic{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:14px;opacity:.5;pointer-events:none}
+  .mc input{width:100%;padding:10px 12px 10px 36px;background:var(--blanco);border:1.5px solid #d4e6d5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);outline:none;transition:border-color .2s,box-shadow .2s}
+  .mc input:focus{border-color:var(--vh);box-shadow:0 0 0 3px rgba(74,158,86,.1)}
+  .mc input::placeholder{color:#aabdab;font-weight:300}
+  .otp-wrap{display:flex;gap:8px;justify-content:center;margin:4px 0}
+  .otp-wrap input{width:48px;height:52px;text-align:center;font-size:20px;font-weight:700;color:var(--vb);border:1.5px solid #d4e6d5;border-radius:9px;padding:0;background:var(--blanco);outline:none;transition:border-color .2s,box-shadow .2s}
+  .otp-wrap input:focus{border-color:var(--vh);box-shadow:0 0 0 3px rgba(74,158,86,.1)}
+  .otp-re{font-size:11px;color:var(--vh);cursor:pointer;text-align:center;margin-top:7px;text-decoration:underline;display:block}
+  .fb{height:4px;border-radius:2px;background:#e0e0e0;margin-top:6px;overflow:hidden}
+  .ff{height:100%;width:0%;border-radius:2px;transition:width .3s,background .3s}
+  .ft{font-size:10px;color:#9aac9b;margin-top:3px}
+  .m-footer{padding:12px 26px 20px;display:flex;flex-direction:column;gap:8px}
+  .btn-mp{width:100%;padding:12px;background:linear-gradient(135deg,var(--vs),var(--vb));color:var(--crema);border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;letter-spacing:.8px;text-transform:uppercase;cursor:pointer;transition:all .2s}
+  .btn-mp:hover{transform:translateY(-1px);box-shadow:0 6px 18px var(--sombra)}
+  .btn-ms{width:100%;padding:10px;background:transparent;border:1.5px solid #c4d9c5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--vb);cursor:pointer;transition:all .2s}
+  .btn-ms:hover{background:#eef5ee}
+  .exito-m{text-align:center;padding:10px 0}
+  .exito-m .ie{font-size:48px;margin-bottom:10px;display:block;animation:rb .5s ease}
+  @keyframes rb{0%{transform:scale(.5)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+  .exito-m h4{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;color:var(--vb);margin-bottom:6px}
+  .exito-m p{font-size:12px;color:#5a7a5c;line-height:1.7}
+  @media(max-width:768px){.panel-l{display:none}.panel-r{width:100%;padding:32px 20px}}
+</style>
+</head>
+<body>
+<div class="panel-l">
+  <div class="deco-ring"></div><div class="deco-ring"></div>
+  <svg class="arboles" viewBox="0 0 800 500" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
+    <polygon points="80,440 170,180 260,440" fill="#4a9e56"/><polygon points="100,355 170,140 240,355" fill="#2d6a35"/><rect x="158" y="440" width="24" height="50" fill="#1a3d1f"/>
+    <polygon points="330,440 410,220 490,440" fill="#4a9e56"/><polygon points="348,365 410,180 472,365" fill="#2d6a35"/><rect x="398" y="440" width="24" height="50" fill="#1a3d1f"/>
+    <polygon points="560,440 655,170 750,440" fill="#4a9e56"/><polygon points="580,355 655,130 730,355" fill="#2d6a35"/><rect x="643" y="440" width="24" height="56" fill="#1a3d1f"/>
+    <ellipse cx="40" cy="465" rx="55" ry="26" fill="#2d6a35"/><ellipse cx="510" cy="463" rx="52" ry="24" fill="#2d6a35"/>
+  </svg>
+  <div class="logo-panel"><div class="logo-ico">🌲</div><div><div class="sigla">SERFOR</div><div class="sub">Servicio Nacional Forestal</div></div></div>
+  <div class="tagline">
+    <h1>Sistema de<br/>Registro de<br/><em>Proveedores</em></h1>
+    <p>Plataforma oficial para el registro y habilitación de proveedores del sector forestal y de fauna silvestre del Perú.</p>
+  </div>
+  <div class="badge-live"><span class="dot-live"></span>Sistema en línea · v2.5.0</div>
+</div>
+<div class="panel-r">
+  <div class="rol-selector">
+    <button class="rol-btn activo" onclick="setRol('proveedor',this)"><span>🏢</span> Proveedor</button>
+    <button class="rol-btn" onclick="setRol('especialista',this)"><span>🔬</span> Especialista</button>
+    <button class="rol-btn" onclick="setRol('admin',this)"><span>⚙️</span> Admin</button>
+  </div>
+  <div class="form-cabecera">
+    <div class="etiq" id="lbl-etiq">Acceso de Proveedor</div>
+    <h2 id="lbl-titulo">Ingresar al Sistema</h2>
+    <p id="lbl-desc">Ingrese sus credenciales para gestionar sus registros de proveedor forestal.</p>
+  </div>
+  <div class="sep"></div>
+  <form onsubmit="return false;">
+    <div class="campo"><label>Usuario / RUC</label><div class="iw"><span class="ico">👤</span><input type="text" placeholder="Ingrese su usuario o RUC"/></div></div>
+    <div class="campo"><label>Contraseña</label><div class="iw"><span class="ico">🔒</span><input type="password" placeholder="••••••••"/></div></div>
+    <div class="fila-opc">
+      <label class="check-lbl"><input type="checkbox"/> Recordar sesión</label>
+      <button class="link-olvide" onclick="abrirRec()">¿Olvidó su contraseña?</button>
+    </div>
+    <button class="btn-ingresar" onclick="ingresar()">Ingresar al Sistema</button>
+  </form>
+  <div id="sec-nuevo" class="nuevo-proveedor">
+    <div class="div-reg"><span>¿Primera vez en el sistema?</span></div>
+    <button class="btn-reg" onclick="window.location.href='02_tipo_persona.html'">✏️ Registrarse como Proveedor</button>
+  </div>
+  <div id="aviso-int" class="aviso-int" style="display:none;">
+    <span>🔐</span><span>El acceso para <strong>Especialistas</strong> y <strong>Administradores</strong> requiere credenciales institucionales de SERFOR. Contacte a soporte si no puede acceder.</span>
+  </div>
+  <div class="pie">© 2025 SERFOR · <a href="#">Términos de uso</a> · <a href="#">Soporte técnico</a></div>
+</div>
+
+<!-- MODAL RECUPERAR CONTRASEÑA -->
+<div class="modal-ov" id="modal-rec" onclick="cerrarSiOv(event)">
+  <div class="modal">
+    <div class="m-hdr"><div class="mico">🔑</div><div><h3>Recuperar Contraseña</h3><p id="m-sub">Ingrese su correo o RUC</p></div><button class="btn-x" onclick="cerrarRec()">✕</button></div>
+    <div class="m-dots"><div class="ms-d act" id="d1"></div><div class="ms-d" id="d2"></div><div class="ms-d" id="d3"></div></div>
+    <div class="m-paso act" id="mp1">
+      <div class="m-body"><div class="m-desc">Ingrese el correo electrónico o RUC registrado. Le enviaremos un código de verificación de 6 dígitos.</div>
+        <div class="mc"><label>Correo o RUC</label><div class="miw"><span class="mic">📧</span><input type="text" placeholder="correo@empresa.com o 20123456789"/></div></div>
+      </div>
+      <div class="m-footer"><button class="btn-mp" onclick="irMP(2)">Enviar Código de Verificación</button><button class="btn-ms" onclick="cerrarRec()">Cancelar</button></div>
+    </div>
+    <div class="m-paso" id="mp2">
+      <div class="m-body"><div class="m-desc">Hemos enviado un código de <strong>6 dígitos</strong>. Expira en <strong id="cregr">05:00</strong>.</div>
+        <div class="mc"><label>Código de verificación</label>
+          <div class="otp-wrap">
+            <input type="text" maxlength="1" class="otp-d" oninput="avOTP(this,0)"/>
+            <input type="text" maxlength="1" class="otp-d" oninput="avOTP(this,1)"/>
+            <input type="text" maxlength="1" class="otp-d" oninput="avOTP(this,2)"/>
+            <input type="text" maxlength="1" class="otp-d" oninput="avOTP(this,3)"/>
+            <input type="text" maxlength="1" class="otp-d" oninput="avOTP(this,4)"/>
+            <input type="text" maxlength="1" class="otp-d" oninput="avOTP(this,5)"/>
+          </div>
+          <a class="otp-re" onclick="reenviarCod()">¿No recibió el código? Reenviar</a>
+        </div>
+      </div>
+      <div class="m-footer"><button class="btn-mp" onclick="irMP(3)">Verificar Código</button><button class="btn-ms" onclick="irMP(1)">← Volver</button></div>
+    </div>
+    <div class="m-paso" id="mp3">
+      <div class="m-body"><div class="m-desc">Cree una contraseña segura: mínimo 8 caracteres, mayúsculas, números y símbolo especial.</div>
+        <div class="mc"><label>Nueva contraseña</label><div class="miw"><span class="mic">🔒</span><input type="password" placeholder="••••••••" oninput="medirF(this.value)"/></div><div class="fb"><div class="ff" id="ff"></div></div><div class="ft" id="ft">Ingrese una contraseña</div></div>
+        <div class="mc"><label>Confirmar contraseña</label><div class="miw"><span class="mic">🔒</span><input type="password" placeholder="••••••••"/></div></div>
+      </div>
+      <div class="m-footer"><button class="btn-mp" onclick="irMP(4)">Guardar Nueva Contraseña</button><button class="btn-ms" onclick="irMP(2)">← Volver</button></div>
+    </div>
+    <div class="m-paso" id="mp4">
+      <div class="m-body"><div class="exito-m"><span class="ie">✅</span><h4>¡Contraseña Actualizada!</h4><p>Su contraseña ha sido restablecida. Ya puede ingresar al sistema.</p></div></div>
+      <div class="m-footer"><button class="btn-mp" onclick="cerrarRec()">Ir al Login</button></div>
+    </div>
+  </div>
+</div>
+<script>
+const RC={proveedor:{etiq:'Acceso de Proveedor',titulo:'Ingresar al Sistema',desc:'Ingrese sus credenciales para gestionar sus registros de proveedor forestal.',dest:'10_dashboard_proveedor.html'},especialista:{etiq:'Acceso Especialista SERFOR',titulo:'Portal de Especialistas',desc:'Acceda para revisar y validar solicitudes de registro de proveedores.',dest:'20_dashboard_especialista.html'},admin:{etiq:'Acceso Administrador',titulo:'Panel de Administración',desc:'Gestione el catálogo de bienes y servicios forestales del sistema.',dest:'30_dashboard_admin.html'}};
+let rolActual='proveedor';
+function setRol(r,btn){rolActual=r;document.querySelectorAll('.rol-btn').forEach(b=>b.classList.remove('activo'));btn.classList.add('activo');const c=RC[r];document.getElementById('lbl-etiq').textContent=c.etiq;document.getElementById('lbl-titulo').textContent=c.titulo;document.getElementById('lbl-desc').textContent=c.desc;document.getElementById('sec-nuevo').style.display=r==='proveedor'?'block':'none';document.getElementById('aviso-int').style.display=r!=='proveedor'?'flex':'none';}
+function ingresar(){window.location.href=RC[rolActual].dest;}
+let timer=null;
+function abrirRec(){irMP(1);document.getElementById('modal-rec').classList.add('vis');}
+function cerrarRec(){document.getElementById('modal-rec').classList.remove('vis');if(timer){clearInterval(timer);timer=null;}}
+function cerrarSiOv(e){if(e.target===document.getElementById('modal-rec'))cerrarRec();}
+const mSubs={1:'Ingrese su correo o RUC',2:'Verifique el código enviado',3:'Cree su nueva contraseña',4:'Proceso completado'};
+function irMP(n){document.querySelectorAll('.m-paso').forEach(p=>p.classList.remove('act'));document.getElementById('mp'+n).classList.add('act');[1,2,3].forEach(i=>{const d=document.getElementById('d'+i);d.className='ms-d';if(i<n)d.classList.add('done');if(i===n)d.classList.add('act');});document.getElementById('m-sub').textContent=mSubs[n]||'';if(n===2)iniciarTimer();else if(timer){clearInterval(timer);timer=null;}if(n===2)setTimeout(()=>{const f=document.querySelector('.otp-d');if(f)f.focus();},150);}
+function iniciarTimer(){let s=300;if(timer)clearInterval(timer);timer=setInterval(()=>{s--;const el=document.getElementById('cregr');if(!el)return;el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');if(s<=0){clearInterval(timer);el.textContent='expirado';}},1000);}
+function avOTP(el,idx){el.value=el.value.replace(/\D/g,'').slice(-1);const ds=document.querySelectorAll('.otp-d');if(el.value&&idx<5)ds[idx+1].focus();}
+function reenviarCod(){document.querySelectorAll('.otp-d').forEach(d=>d.value='');document.querySelectorAll('.otp-d')[0].focus();iniciarTimer();}
+function medirF(p){let f=0;if(p.length>=8)f++;if(/[A-Z]/.test(p))f++;if(/[0-9]/.test(p))f++;if(/[^A-Za-z0-9]/.test(p))f++;const d=[{w:'0%',b:'#e0e0e0',t:'Ingrese una contraseña'},{w:'25%',b:'#e74c3c',t:'Débil'},{w:'50%',b:'#e67e22',t:'Regular'},{w:'75%',b:'#c9a84c',t:'Buena'},{w:'100%',b:'#4a9e56',t:'Excelente ✓'}];document.getElementById('ff').style.cssText='width:'+d[f].w+';background:'+d[f].b;document.getElementById('ft').textContent=d[f].t;}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')cerrarRec();});
+</script>
+</body>
+</html>
