@@ -162,6 +162,20 @@
   .btn-continuar { padding:11px 34px; background:linear-gradient(135deg,var(--verde-hoja),var(--verde-claro)); color:var(--verde-bosque); font-weight:700; border:none; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px; letter-spacing:0.8px; text-transform:uppercase; cursor:pointer; transition:all .2s; box-shadow:0 4px 16px rgba(74,158,86,0.4); }
   .btn-continuar:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(74,158,86,0.5); }
 
+  /* ── CAMPOS PROPUESTOS ── */
+  .nuevo-borde { border-color:rgba(201,168,76,0.55) !important; background:rgba(201,168,76,0.05) !important; }
+  .nuevo-borde:focus { border-color:#c9a84c !important; box-shadow:0 0 0 3px rgba(201,168,76,0.15) !important; }
+  .badge-nuevo { display:inline-flex; align-items:center; font-size:8px; background:rgba(201,168,76,0.1); color:#8a6020; border:1px solid rgba(201,168,76,0.4); padding:1px 7px; border-radius:8px; font-weight:600; letter-spacing:0.4px; text-transform:uppercase; white-space:nowrap; margin-left:5px; }
+  .hint.sustento { color:#7a5c10; background:rgba(201,168,76,0.07); border-left:2.5px solid #c9a84c; padding:5px 9px; border-radius:0 5px 5px 0; font-style:italic; }
+  .nota-propuesto { background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; padding:10px 14px; font-size:11px; color:#7a6030; line-height:1.6; margin-bottom:18px; display:flex; gap:8px; }
+  .eslabones-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:13px; }
+  .eslabon-item { border:1.5px solid #d4e6d5; border-radius:9px; padding:10px 12px; cursor:pointer; transition:all .2s; display:flex; align-items:flex-start; gap:8px; }
+  .eslabon-item:hover { border-color:var(--verde-hoja); background:#f5fbf5; }
+  .eslabon-item.seleccionado { border-color:var(--verde-hoja); background:rgba(74,158,86,0.07); }
+  .eslabon-item input[type=radio] { accent-color:var(--verde-hoja); flex-shrink:0; margin-top:3px; }
+  .eslabon-item .ei-txt { font-size:11.5px; color:var(--verde-bosque); }
+  .eslabon-item .ei-txt small { display:block; font-size:9.5px; color:#9aac9b; margin-top:2px; line-height:1.35; }
+
   @media(max-width:900px){ main{padding:20px;} .g3,.g4{grid-template-columns:1fr 1fr;} .span3,.span4{grid-column:span 2;} .foto-grid{grid-template-columns:repeat(3,1fr);} .progreso-ambos{display:none;} }
   @media(max-width:640px){ header{padding:0 16px;} .barra-progreso{padding:0 16px;} .pasos .paso span:not(.num){display:none;} .g2{grid-template-columns:1fr;} .span2{grid-column:span 1;} .seccion{padding:16px 20px;} .form-footer{flex-direction:column;gap:10px;border-radius:0;} .btn-continuar,.btn-atras{width:100%;text-align:center;} .foto-grid{grid-template-columns:repeat(2,1fr);} .tabs-grandes{flex-direction:column;} .tab-separador{height:1px;width:auto;} }
 </style>
@@ -267,33 +281,48 @@
               <label>Tipo de Bien <span class="req">*</span></label>
               <select>
                 <option value="">-- Seleccione --</option>
-                <option>Madera y derivados</option>
-                <option>Productos no maderables</option>
+                <option>Madera y derivados (Vigas, tablas, aserrín)</option>
+                <option>Productos no maderables (Frutos, cortezas)</option>
                 <option>Resinas y gomas naturales</option>
-                <option>Semillas y material vegetal</option>
+                <option>Semillas y material vegetal (Plantones, estacas)</option>
                 <option>Plantas medicinales</option>
-                <option>Fauna silvestre (legal)</option>
                 <option>Bambú y fibras vegetales</option>
-                <option>Aceites esenciales</option>
+                <option>Combustibles de biomasa (Carbón vegetal, leña)</option>
+                <option>Insumos y herramientas forestales</option>
+                <option>Equipos forestales y maquinaria</option>
               </select>
             </div>
             <div class="campo">
               <label>Presentación (Unidad de Medida) <span class="req">*</span></label>
               <select id="b-presentacion" onchange="actualizarUdB()">
                 <option value="">-- Seleccione --</option>
+                <option value="pt">Pie Tablar (P2)</option>
+                <option value="m3">Metro Cúbico (m³)</option>
                 <option value="unidad">Unidad (und)</option>
-                <option value="kg">Kilogramo (Kg)</option>
+                <option value="kg">Kilogramo (kg)</option>
+                <option value="millar">Millar</option>
                 <option value="tm">Tonelada Métrica (TM)</option>
-                <option value="galon">Galón (Gal)</option>
                 <option value="litro">Litro (L)</option>
-                <option value="m3">Metro cúbico (m³)</option>
-                <option value="m2">Metro cuadrado (m²)</option>
-                <option value="ml">Metro lineal (ml)</option>
-                <option value="pie2">Pie cuadrado (pie²)</option>
-                <option value="pie3">Pie cúbico (pie³)</option>
-                <option value="saco">Saco (50 Kg)</option>
+                <option value="ha">Hectárea (ha)</option>
+                <option value="saco">Saco (50 kg)</option>
+                <option value="galon">Galón (Gal)</option>
                 <option value="otro">Otra unidad</option>
               </select>
+            </div>
+            <div class="campo">
+              <label>Categoría CITES <span class="badge-nuevo">🟡 Propuesto</span></label>
+              <select class="nuevo-borde">
+                <option value="">No aplica / No registrado</option>
+                <option value="ap1">Apéndice I (comercio prohibido)</option>
+                <option value="ap2">Apéndice II (regulado) — Ej: caoba</option>
+                <option value="ap3">Apéndice III — Ej: cedro</option>
+              </select>
+              <span class="hint sustento">Sustento: El Excel incluye caoba (Ap. II) y cedro (Ap. III). SERFOR tiene obligación legal de verificar esto en cualquier transacción de productos maderables.</span>
+            </div>
+            <div class="campo">
+              <label>N° Expediente / Concesión / Permiso <span class="badge-nuevo">🟡 Propuesto</span></label>
+              <input type="text" class="nuevo-borde" placeholder="Ej: EXP-2024-SERFOR-00321, Concesión N° 12-OXA…"/>
+              <span class="hint sustento">Sustento: Empresas como GRANJA PORCÓN, DIACOS SAC y ATLANTEXCO FORESTAL operan bajo títulos habilitantes. Sin el expediente no hay garantía de legalidad de origen.</span>
             </div>
             <div class="campo" id="b-otra-ud" style="display:none;">
               <label>Especifique</label>
@@ -307,9 +336,35 @@
               <label>Región de Origen <span class="req">*</span></label>
               <select>
                 <option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option>
-                <option>San Martín</option><option>Amazonas</option><option>Cusco</option><option>Otra</option>
+                <option>San Martín</option><option>Amazonas</option><option>Cusco</option>
+                <option>Pasco (Oxapampa)</option><option>Junín</option><option>Huánuco</option>
+                <option>Ancash</option><option>Cajamarca</option><option>Otra</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        <!-- 1b. Eslabón (propuesto) -->
+        <div class="seccion" id="b-sec-eslabon">
+          <div class="sec-titulo"><span class="num-s">★</span>Eslabón de la Cadena de Valor <span class="badge-nuevo">🟡 Propuesto</span></div>
+          <div class="nota-propuesto"><span>🟡</span><span><strong>Sustento:</strong> El Excel organiza a todos los actores por eslabón (I: Planteamiento, II: Producción, III: Transformación y Comercialización). Eje estructural del sistema de SERFOR.</span></div>
+          <div class="eslabones-grid">
+            <label class="eslabon-item" onclick="marcarEslabon(this)">
+              <input type="radio" name="eslabon-b" value="I"/>
+              <div class="ei-txt">I – Planteamiento e Inversión<small>Estudios, semillas, plantones, insumos, consultoría</small></div>
+            </label>
+            <label class="eslabon-item" onclick="marcarEslabon(this)">
+              <input type="radio" name="eslabon-b" value="II"/>
+              <div class="ei-txt">II – Producción<small>Viveros, instalación, silvicultura, mano de obra de campo</small></div>
+            </label>
+            <label class="eslabon-item" onclick="marcarEslabon(this)">
+              <input type="radio" name="eslabon-b" value="III"/>
+              <div class="ei-txt">III – Transformación y Comercialización<small>Aserrado, carpintería, venta, exportación, logística</small></div>
+            </label>
+          </div>
+          <div class="campo">
+            <label>Rol del Actor <span class="req">*</span></label>
+            <input type="text" class="nuevo-borde" placeholder="Ej: Proveedor de plantones, Aserradero MYPE, Distribuidor mayorista…"/>
           </div>
         </div>
 
@@ -449,7 +504,7 @@
           </div>
           <div class="geo-panel" id="b-geo-desc">
             <div class="grid g2">
-              <div class="campo"><label>Departamento</label><select><option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option><option>San Martín</option><option>Amazonas</option><option>Cusco</option></select></div>
+              <div class="campo"><label>Departamento</label><select><option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option><option>San Martín</option><option>Amazonas</option><option>Cusco</option><option>Pasco</option><option>Junín</option><option>Huánuco</option><option>Ancash</option><option>Cajamarca</option></select></div>
               <div class="campo"><label>Provincia</label><input type="text" placeholder="Provincia"/></div>
               <div class="campo"><label>Distrito</label><input type="text" placeholder="Distrito"/></div>
               <div class="campo"><label>Expediente / Concesión</label><input type="text" placeholder="Nro. de expediente forestal"/></div>
@@ -463,6 +518,51 @@
         </div>
 
       </form>
+
+      <!-- Contacto y Cobertura (propuesto) -->
+      <!-- <div class="seccion" id="b-sec-contacto"> -->
+        <!-- <div class="sec-titulo"><span class="num-s">★</span>Contacto y Cobertura <span class="badge-nuevo">🟡 Propuesto</span></div> -->
+        <!-- <div class="nota-propuesto"><span>🟡</span><span><strong>Sustento:</strong> El Excel contiene columnas de <em>Correo electrónico, Número de contacto, Domicilio fiscal, Actividad Económica (CIIU)</em> y <em>Cobertura</em>. Indispensables para que SERFOR y compradores puedan contactar y evaluar al proveedor.</span></div> -->
+        <!-- <div class="grid g2"> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Correo Electrónico <span class="req">*</span> <span class="badge-nuevo">🟡</span></label> -->
+            <!-- <input type="email" class="nuevo-borde" placeholder="ventas@miempresa.com.pe"/> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Número de Contacto <span class="req">*</span> <span class="badge-nuevo">🟡</span></label> -->
+            <!-- <input type="text" class="nuevo-borde" placeholder="+51 999 999 999"/> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Domicilio Fiscal <span class="badge-nuevo">🟡 Propuesto</span></label> -->
+            <!-- <input type="text" class="nuevo-borde" placeholder="Dirección registrada en SUNAT…"/> -->
+            <!-- <span class="hint sustento">El Excel registra domicilio fiscal de cada proveedor. Necesario para validación cruzada con SUNAT y SERFOR.</span> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Actividad Económica (CIIU) <span class="badge-nuevo">🟡 Propuesto</span></label> -->
+            <!-- <input type="text" class="nuevo-borde" placeholder="Ej: Silvicultura y otras actividades forestales"/> -->
+            <!-- <span class="hint sustento">El Excel captura "ACTIVIDAD ECONÓMICA (P)" de SUNAT. Verifica coherencia entre rubro declarado y bien ofertado.</span> -->
+          <!-- </div> -->
+          <!-- <div class="campo span2"> -->
+            <!-- <label>Cobertura de Atención <span class="badge-nuevo">🟡 Propuesto</span></label> -->
+            <!-- <div class="tags-wrap" style="margin-top:4px;"> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🇵🇪 Nacional</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🌳 Loreto</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🌳 Ucayali</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🌳 Madre de Dios</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🌳 San Martín</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🏔 Pasco</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🏔 Cajamarca</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🏔 Ancash</div> -->
+              <!-- <div class="tag" onclick="this.classList.toggle('activo')">🏔 Huánuco</div> -->
+            <!-- </div> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Observaciones / Fuente <span class="badge-nuevo">🟡 Propuesto</span></label> -->
+            <!-- <textarea class="nuevo-borde" style="min-height:52px;" placeholder="Fuente de verificación, observaciones del equipo de campo…"></textarea> -->
+            <!-- <span class="hint sustento">Columna "Observaciones / Fuente" del Excel. Permite auditoría y trazabilidad del dato.</span> -->
+          <!-- </div> -->
+        <!-- </div> -->
+      <!-- </div> -->
 
       <div class="nav-paneles">
         <div class="info-panel">Sección <strong>1 de 2</strong> — Bien Forestal</div>
@@ -500,29 +600,50 @@
               <label>Tipo de Servicio <span class="req">*</span></label>
               <select>
                 <option value="">-- Seleccione --</option>
-                <option>Consultoría y asesoría forestal</option>
-                <option>Inventario y evaluación forestal</option>
-                <option>Reforestación y restauración</option>
-                <option>Manejo de bosques</option>
-                <option>Monitoreo ambiental</option>
+                <option>Consultoría forestal (Elaboración de planes de manejo)</option>
+                <option>Inventario y evaluación (Censo de árboles, cubicación)</option>
+                <option>Reforestación (Instalación, hoyado, siembra)</option>
+                <option>Manejo de bosques (Poda, raleo, limpieza)</option>
+                <option>Monitoreo ambiental (Control de plagas, servicios ecosistémicos)</option>
                 <option>Capacitación técnica</option>
-                <option>Servicios ambientales</option>
-                <option>Ecoturismo</option>
+                <option>Laboratorio y ensayos (Mecánica de suelos, análisis físico-químico)</option>
+                <option>SIG y cartografía forestal</option>
+                <option>Logística y transporte forestal</option>
+                <option>Mano de obra calificada (Ingenieros, técnicos forestales)</option>
               </select>
             </div>
             <div class="campo">
               <label>Presentación (Unidad de Medida) <span class="req">*</span></label>
               <select id="s-presentacion" onchange="actualizarUdS()">
                 <option value="">-- Seleccione --</option>
-                <option value="hora">Hora (h)</option>
-                <option value="dia">Día-persona</option>
-                <option value="mes">Mes-persona</option>
                 <option value="ha">Hectárea (ha)</option>
-                <option value="ha_mes">Hectárea/mes</option>
+                <option value="global">Global</option>
+                <option value="dia">Día / Hombre</option>
+                <option value="ml">Metro lineal</option>
                 <option value="informe">Informe / Entregable</option>
-                <option value="proyecto">Proyecto (suma alzada)</option>
+                <option value="mes">Mes-persona</option>
+                <option value="hora">Hora (h)</option>
+                <option value="capacitacion">Evento de capacitación</option>
                 <option value="otro">Otra unidad</option>
               </select>
+            </div>
+            <div class="campo">
+              <label>Rubro / Especialidad <span class="badge-nuevo">🟡 Propuesto</span></label>
+              <input type="text" class="nuevo-borde" placeholder="Ej: Dasonomía, SIG forestal, Mecánica de suelos…"/>
+              <span class="hint sustento">Sustento: Columna "Rubro / Especialidad" del Excel. Permite búsquedas especializadas y matchmaking con demandas de SERFOR.</span>
+            </div>
+            <div class="campo">
+              <label>N° Profesionales / Equipo <span class="badge-nuevo">🟡 Propuesto</span></label>
+              <input type="number" class="nuevo-borde" placeholder="Ej: 3" min="1"/>
+              <span class="hint sustento">Sustento: El Excel registra "Personal Clave" con DNI individual. Permite evaluar la capacidad operativa real del prestador.</span>
+            </div>
+            <div class="campo">
+              <label>Meses de Experiencia Acreditada <span class="badge-nuevo">🟡 Propuesto</span></label>
+              <div class="input-addon">
+                <input type="number" class="nuevo-borde" placeholder="Ej: 36" min="0"/>
+                <span class="addon-lbl">meses</span>
+              </div>
+              <span class="hint sustento">Sustento: El Excel captura experiencia en meses ("281 Meses", "140 Meses"). Determina elegibilidad para contratos con requisitos mínimos.</span>
             </div>
             <div class="campo" id="s-otra-ud" style="display:none;">
               <label>Especifique</label>
@@ -537,6 +658,30 @@
                 <option>Mixto</option>
               </select>
             </div>
+          </div>
+        </div>
+
+        <!-- 1b. Eslabón servicio (propuesto) -->
+        <div class="seccion" id="s-sec-eslabon">
+          <div class="sec-titulo"><span class="num-s">★</span>Eslabón de la Cadena de Valor <span class="badge-nuevo">🟡 Propuesto</span></div>
+          <div class="nota-propuesto"><span>🟡</span><span><strong>Sustento:</strong> El Excel diferencia actores de "Planteamiento" (consultores, formuladores), "Producción" (viveros, campo) y "Transformación" (aserraderos, certificadores, logística). Eje estructural del sistema de SERFOR.</span></div>
+          <div class="eslabones-grid">
+            <label class="eslabon-item" onclick="marcarEslabon(this)">
+              <input type="radio" name="eslabon-s" value="I"/>
+              <div class="ei-txt">I – Planteamiento e Inversión<small>Formulación, estudios, asesoría técnica, laboratorios, diseño de proyectos</small></div>
+            </label>
+            <label class="eslabon-item" onclick="marcarEslabon(this)">
+              <input type="radio" name="eslabon-s" value="II"/>
+              <div class="ei-txt">II – Producción<small>Instalación de plantaciones, silvicultura, mano de obra de campo, viveros</small></div>
+            </label>
+            <label class="eslabon-item" onclick="marcarEslabon(this)">
+              <input type="radio" name="eslabon-s" value="III"/>
+              <div class="ei-txt">III – Transformación y Comercialización<small>Aserrado, certificación, logística, transporte</small></div>
+            </label>
+          </div>
+          <div class="campo">
+            <label>Rol del Actor <span class="req">*</span></label>
+            <input type="text" class="nuevo-borde" placeholder="Ej: Consultor forestal, Formulador PNF, Transportista, Certificador FSC…"/>
           </div>
         </div>
 
@@ -659,7 +804,7 @@
           </div>
           <div class="geo-panel" id="s-geo-desc">
             <div class="grid g2">
-              <div class="campo"><label>Departamento</label><select><option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option><option>San Martín</option><option>Amazonas</option></select></div>
+              <div class="campo"><label>Departamento</label><select><option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option><option>San Martín</option><option>Amazonas</option><option>Cusco</option><option>Pasco</option><option>Junín</option><option>Huánuco</option><option>Ancash</option><option>Cajamarca</option></select></div>
               <div class="campo"><label>Provincia</label><input type="text" placeholder="Provincia"/></div>
               <div class="campo span2"><label>Referencia del Área</label><textarea style="min-height:52px;" placeholder="Cuenca, comunidad, área protegida…"></textarea></div>
             </div>
@@ -672,6 +817,37 @@
         </div>
 
       </form>
+
+      <!-- Contacto y Cobertura servicio (propuesto) -->
+      <!-- <div class="seccion" id="s-sec-contacto"> -->
+        <!-- <div class="sec-titulo"><span class="num-s">★</span>Contacto y Cobertura <span class="badge-nuevo">🟡 Propuesto</span></div> -->
+        <!-- <div class="nota-propuesto"><span>🟡</span><span><strong>Sustento:</strong> El Excel contiene columnas de <em>Correo electrónico, Número de contacto, Domicilio fiscal, Actividad Económica (CIIU)</em> y <em>Cobertura</em>. Indispensables para que SERFOR y demandantes puedan contactar y evaluar al prestador.</span></div> -->
+        <!-- <div class="grid g2"> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Correo Electrónico <span class="req">*</span> <span class="badge-nuevo">🟡</span></label> -->
+            <!-- <input type="email" class="nuevo-borde" placeholder="servicios@miempresa.com.pe"/> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Número de Contacto <span class="req">*</span> <span class="badge-nuevo">🟡</span></label> -->
+            <!-- <input type="text" class="nuevo-borde" placeholder="+51 999 999 999"/> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Domicilio Fiscal <span class="badge-nuevo">🟡 Propuesto</span></label> -->
+            <!-- <input type="text" class="nuevo-borde" placeholder="Dirección registrada en SUNAT…"/> -->
+            <!-- <span class="hint sustento">El Excel registra domicilio fiscal de cada proveedor de servicios. Necesario para validación cruzada con SUNAT y SERFOR.</span> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Actividad Económica (CIIU) <span class="badge-nuevo">🟡 Propuesto</span></label> -->
+            <!-- <input type="text" class="nuevo-borde" placeholder="Ej: Silvicultura y otras actividades forestales"/> -->
+            <!-- <span class="hint sustento">El Excel captura "ACTIVIDAD ECONÓMICA (P)" de SUNAT. Verifica coherencia entre rubro declarado y servicio ofertado.</span> -->
+          <!-- </div> -->
+          <!-- <div class="campo"> -->
+            <!-- <label>Observaciones / Fuente <span class="badge-nuevo">🟡 Propuesto</span></label> -->
+            <!-- <textarea class="nuevo-borde" style="min-height:52px;" placeholder="Fuente de verificación, observaciones del equipo de campo…"></textarea> -->
+            <!-- <span class="hint sustento">Columna "Observaciones / Fuente" del Excel. Permite auditoría y trazabilidad del dato.</span> -->
+          <!-- </div> -->
+        <!-- </div> -->
+      <!-- </div> -->
 
       <div class="nav-paneles">
         <div class="info-panel">Sección <strong>2 de 2</strong> — Servicio Forestal</div>
@@ -730,6 +906,11 @@
     const v = document.getElementById('s-presentacion').value;
     document.getElementById('s-addon-ud').textContent = m[v] || 'unid.';
     document.getElementById('s-otra-ud').style.display = v === 'otro' ? 'flex' : 'none';
+  }
+
+  function marcarEslabon(el) {
+    el.closest('.eslabones-grid').querySelectorAll('.eslabon-item').forEach(e => e.classList.remove('seleccionado'));
+    el.classList.add('seleccionado');
   }
 
   function simFoto(el, emoji) {
