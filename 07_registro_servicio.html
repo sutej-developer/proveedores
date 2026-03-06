@@ -143,20 +143,31 @@
   .btn-continuar { padding:11px 34px; background:linear-gradient(135deg,var(--verde-selva),var(--verde-bosque)); color:var(--crema); border:none; border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; letter-spacing:0.8px; text-transform:uppercase; cursor:pointer; transition:all .2s; box-shadow:0 4px 16px var(--sombra); }
   .btn-continuar:hover { transform:translateY(-1px); box-shadow:0 8px 24px var(--sombra); }
 
-  /* ── CAMPOS PROPUESTOS ── */
+
+  /* ── CAMPOS PROPUESTOS (borde dorado) ── */
   .nuevo-borde { border-color:rgba(201,168,76,0.55) !important; background:rgba(201,168,76,0.05) !important; }
   .nuevo-borde:focus { border-color:#c9a84c !important; box-shadow:0 0 0 3px rgba(201,168,76,0.15) !important; }
-  .badge-nuevo { display:inline-flex; align-items:center; font-size:8px; background:rgba(201,168,76,0.1); color:#8a6020; border:1px solid rgba(201,168,76,0.4); padding:1px 7px; border-radius:8px; font-weight:600; letter-spacing:0.4px; text-transform:uppercase; white-space:nowrap; margin-left:6px; }
-  .hint.sustento { color:#7a5c10; background:rgba(201,168,76,0.07); border-left:2.5px solid #c9a84c; padding:5px 9px; border-radius:0 5px 5px 0; font-style:italic; }
-  .nota-propuesto { background:rgba(201,168,76,0.08); border:1px solid rgba(201,168,76,0.3); border-radius:8px; padding:10px 14px; font-size:11px; color:#7a6030; line-height:1.6; margin-bottom:20px; display:flex; gap:8px; }
-  .eslabones-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px; }
-  .eslabon-item { border:1.5px solid #d4e6d5; border-radius:10px; padding:11px 13px; cursor:pointer; transition:all .2s; display:flex; align-items:flex-start; gap:8px; }
-  .eslabon-item:hover { border-color:var(--verde-hoja); background:#f5fbf5; }
-  .eslabon-item.seleccionado { border-color:var(--verde-hoja); background:rgba(74,158,86,0.07); }
-  .eslabon-item input[type=radio] { accent-color:var(--verde-hoja); flex-shrink:0; margin-top:3px; }
-  .eslabon-item .ei-txt { font-size:12px; color:var(--verde-bosque); }
-  .eslabon-item .ei-txt small { display:block; font-size:10px; color:#9aac9b; margin-top:2px; line-height:1.35; }
-
+  .badge-nuevo { display:inline-flex;align-items:center;font-size:8px;background:rgba(201,168,76,0.1);color:#8a6020;border:1px solid rgba(201,168,76,0.4);padding:1px 7px;border-radius:8px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;white-space:nowrap;margin-left:5px; }
+  .hint.sustento { color:#7a5c10;background:rgba(201,168,76,0.07);border-left:2.5px solid #c9a84c;padding:5px 9px;border-radius:0 5px 5px 0;font-style:italic; }
+  .nota-propuesto { background:rgba(201,168,76,0.08);border:1px solid rgba(201,168,76,0.3);border-radius:8px;padding:10px 14px;font-size:11px;color:#7a6030;line-height:1.6;margin-bottom:20px;display:flex;gap:8px; }
+  /* Eslabones */
+  .eslabones-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px; }
+  .eslabon-item { border:1.5px solid #d4e6d5;border-radius:10px;padding:11px 13px;cursor:pointer;transition:all .2s;display:flex;align-items:flex-start;gap:8px; }
+  .eslabon-item:hover { border-color:var(--verde-hoja);background:#f5fbf5; }
+  .eslabon-item.seleccionado { border-color:var(--verde-hoja);background:rgba(74,158,86,0.07); }
+  .eslabon-item input[type=radio] { accent-color:var(--verde-hoja);flex-shrink:0;margin-top:3px; }
+  .eslabon-item .ei-txt { font-size:12px;color:var(--verde-bosque); }
+  .eslabon-item .ei-txt small { display:block;font-size:10px;color:#9aac9b;margin-top:2px;line-height:1.35; }
+  /* Adjunto PDF RNP */
+  .campo-adjunto { border:2px dashed #c4d9c5;border-radius:10px;padding:13px 16px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:all .2s;background:#fafcfa; }
+  .campo-adjunto:hover { border-color:var(--verde-hoja);background:#f0faf1; }
+  .campo-adjunto.adj-nuevo { border-color:rgba(201,168,76,0.5);background:rgba(201,168,76,0.04); }
+  .campo-adjunto.adj-nuevo:hover { border-color:#c9a84c;background:rgba(201,168,76,0.09); }
+  .adj-ico { font-size:26px;flex-shrink:0; }
+  .adj-txt p { font-size:12px;font-weight:500;color:var(--verde-bosque); }
+  .adj-txt small { font-size:10px;color:#9aac9b; }
+  .adj-ok { display:none;align-items:center;gap:7px;font-size:12px;color:var(--verde-selva);font-weight:500;margin-top:6px; }
+  .adj-ok.visible { display:flex; }
   @media(max-width:960px){ main{flex-direction:column;padding:24px;} .lateral{width:100%;} .g3{grid-template-columns:1fr 1fr;} .g4{grid-template-columns:1fr 1fr;} .span3,.span4{grid-column:span 2;} .foto-grid{grid-template-columns:repeat(3,1fr);} }
   @media(max-width:640px){ main{padding:16px;} header{padding:0 16px;} .barra-progreso{padding:0 16px;} .pasos .paso span:not(.num){display:none;} .seccion{padding:20px;} .g2{grid-template-columns:1fr;} .span2{grid-column:span 1;} .form-footer{flex-direction:column;gap:10px;} .btn-continuar,.btn-atras{width:100%;text-align:center;} .foto-grid{grid-template-columns:repeat(2,1fr);} .checks-grid{grid-template-columns:1fr;} }
 </style>
@@ -203,12 +214,11 @@
       <h4>📑 Secciones</h4>
       <div class="secciones-nav">
         <div class="nav-item activo"  onclick="irA('sec1')"><span class="dot"></span>Presentación del Servicio</div>
-        <div class="nav-item"         onclick="irA('sec-eslabon')"><span class="dot"></span>🟡 Eslabón Cadena Valor</div>
+        <div class="nav-item"         onclick="irA('sec-eslabon-s')"><span class="dot"></span>🟡 Eslabón Cadena Valor</div>
         <div class="nav-item"         onclick="irA('sec2')"><span class="dot"></span>Especificaciones</div>
         <div class="nav-item"         onclick="irA('sec3')"><span class="dot"></span>Material Referencial</div>
         <div class="nav-item"         onclick="irA('sec4')"><span class="dot"></span>Oferta y Precio</div>
         <div class="nav-item"         onclick="irA('sec5')"><span class="dot"></span>Georreferenciación</div>
-        <div class="nav-item"         onclick="irA('sec-contacto')"><span class="dot"></span>🟡 Contacto y Cobertura</div>
       </div>
     </div>
   </div>
@@ -239,7 +249,7 @@
             <span class="hint">Código según catálogo de servicios del Estado.</span>
           </div>
           <div class="campo">
-            <label>Tipo de Servicio <span class="req">*</span></label>
+            <label>Categoría Técnica <span class="req">*</span></label>
             <select>
               <option value="">-- Seleccione --</option>
               <option>Consultoría forestal (Elaboración de planes de manejo)</option>
@@ -286,15 +296,31 @@
               <option>Mixto (presencial + virtual)</option>
             </select>
           </div>
-          <div class="campo">
+
+          <div class="campo span2">
+            <label>Certificado RNP (PDF) <span class="badge-nuevo">🟡 Propuesto</span></label>
+            <div class="campo-adjunto adj-nuevo" data-rnp="" onclick="adjuntarRNP(this,'')">
+              <span class="adj-ico">📄</span>
+              <div class="adj-txt">
+                <p>Adjuntar Certificado del RNP</p>
+                <small>Emitido por el OECE (antes OSCE) · Solo PDF · Máx. 5 MB</small>
+              </div>
+            </div>
+            <div class="adj-ok" id="rnp-ok">
+              <span>✅</span><span>certificado_rnp.pdf</span>
+              <span style="color:#9aac9b;font-size:10px;margin-left:4px;">— <a href="#" onclick="limpiarRNP(event,'')" style="color:var(--error);text-decoration:none;">Quitar</a></span>
+            </div>
+            <span class="hint sustento">Sustento: El RNP (Registro Nacional de Proveedores) acredita que el prestador está habilitado para contratar con el Estado. Es emitido por el OECE (antes OSCE) y SERFOR debe verificarlo para cualquier contratación de servicios forestales.</span>
+          </div>
+          <div class="campo span2">
             <label>Rubro / Especialidad <span class="badge-nuevo">🟡 Propuesto</span></label>
             <input type="text" class="nuevo-borde" placeholder="Ej: Dasonomía, SIG forestal, Mecánica de suelos, Economía ambiental…"/>
-            <span class="hint sustento">Sustento: El Excel tiene columna "Rubro / Especialidad" con valores como "Gestión Forestal", "Vivero", "Aserrado". Permite búsquedas especializadas y matchmaking con demandas de SERFOR.</span>
+            <span class="hint sustento">Sustento: El Excel tiene columna "Rubro / Especialidad". Permite búsquedas especializadas y matchmaking con demandas de SERFOR.</span>
           </div>
           <div class="campo">
-            <label>N° de Profesionales / Equipo <span class="badge-nuevo">🟡 Propuesto</span></label>
+            <label>N° Profesionales / Equipo <span class="badge-nuevo">🟡 Propuesto</span></label>
             <input type="number" class="nuevo-borde" placeholder="Ej: 3" min="1"/>
-            <span class="hint sustento">Sustento: El Excel registra "Personal Clave" con DNI individual por plan. Permite evaluar la capacidad operativa real del prestador de servicios.</span>
+            <span class="hint sustento">Sustento: El Excel registra "Personal Clave" con DNI individual. Permite evaluar la capacidad operativa real del prestador.</span>
           </div>
           <div class="campo">
             <label>Meses de Experiencia Acreditada <span class="badge-nuevo">🟡 Propuesto</span></label>
@@ -302,17 +328,18 @@
               <input type="number" class="nuevo-borde" placeholder="Ej: 36" min="0"/>
               <span class="addon-lbl">meses</span>
             </div>
-            <span class="hint sustento">Sustento: El Excel captura experiencia en meses por profesional ("281 Meses", "140 Meses"). Determina elegibilidad para contratos con requisitos mínimos de experiencia.</span>
+            <span class="hint sustento">Sustento: El Excel captura experiencia en meses ("281 Meses", "140 Meses"). Determina elegibilidad para contratos con requisitos mínimos de experiencia.</span>
           </div>
         </div>
       </div>
 
+
       <!-- ══ ESLABÓN DE LA CADENA DE VALOR (PROPUESTO) ══ -->
-      <div class="seccion" id="sec-eslabon">
+      <div class="seccion" id="sec-eslabon-s">
         <div class="sec-titulo"><span>★</span>Eslabón de la Cadena de Valor <span class="badge-nuevo">🟡 Propuesto</span></div>
         <div class="nota-propuesto">
           <span>🟡</span>
-          <span><strong>Sustento:</strong> El Excel diferencia actores de "Planteamiento" (consultores, formuladores), "Producción" (viveros, campo) y "Transformación" (aserraderos, certificadores, logística). Es el eje estructural del sistema de información de SERFOR.</span>
+          <span><strong>Sustento:</strong> El Excel diferencia actores de "Planteamiento" (consultores, formuladores), "Producción" (viveros, campo) y "Transformación" (aserraderos, certificadores, logística). Eje estructural del sistema de información de SERFOR.</span>
         </div>
         <div class="eslabones-grid">
           <label class="eslabon-item" onclick="marcarEslabon(this)">
@@ -325,12 +352,12 @@
           </label>
           <label class="eslabon-item" onclick="marcarEslabon(this)">
             <input type="radio" name="eslabon-s" value="III"/>
-            <div class="ei-txt">III – Transformación y Comercialización<small>Aserrado, certificación, logística, transporte, comercialización</small></div>
+            <div class="ei-txt">III – Transformación y Comercialización<small>Aserrado, certificación, logística, transporte</small></div>
           </label>
         </div>
         <div class="campo">
-          <label>Rol del Actor en la Cadena <span class="req">*</span></label>
-          <input type="text" class="nuevo-borde" placeholder="Ej: Consultor forestal, Formulador PNF, Proveedor de plantones, Transportista, Certificador FSC…"/>
+          <label>Rol del Actor <span class="req">*</span></label>
+          <input type="text" class="nuevo-borde" placeholder="Ej: Consultor forestal, Formulador PNF, Transportista, Certificador FSC…"/>
         </div>
       </div>
 
@@ -429,7 +456,7 @@
               <input type="number" class="nuevo-borde" placeholder="0.00" step="0.01" min="0"/>
               <span class="addon-lbl" id="addon-srv-anual">unid./año</span>
             </div>
-            <span class="hint sustento">Sustento: Columna explícita "Capacidad / Vol. anual" del Excel. Ej: "73 Meses", "135 HA", "3,548,480 Plantones". Permite evaluar escala real del prestador.</span>
+            <span class="hint sustento">Sustento: Columna "Capacidad / Vol. anual" del Excel. Ej: "73 Meses", "135 HA", "3,548,480 Plantones". Permite evaluar la escala real del prestador.</span>
           </div>
           <div class="campo">
             <label>Periodo de Disponibilidad <span class="req">*</span></label>
@@ -590,7 +617,6 @@
                 <option>Loreto</option><option>Ucayali</option><option>Madre de Dios</option>
                 <option>San Martín</option><option>Amazonas</option><option>Cusco</option>
                 <option>Pasco</option><option>Junín</option><option>Huánuco</option>
-                <option>Ancash</option><option>Cajamarca</option>
               </select>
             </div>
             <div class="campo">
@@ -619,40 +645,6 @@
         </div>
       </div>
 
-      <!-- ══ CONTACTO Y COBERTURA (PROPUESTO) ══ -->
-      <!-- <div class="seccion" id="sec-contacto"> -->
-        <!-- <div class="sec-titulo"><span>★</span>Contacto y Cobertura <span class="badge-nuevo">🟡 Propuesto</span></div> -->
-        <!-- <div class="nota-propuesto"> -->
-          <!-- <span>🟡</span> -->
-          <!-- <span><strong>Sustento:</strong> El Excel contiene columnas de <em>Correo electrónico, Número de contacto, Domicilio fiscal, Actividad Económica (CIIU)</em> y <em>Cobertura</em>. Indispensables para que SERFOR y demandantes puedan contactar y evaluar al prestador.</span> -->
-        <!-- </div> -->
-        <!-- <div class="grid g2"> -->
-          <!-- <div class="campo"> -->
-            <!-- <label>Correo Electrónico <span class="req">*</span> <span class="badge-nuevo">🟡</span></label> -->
-            <!-- <input type="email" class="nuevo-borde" placeholder="servicios@miempresa.com.pe"/> -->
-          <!-- </div> -->
-          <!-- <div class="campo"> -->
-            <!-- <label>Número de Contacto <span class="req">*</span> <span class="badge-nuevo">🟡</span></label> -->
-            <!-- <input type="text" class="nuevo-borde" placeholder="+51 999 999 999"/> -->
-          <!-- </div> -->
-          <!-- <div class="campo"> -->
-            <!-- <label>Domicilio Fiscal <span class="badge-nuevo">🟡 Propuesto</span></label> -->
-            <!-- <input type="text" class="nuevo-borde" placeholder="Dirección registrada en SUNAT…"/> -->
-            <!-- <span class="hint sustento">Sustento: El Excel registra domicilio fiscal de cada proveedor. Necesario para validación cruzada con SUNAT y SERFOR.</span> -->
-          <!-- </div> -->
-          <!-- <div class="campo"> -->
-            <!-- <label>Actividad Económica (CIIU) <span class="badge-nuevo">🟡 Propuesto</span></label> -->
-            <!-- <input type="text" class="nuevo-borde" placeholder="Ej: Silvicultura y otras actividades forestales"/> -->
-            <!-- <span class="hint sustento">Sustento: El Excel captura "ACTIVIDAD ECONÓMICA (P)" y "ACTIVIDAD SECUNDARIA". Verifica coherencia entre rubro SUNAT y servicio ofertado.</span> -->
-          <!-- </div> -->
-          <!-- <div class="campo"> -->
-            <!-- <label>Observaciones / Fuente <span class="badge-nuevo">🟡 Propuesto</span></label> -->
-            <!-- <textarea class="nuevo-borde" style="min-height:60px;" placeholder="Fuente de verificación, observaciones del equipo de campo…"></textarea> -->
-            <!-- <span class="hint sustento">Sustento: Columna "Observaciones / Fuente" del Excel. Permite auditoría y trazabilidad del dato recopilado en campo.</span> -->
-          <!-- </div> -->
-        <!-- </div> -->
-      <!-- </div> -->
-
     </form>
 
     <div class="form-footer">
@@ -665,9 +657,9 @@
 <script>
   document.getElementById('sel-presentacion-srv').addEventListener('change', function(){
     const mapa = { ha:'ha', global:'global', dia:'día/h', ml:'ml', informe:'informe', mes:'mes-p.', hora:'h', capacitacion:'evento', otro:'' };
-    const udS = mapa[this.value] || 'unid.';
-    document.getElementById('addon-srv').textContent = udS;
-    if(document.getElementById('addon-srv-anual')) document.getElementById('addon-srv-anual').textContent = udS + '/año';
+    const ud = mapa[this.value] || 'unid.';
+    document.getElementById('addon-srv').textContent = ud;
+    const aa = document.getElementById('addon-srv-anual'); if(aa) aa.textContent = ud + '/año';
     document.getElementById('campo-otra-srv').style.display = this.value === 'otro' ? 'flex':'none';
   });
 
@@ -690,6 +682,20 @@
   function marcarEslabon(el) {
     el.closest('.eslabones-grid').querySelectorAll('.eslabon-item').forEach(e => e.classList.remove('seleccionado'));
     el.classList.add('seleccionado');
+  }
+  function adjuntarRNP(el, sufijo) {
+    sufijo = sufijo || '';
+    el.querySelector('.adj-txt p').textContent = 'Certificado RNP adjuntado';
+    el.querySelector('.adj-ico').textContent = '✅';
+    const ok = document.getElementById('rnp-ok' + sufijo);
+    if(ok) ok.classList.add('visible');
+  }
+  function limpiarRNP(e, sufijo) {
+    e.preventDefault(); sufijo = sufijo || '';
+    const ok = document.getElementById('rnp-ok' + sufijo);
+    if(ok) ok.classList.remove('visible');
+    const box = document.querySelector('.adj-nuevo[data-rnp="' + sufijo + '"]');
+    if(box){ box.querySelector('.adj-txt p').textContent='Adjuntar Certificado del RNP'; box.querySelector('.adj-ico').textContent='📄'; }
   }
 </script>
 </body>
