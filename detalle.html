@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Detalle Proveedor – SERFOR</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --vb:#1a3d1f; --vs:#2d6a35; --vh:#4a9e56; --vc:#7dcb87;
+    --vm:#b8e8bc; --crema:#f4f0e6; --dorado:#c9a84c;
+    --blanco:#ffffff; --sombra:rgba(26,61,31,.14);
+    --gris-fondo:#eef5ee; --gris-borde:#d4e6d5;
+    --text-sec:#6b7a6d; --text-muted:#9aac9b;
+    --error:#d94040; --naranja:#e07b30;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  body { min-height:100vh; font-family:'DM Sans', sans-serif; background:var(--gris-fondo); display:flex; flex-direction:column; }
+
+  /* ── HEADER ── */
+  header { background:var(--vb); padding:0 40px; height:64px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:200; box-shadow:0 2px 24px rgba(0,0,0,.28); }
+  .h-logo { display:flex; align-items:center; gap:12px; text-decoration:none; }
+  .h-logo .ico { font-size:22px; }
+  .h-logo .sigla { font-family:'Playfair Display',serif; font-size:16px; font-weight:700; color:var(--crema); letter-spacing:2px; }
+  .h-logo .sub { font-size:9px; color:var(--vm); letter-spacing:1.5px; text-transform:uppercase; }
+  .btn-volver { padding:7px 16px; border:1px solid rgba(184,232,188,.3); border-radius:8px; background:transparent; color:var(--vm); font-family:'DM Sans',sans-serif; font-size:12px; cursor:pointer; transition:all .2s; text-decoration:none; display:flex; align-items:center; gap:5px; }
+  .btn-volver:hover { background:rgba(255,255,255,.08); }
+
+  /* ── HERO ── */
+  .det-hero { min-height:260px; display:flex; align-items:flex-end; position:relative; overflow:hidden; }
+  .det-hero .hero-bg { position:absolute; inset:0; }
+  .det-hero .hero-overlay { position:absolute; inset:0; background:linear-gradient(to top, rgba(10,25,12,.85) 0%, rgba(10,25,12,.25) 60%, transparent 100%); }
+  .det-hero .hero-ico { position:absolute; top:50%; left:50%; transform:translate(-50%,-60%); font-size:90px; text-shadow:0 8px 32px rgba(0,0,0,.3); z-index:1; }
+  .det-hero .hero-content { position:relative; z-index:2; padding:28px 48px; width:100%; display:flex; align-items:flex-end; justify-content:space-between; gap:20px; flex-wrap:wrap; }
+  .det-badges { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
+  .badge-tipo { padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; backdrop-filter:blur(6px); }
+  .badge-tipo.bien { background:rgba(40,100,220,.18); color:#88b8ff; border:1px solid rgba(40,100,220,.3); }
+  .badge-tipo.servicio { background:rgba(74,158,86,.25); color:#b8f0c0; border:1px solid rgba(74,158,86,.35); }
+  .badge-tipo.ambos { background:rgba(201,168,76,.22); color:#f0d888; border:1px solid rgba(201,168,76,.35); }
+  .badge-verificado { padding:4px 12px; border-radius:20px; font-size:9px; font-weight:700; letter-spacing:.4px; backdrop-filter:blur(6px); background:rgba(39,174,96,.25); border:1px solid rgba(39,174,96,.4); color:#80f0a8; }
+  .det-titulo { font-family:'Playfair Display',serif; font-size:clamp(22px,3vw,34px); font-weight:900; color:var(--crema); line-height:1.2; }
+  .det-empresa { font-size:12px; color:rgba(212,230,213,.7); letter-spacing:.5px; text-transform:uppercase; margin-top:6px; }
+  .det-precio-hero { text-align:right; }
+  .det-precio-hero .precio-lbl { font-size:10px; color:rgba(184,232,188,.5); letter-spacing:1px; text-transform:uppercase; }
+  .det-precio-hero .precio-val { font-family:'Playfair Display',serif; font-size:28px; font-weight:700; color:var(--crema); }
+  .det-precio-hero .precio-unit { font-size:13px; color:rgba(212,230,213,.65); font-family:'DM Sans',sans-serif; }
+
+  /* ── LAYOUT ── */
+  .det-layout { max-width:1100px; margin:0 auto; width:100%; padding:36px 40px 60px; display:grid; grid-template-columns:1fr 340px; gap:32px; align-items:start; }
+  .det-main { display:flex; flex-direction:column; gap:28px; }
+  .det-aside { display:flex; flex-direction:column; gap:20px; }
+
+  /* ── CARDS ── */
+  .card { background:var(--blanco); border-radius:16px; border:1.5px solid #e4ede4; overflow:hidden; }
+  .card-hdr { padding:18px 24px 0; }
+  .sec-label { font-size:10px; font-weight:600; color:var(--vh); letter-spacing:1.8px; text-transform:uppercase; margin-bottom:16px; display:flex; align-items:center; gap:8px; }
+  .sec-label::after { content:''; flex:1; height:1px; background:var(--gris-borde); }
+  .card-body { padding:20px 24px 24px; }
+
+  /* Tabs */
+  .tab-nav { display:flex; gap:4px; border-bottom:2px solid var(--gris-borde); overflow-x:auto; scrollbar-width:none; }
+  .tab-nav::-webkit-scrollbar { display:none; }
+  .tab-btn { padding:12px 18px; font-size:12px; font-weight:600; color:var(--text-sec); cursor:pointer; border:none; background:none; font-family:'DM Sans',sans-serif; border-bottom:2.5px solid transparent; margin-bottom:-2px; white-space:nowrap; transition:all .2s; letter-spacing:.3px; }
+  .tab-btn.activo { color:var(--vh); border-bottom-color:var(--vh); }
+  .tab-btn:hover { color:var(--vb); }
+  .tab-panel { display:none; padding:24px; }
+  .tab-panel.activo { display:block; }
+
+  /* Ficha grid */
+  .ficha-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .fi { background:var(--gris-fondo); border-radius:10px; padding:12px 14px; }
+  .fi-lbl { font-size:9px; font-weight:600; color:var(--text-muted); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:4px; }
+  .fi-val { font-size:13px; font-weight:500; color:var(--vb); }
+
+  /* Fotos */
+  .foto-gallery { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; }
+  .foto-slot { aspect-ratio:1; border-radius:10px; background:linear-gradient(135deg,#eef5ee,#ddf0de); display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:32px; border:1.5px solid var(--gris-borde); cursor:zoom-in; transition:all .2s; }
+  .foto-slot:hover { transform:scale(1.04); box-shadow:0 6px 20px var(--sombra); }
+  .foto-slot span { font-size:10px; color:var(--text-muted); margin-top:5px; }
+
+  /* Oferta */
+  .oferta-card { background:linear-gradient(135deg,rgba(74,158,86,.06),rgba(201,168,76,.04)); border:1.5px solid var(--gris-borde); border-radius:14px; padding:20px 22px; margin-bottom:20px; }
+  .precio-grande { font-family:'Playfair Display',serif; font-size:30px; font-weight:700; color:var(--vb); margin-bottom:4px; }
+  .precio-grande span { font-size:14px; color:var(--text-sec); font-family:'DM Sans',sans-serif; font-weight:400; }
+  .oferta-detalles { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; }
+  .od-item { text-align:center; }
+  .od-val { font-size:16px; font-weight:600; color:var(--vb); }
+  .od-lbl { font-size:10px; color:var(--text-muted); letter-spacing:.5px; text-transform:uppercase; margin-top:2px; }
+  .modal-tags { display:flex; flex-wrap:wrap; gap:7px; margin-top:16px; }
+  .modal-tag { padding:5px 12px; border-radius:7px; font-size:11px; background:#eef5ee; color:var(--vs); font-weight:500; }
+
+  /* ── PROVEEDOR CONTACTO (ASIDE) ── */
+  .prov-card { background:var(--blanco); border-radius:16px; border:1.5px solid #e4ede4; overflow:hidden; }
+  .prov-header { background:linear-gradient(135deg,var(--vb),var(--vs)); padding:20px 22px; }
+  .prov-avatar { width:52px; height:52px; border-radius:14px; background:rgba(255,255,255,.15); display:flex; align-items:center; justify-content:center; font-size:24px; margin-bottom:12px; border:1px solid rgba(255,255,255,.2); }
+  .prov-name { font-family:'Playfair Display',serif; font-size:15px; font-weight:700; color:var(--crema); line-height:1.3; }
+  .prov-type { font-size:10px; color:var(--vm); letter-spacing:.8px; text-transform:uppercase; margin-top:4px; }
+  .prov-body { padding:20px 22px; display:flex; flex-direction:column; gap:14px; }
+  .contact-item { display:flex; align-items:center; gap:12px; padding:12px 14px; border-radius:10px; border:1.5px solid var(--gris-borde); background:var(--gris-fondo); transition:all .2s; text-decoration:none; }
+  .contact-item:hover { border-color:var(--vc); background:#f2faf2; box-shadow:0 3px 12px var(--sombra); }
+  .contact-ico { width:36px; height:36px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+  .contact-ico.whatsapp { background:rgba(37,211,102,.12); }
+  .contact-ico.phone { background:rgba(74,158,86,.12); }
+  .contact-ico.email { background:rgba(201,168,76,.12); }
+  .contact-info { flex:1; min-width:0; }
+  .contact-lbl { font-size:9px; font-weight:600; color:var(--text-muted); letter-spacing:1px; text-transform:uppercase; }
+  .contact-val { font-size:13px; color:var(--vb); font-weight:500; margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .contact-arrow { font-size:12px; color:var(--vc); flex-shrink:0; }
+  .prov-nota { background:rgba(74,158,86,.06); border-radius:10px; padding:12px 14px; font-size:11px; color:#5a7a5c; line-height:1.6; border:1px solid rgba(74,158,86,.12); }
+  .btn-contactar { width:100%; padding:13px; background:linear-gradient(135deg,var(--vh),var(--vs)); color:var(--blanco); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; letter-spacing:.3px; margin-top:4px; }
+  .btn-contactar:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(74,158,86,.4); }
+  .btn-pedir { width:100%; padding:13px; background:linear-gradient(135deg,var(--dorado),#b8962c); color:var(--blanco); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; letter-spacing:.3px; }
+  .btn-pedir:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(201,168,76,.5); }
+
+  /* Info aside card */
+  .info-aside-card { background:var(--blanco); border-radius:16px; border:1.5px solid #e4ede4; padding:20px 22px; }
+  .info-aside-row { display:flex; justify-content:space-between; align-items:center; padding:9px 0; border-bottom:1px solid #f0f5f0; font-size:12px; }
+  .info-aside-row:last-child { border-bottom:none; }
+  .info-aside-row .lbl { color:var(--text-sec); }
+  .info-aside-row .val { color:var(--vb); font-weight:600; text-align:right; max-width:55%; }
+
+  /* ── RESEÑAS / COMENTARIOS ── */
+  .rating-summary { display:flex; align-items:center; gap:16px; padding:20px 24px; border-bottom:1.5px solid var(--gris-borde); }
+  .rating-big { font-family:'Playfair Display',serif; font-size:48px; font-weight:900; color:var(--vb); line-height:1; }
+  .rating-stars { color:#c9a84c; font-size:20px; letter-spacing:2px; }
+  .rating-count { font-size:12px; color:var(--text-sec); margin-top:4px; }
+  .comentarios-list { padding:20px 24px; display:flex; flex-direction:column; gap:16px; }
+  .comentario { background:var(--gris-fondo); border-radius:12px; padding:16px 18px; border:1.5px solid #e8f0e8; }
+  .com-header { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:10px; gap:10px; }
+  .com-avatar { width:36px; height:36px; border-radius:50%; background:linear-gradient(135deg,var(--vh),var(--vs)); display:flex; align-items:center; justify-content:center; font-size:14px; color:white; font-weight:600; flex-shrink:0; }
+  .com-autor { font-size:13px; font-weight:600; color:var(--vb); }
+  .com-stars-val { font-size:12px; color:#c9a84c; margin-top:2px; }
+  .com-fecha { font-size:10px; color:var(--text-muted); white-space:nowrap; margin-top:3px; }
+  .com-txt { font-size:13px; color:#4a5a4c; line-height:1.75; }
+  .com-fotos { display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; }
+  .com-foto { width:72px; height:72px; border-radius:8px; object-fit:cover; border:1.5px solid var(--gris-borde); cursor:zoom-in; transition:transform .2s; }
+  .com-foto:hover { transform:scale(1.06); }
+  .com-foto-placeholder { width:72px; height:72px; border-radius:8px; background:linear-gradient(135deg,#eef5ee,#ddf0de); border:1.5px solid var(--gris-borde); display:flex; align-items:center; justify-content:center; font-size:24px; }
+
+  /* ── FORM COMENTARIO ── */
+  .nuevo-comentario { margin:0 24px 28px; background:linear-gradient(135deg,rgba(74,158,86,.04),rgba(201,168,76,.03)); border:1.5px solid var(--gris-borde); border-radius:14px; padding:24px; }
+  .nc-titulo { font-size:11px; font-weight:700; color:var(--vb); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:18px; display:flex; align-items:center; gap:8px; }
+  .nc-titulo::after { content:''; flex:1; height:1px; background:var(--gris-borde); }
+  .star-select-wrap { margin-bottom:20px; }
+  .star-select-lbl { font-size:10px; font-weight:600; color:var(--text-sec); letter-spacing:1px; text-transform:uppercase; margin-bottom:8px; }
+  .star-select { display:flex; gap:4px; }
+  .star-btn { font-size:28px; cursor:pointer; color:#d4e6d5; transition:color .12s, transform .12s; background:none; border:none; padding:2px; line-height:1; }
+  .star-btn:hover { transform:scale(1.2); }
+  .star-btn.sel { color:#c9a84c; }
+  .star-hint { font-size:11px; color:var(--text-muted); margin-left:8px; line-height:1; align-self:center; }
+  .nc-campos { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  .nc-campo { display:flex; flex-direction:column; gap:5px; }
+  .nc-campo.full { grid-column:1/-1; }
+  .nc-campo label { font-size:10px; font-weight:600; color:var(--text-sec); letter-spacing:1px; text-transform:uppercase; }
+  .nc-campo label .req { color:var(--error); margin-left:2px; }
+  .nc-input { width:100%; padding:10px 13px; border:1.5px solid var(--gris-borde); border-radius:9px; font-family:'DM Sans',sans-serif; font-size:13px; color:var(--vb); outline:none; transition:all .2s; background:var(--blanco); }
+  .nc-input:focus { border-color:var(--vh); box-shadow:0 0 0 3px rgba(74,158,86,.1); }
+  .nc-input.error { border-color:var(--error); box-shadow:0 0 0 3px rgba(217,64,64,.1); }
+  .nc-textarea { resize:vertical; min-height:100px; }
+  .nc-char-count { font-size:10px; color:var(--text-muted); text-align:right; margin-top:4px; transition:color .2s; }
+  .nc-char-count.warn { color:var(--naranja); }
+  .nc-char-count.over { color:var(--error); font-weight:600; }
+  .nc-error-msg { font-size:11px; color:var(--error); margin-top:3px; display:none; }
+  .nc-error-msg.visible { display:block; }
+
+  /* Upload fotos */
+  .upload-zone { border:2px dashed var(--gris-borde); border-radius:10px; padding:18px; text-align:center; cursor:pointer; transition:all .2s; background:var(--blanco); position:relative; overflow:hidden; }
+  .upload-zone:hover, .upload-zone.drag-over { border-color:var(--vc); background:#f4fbf4; }
+  .upload-zone input[type=file] { position:absolute; inset:0; opacity:0; cursor:pointer; width:100%; height:100%; }
+  .upload-ico { font-size:28px; margin-bottom:6px; }
+  .upload-txt { font-size:12px; color:var(--text-sec); }
+  .upload-txt strong { color:var(--vh); }
+  .upload-sub { font-size:10px; color:var(--text-muted); margin-top:3px; }
+  .preview-fotos { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .preview-item { position:relative; width:72px; height:72px; }
+  .preview-item img { width:100%; height:100%; object-fit:cover; border-radius:8px; border:1.5px solid var(--gris-borde); }
+  .preview-item .remove-foto { position:absolute; top:-6px; right:-6px; width:20px; height:20px; background:var(--error); border-radius:50%; color:white; font-size:11px; display:flex; align-items:center; justify-content:center; cursor:pointer; border:2px solid white; transition:transform .15s; font-weight:700; }
+  .preview-item .remove-foto:hover { transform:scale(1.15); }
+
+  /* Submit */
+  .nc-submit { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:18px; flex-wrap:wrap; }
+  .nc-submit-nota { font-size:11px; color:var(--text-muted); flex:1; min-width:200px; }
+  .btn-comentar { padding:12px 28px; background:linear-gradient(135deg,var(--vh),var(--vs)); color:var(--blanco); border:none; border-radius:10px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:8px; white-space:nowrap; }
+  .btn-comentar:hover { transform:translateY(-1px); box-shadow:0 6px 20px rgba(74,158,86,.4); }
+  .btn-comentar:disabled { opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
+
+  /* Toast */
+  .toast { position:fixed; bottom:28px; right:28px; background:var(--vb); color:var(--crema); padding:14px 22px; border-radius:12px; font-size:13px; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,.35); z-index:9999; transform:translateY(80px); opacity:0; transition:all .35s cubic-bezier(.34,1.4,.64,1); pointer-events:none; display:flex; align-items:center; gap:10px; }
+  .toast.visible { transform:translateY(0); opacity:1; }
+
+  /* Lightbox */
+  .lightbox { position:fixed; inset:0; background:rgba(0,0,0,.9); z-index:9000; display:flex; align-items:center; justify-content:center; opacity:0; pointer-events:none; transition:opacity .25s; }
+  .lightbox.visible { opacity:1; pointer-events:all; }
+  .lightbox img { max-width:90vw; max-height:88vh; border-radius:12px; object-fit:contain; }
+  .lightbox-close { position:absolute; top:20px; right:24px; font-size:28px; color:white; cursor:pointer; line-height:1; background:none; border:none; }
+
+  /* No reseñas */
+  .no-resenas { padding:28px 24px; text-align:center; color:var(--text-muted); font-size:13px; }
+  .no-resenas .ico { font-size:40px; display:block; margin-bottom:10px; opacity:.4; }
+
+  @media(max-width:860px) { 
+    .det-layout { grid-template-columns:1fr; padding:24px 20px 48px; } 
+    .det-aside { display:contents; } 
+    .det-aside > * { order:unset; } 
+    .det-hero .hero-content { padding:20px 24px; } 
+    .ficha-grid { grid-template-columns:1fr; }
+    .nc-campos { grid-template-columns:1fr; }
+    .foto-gallery { grid-template-columns:repeat(2,1fr); }
+  }
+  @media(max-width:540px) {
+    header { padding:0 16px; }
+    .det-titulo { font-size:22px; }
+    .det-hero .hero-ico { font-size:60px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="h-logo" href="index.html">
+    <span class="ico">🌲</span>
+    <div>
+      <div class="sigla">SERFOR</div>
+      <div class="sub">Servicio Nacional Forestal</div>
+    </div>
+  </a>
+  <a class="btn-volver" href="index.html">← Volver al catálogo</a>
+</header>
+
+<!-- HERO DINÁMICO -->
+<div class="det-hero" id="det-hero">
+  <div class="hero-bg" id="hero-bg"></div>
+  <div class="hero-overlay"></div>
+  <span class="hero-ico" id="hero-ico"></span>
+  <div class="hero-content">
+    <div>
+      <div class="det-badges" id="det-badges"></div>
+      <div class="det-titulo" id="det-titulo">Cargando…</div>
+      <div class="det-empresa" id="det-empresa"></div>
+    </div>
+    <div class="det-precio-hero">
+      <div class="precio-lbl">Precio referencial</div>
+      <div class="precio-val" id="det-precio"></div>
+      <div class="precio-unit" id="det-unit"></div>
+    </div>
+  </div>
+</div>
+
+<!-- LAYOUT PRINCIPAL -->
+<div class="det-layout">
+
+  <!-- COLUMNA PRINCIPAL -->
+  <div class="det-main">
+
+    <!-- Tabs de detalle -->
+    <div class="card">
+      <div class="tab-nav" id="tab-nav">
+        <button class="tab-btn activo" onclick="cambiarTab(this,'tab-especif')">📋 Especificaciones</button>
+        <button class="tab-btn" onclick="cambiarTab(this,'tab-fotos')">📷 Fotografías</button>
+        <button class="tab-btn" onclick="cambiarTab(this,'tab-oferta')">💰 Oferta y Precio</button>
+        <button class="tab-btn" onclick="cambiarTab(this,'tab-resenas')">⭐ Reseñas (<span id="tab-num-res">0</span>)</button>
+      </div>
+
+      <!-- TAB Especificaciones -->
+      <div class="tab-panel activo" id="tab-especif">
+        <div class="sec-label">Información General</div>
+        <div class="ficha-grid" id="ficha-general"></div>
+        <div class="sec-label">Descripción Técnica</div>
+        <p id="desc-tecnica" style="font-size:13px;color:#4a5a4c;line-height:1.85;margin-bottom:20px;"></p>
+        <div class="sec-label">Certificaciones</div>
+        <div class="ficha-grid" id="ficha-certs"></div>
+        <div class="modal-tags" id="det-tags"></div>
+      </div>
+
+      <!-- TAB Fotos -->
+      <div class="tab-panel" id="tab-fotos">
+        <div class="sec-label">Material Referencial</div>
+        <div class="foto-gallery" id="foto-gallery"></div>
+        <p style="font-size:11px;color:var(--text-muted);margin-top:14px;">* Las imágenes son referenciales. Contacte al proveedor para documentación técnica adicional.</p>
+      </div>
+
+      <!-- TAB Oferta -->
+      <div class="tab-panel" id="tab-oferta">
+        <div class="oferta-card">
+          <div style="font-size:11px;color:var(--text-sec);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Precio unitario</div>
+          <div class="precio-grande" id="of-precio"></div>
+          <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Incluye IGV (18%) · Moneda: Soles (PEN)</div>
+          <div class="oferta-detalles" id="of-detalles"></div>
+        </div>
+        <div class="ficha-grid" id="ficha-oferta"></div>
+        <div style="background:rgba(74,158,86,.06);border:1px solid var(--gris-borde);border-radius:10px;padding:14px 16px;font-size:12px;color:#5a7a5c;line-height:1.7;">
+          💡 <strong>Condiciones adicionales:</strong> Descuento especial para proyectos mayores a S/ 10,000. Se acepta pago mediante transferencia bancaria, cheque o tarjeta de crédito a través de la pasarela del sistema.
+        </div>
+      </div>
+
+      <!-- TAB Reseñas -->
+      <div class="tab-panel" id="tab-resenas">
+        <div class="rating-summary">
+          <div>
+            <div class="rating-big" id="res-cal"></div>
+            <div class="rating-stars" id="res-stars"></div>
+            <div class="rating-count" id="res-count"></div>
+          </div>
+          <div style="flex:1; padding-left:16px;" id="rating-bars"></div>
+        </div>
+        <div class="comentarios-list" id="comentarios-list"></div>
+
+        <!-- FORM NUEVO COMENTARIO -->
+        <div class="nuevo-comentario">
+          <div class="nc-titulo">✍️ Dejar una reseña</div>
+
+          <!-- Estrellas -->
+          <div class="star-select-wrap">
+            <div class="star-select-lbl">Calificación <span style="color:var(--error)">*</span></div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div class="star-select" id="star-select">
+                <button class="star-btn" onclick="selStar(1)" data-n="1">★</button>
+                <button class="star-btn" onclick="selStar(2)" data-n="2">★</button>
+                <button class="star-btn" onclick="selStar(3)" data-n="3">★</button>
+                <button class="star-btn" onclick="selStar(4)" data-n="4">★</button>
+                <button class="star-btn" onclick="selStar(5)" data-n="5">★</button>
+              </div>
+              <span class="star-hint" id="star-hint">Sin calificación</span>
+            </div>
+            <div class="nc-error-msg" id="err-estrellas">Por favor seleccione una calificación.</div>
+          </div>
+
+          <!-- Nombre y Correo -->
+          <div class="nc-campos">
+            <div class="nc-campo">
+              <label>Nombre <span class="req">*</span></label>
+              <input type="text" class="nc-input" id="nc-nombre" placeholder="Su nombre completo" oninput="limpiarError('nc-nombre','err-nombre')"/>
+              <div class="nc-error-msg" id="err-nombre">El nombre es obligatorio.</div>
+            </div>
+            <div class="nc-campo">
+              <label>Correo electrónico <span class="req">*</span></label>
+              <input type="email" class="nc-input" id="nc-email" placeholder="correo@ejemplo.com" oninput="limpiarError('nc-email','err-email')"/>
+              <div class="nc-error-msg" id="err-email">Ingrese un correo válido.</div>
+            </div>
+            <div class="nc-campo full">
+              <label>Comentario <span class="req">*</span></label>
+              <textarea class="nc-input nc-textarea" id="nc-txt" placeholder="Comparta su experiencia con este proveedor… (máx. 500 caracteres)" maxlength="500" oninput="actualizarContador();limpiarError('nc-txt','err-comentario')"></textarea>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
+                <div class="nc-error-msg" id="err-comentario" style="margin-top:0;">El comentario es obligatorio.</div>
+                <div class="nc-char-count" id="char-count">0 / 500</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Upload fotos -->
+          <div class="nc-campo full">
+            <label>Agregar fotos <span style="font-size:9px;color:var(--text-muted);font-weight:400;letter-spacing:0;text-transform:none;">(opcional · máx. 4 imágenes · JPG, PNG, WEBP)</span></label>
+            <div class="upload-zone" id="upload-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+              <input type="file" id="foto-input" accept="image/jpeg,image/png,image/webp" multiple onchange="onFotoSelect(event)"/>
+              <div class="upload-ico">📸</div>
+              <div class="upload-txt"><strong>Haga clic</strong> o arrastre imágenes aquí</div>
+              <div class="upload-sub">JPG, PNG o WEBP · Máx. 4 fotos · 5 MB cada una</div>
+            </div>
+            <div class="preview-fotos" id="preview-fotos"></div>
+            <div class="nc-error-msg" id="err-fotos"></div>
+          </div>
+
+          <div class="nc-submit">
+            <div class="nc-submit-nota">🔒 Su correo no será publicado. Los tres campos marcados con <span style="color:var(--error)">*</span> son obligatorios.</div>
+            <button class="btn-comentar" id="btn-comentar" onclick="enviarComentario()">📤 Publicar reseña</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLUMNA LATERAL -->
+  <div class="det-aside">
+
+    <!-- Datos del proveedor y contacto -->
+    <div class="prov-card">
+      <div class="prov-header">
+        <div class="prov-avatar" id="prov-avatar"></div>
+        <div class="prov-name" id="prov-name"></div>
+        <div class="prov-type" id="prov-type"></div>
+      </div>
+      <div class="prov-body">
+        <div class="sec-label" style="margin-bottom:8px;">Datos de contacto</div>
+
+        <!-- WhatsApp -->
+        <a class="contact-item" id="contact-whatsapp" href="#" target="_blank">
+          <div class="contact-ico whatsapp">💬</div>
+          <div class="contact-info">
+            <div class="contact-lbl">WhatsApp</div>
+            <div class="contact-val" id="val-whatsapp">—</div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+
+        <!-- Teléfono -->
+        <a class="contact-item" id="contact-phone" href="#" target="_blank">
+          <div class="contact-ico phone">📞</div>
+          <div class="contact-info">
+            <div class="contact-lbl">Teléfono / Celular</div>
+            <div class="contact-val" id="val-phone">—</div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+
+        <!-- Correo -->
+        <a class="contact-item" id="contact-email" href="#" target="_blank">
+          <div class="contact-ico email">✉️</div>
+          <div class="contact-info">
+            <div class="contact-lbl">Correo electrónico</div>
+            <div class="contact-val" id="val-email">—</div>
+          </div>
+          <span class="contact-arrow">→</span>
+        </a>
+
+        <div class="prov-nota">
+          📍 <strong id="nota-loc"></strong><br/>
+          Atención de lunes a viernes, 8:00 am – 6:00 pm (hora Lima).
+        </div>
+
+        <!-- <button class="btn-contactar" onclick="irAPedido()">📧 Solicitar información</button>
+        <button class="btn-pedir" onclick="irAPedido()">🛒 Realizar Pedido</button> -->
+      </div>
+    </div>
+
+    <!-- Info rápida -->
+    <div class="info-aside-card">
+      <div class="sec-label">Información del registro</div>
+      <div id="info-aside-rows"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="cerrarLightbox()">
+  <button class="lightbox-close" onclick="cerrarLightbox()">✕</button>
+  <img id="lightbox-img" src="" alt=""/>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  DATOS (mismos que index.html)
+// ═══════════════════════════════════════════════
+const colorPalette = [
+  {bg:'linear-gradient(135deg,#1a4d22,#2d7a35)', emoji:'🌳'},
+  {bg:'linear-gradient(135deg,#0d3b2e,#1e6b50)', emoji:'🌿'},
+  {bg:'linear-gradient(135deg,#2c4a1e,#4a7c2f)', emoji:'🌲'},
+  {bg:'linear-gradient(135deg,#1b3a4b,#2e6e8a)', emoji:'💧'},
+  {bg:'linear-gradient(135deg,#3d2c1e,#7a5230)', emoji:'🪵'},
+  {bg:'linear-gradient(135deg,#1e2a1f,#3d6640)', emoji:'🍃'},
+  {bg:'linear-gradient(135deg,#2a1e3d,#5c3d7a)', emoji:'🔬'},
+  {bg:'linear-gradient(135deg,#3d1e1e,#7a3030)', emoji:'🦜'},
+];
+
+const proveedores = [
+  { id:1, nombre:'Madera Selecta Peruana S.A.C.', empresa:'FORESTAL AMAZÓNICA S.A.C.', tipo:'ambos', persona:'juridica', estado:'valido', dpto:'Ucayali', prov:'Coronel Portillo', dist:'Callería', descripcion:'Empresa líder en la comercialización de madera certificada y servicios de reforestación. Más de 15 años de experiencia en el sector forestal amazónico.', tags:['Madera certificada','Reforestación','Consultoría ambiental','Caoba','Cedro'], exp:'EXP-2024-SERFOR-003145', fecha:'05/11/2024', vigencia:'20/03/2026', productos:12, ruc:'20123456789', palette:0, precio:'S/ 850.00', unidad:'m³', cantidad:'500 m³', periodo:'Anual', fotos:['🌳','🪵','📦','🚚'], calificacion:4.7, numResenas:28, contacto:{ whatsapp:'+51 951 234 567', phone:'+51 61 575-1200', email:'ventas@forestalamazonica.com.pe' } },
+  { id:2, nombre:'Semillas del Bosque E.I.R.L.', empresa:'SEMILLAS DEL BOSQUE E.I.R.L.', tipo:'bien', persona:'juridica', estado:'valido', dpto:'San Martín', prov:'San Martín', dist:'Tarapoto', descripcion:'Producción y comercialización de semillas forestales nativas certificadas para proyectos de reforestación y restauración de ecosistemas degradados.', tags:['Semillas nativas','Viveros','Especies endémicas','Restauración'], exp:'EXP-2024-SERFOR-002890', fecha:'18/09/2024', vigencia:'03/01/2026', productos:8, ruc:'20456789012', palette:2, precio:'S/ 12.50', unidad:'kg', cantidad:'2,000 kg', periodo:'Trimestral', fotos:['🌱','🌿','📦','🔬'], calificacion:4.5, numResenas:15, contacto:{ whatsapp:'+51 942 876 543', phone:'+51 42 525-8800', email:'info@semillasbosque.pe' } },
+  { id:3, nombre:'EcoForest Consultores', empresa:'JUAN CARLOS FLORES QUISPE', tipo:'servicio', persona:'natural', estado:'valido', dpto:'Cusco', prov:'La Convención', dist:'Echarate', descripcion:'Servicios especializados de consultoría en gestión forestal sostenible, inventarios forestales y planes de manejo para comunidades nativas.', tags:['Inventario forestal','Plan de manejo','Comunidades nativas','SIG Forestal'], exp:'EXP-2024-SERFOR-002560', fecha:'12/07/2024', vigencia:'27/07/2025', productos:5, ruc:null, palette:1, precio:'S/ 4,500.00', unidad:'proyecto', cantidad:'12 proyectos', periodo:'Anual', fotos:['🗺️','📊','📋','🌲'], calificacion:4.9, numResenas:34, contacto:{ whatsapp:'+51 984 112 233', phone:null, email:'jcflores.forestal@gmail.com' } },
+  { id:4, nombre:'Amazonía Verde S.A.C.', empresa:'AMAZONÍA VERDE S.A.C.', tipo:'ambos', persona:'juridica', estado:'valido', dpto:'Loreto', prov:'Maynas', dist:'Iquitos', descripcion:'Proveedor integral de productos no maderables del bosque: aceites esenciales, resinas naturales y plantas medicinales amazónicas con certificación de origen sostenible.', tags:['PFNM','Aceites esenciales','Plantas medicinales','Biocomercio'], exp:'EXP-2024-SERFOR-001987', fecha:'03/05/2024', vigencia:'18/05/2025', productos:22, ruc:'20789012345', palette:5, precio:'S/ 320.00', unidad:'litro', cantidad:'800 litros', periodo:'Semestral', fotos:['🌸','🍃','💊','📦'], calificacion:4.3, numResenas:42, contacto:{ whatsapp:'+51 965 440 110', phone:'+51 65 231-4890', email:'contacto@amazoniaverde.pe' } },
+  { id:5, nombre:'Bambú Industrial del Perú', empresa:'BIP INDUSTRIAS S.A.', tipo:'bien', persona:'juridica', estado:'pendiente', dpto:'Junín', prov:'Chanchamayo', dist:'La Merced', descripcion:'Producción industrial de bambú y derivados para la construcción sostenible. Paneles, vigas laminadas y fibras de bambú para uso estructural y decorativo.', tags:['Bambú','Construcción sostenible','Paneles laminados','Guadua'], exp:'EXP-2025-SERFOR-004512', fecha:'10/01/2025', vigencia:'—', productos:9, ruc:'20345678901', palette:3, precio:'S/ 45.00', unidad:'panel', cantidad:'1,000 paneles', periodo:'Mensual', fotos:['🎋','🔨','📐','🏗️'], calificacion:3.8, numResenas:9, contacto:{ whatsapp:'+51 976 600 321', phone:'+51 64 531-2200', email:'ventas@bipindustrias.pe' } },
+  { id:6, nombre:'Monitoreo Ambiental SAC', empresa:'MONITOREO AMBIENTAL S.A.C.', tipo:'servicio', persona:'juridica', estado:'valido', dpto:'Lima', prov:'Lima', dist:'Miraflores', descripcion:'Servicios avanzados de monitoreo satelital de cobertura boscosa, detección de deforestación en tiempo real y generación de reportes de carbono forestal.', tags:['Teledetección','Carbono forestal','REDD+','Monitoreo satelital'], exp:'EXP-2023-SERFOR-000891', fecha:'22/11/2023', vigencia:'07/12/2025', productos:6, ruc:'20901234567', palette:6, precio:'S/ 8,200.00', unidad:'informe', cantidad:'24 informes', periodo:'Anual', fotos:['🛰️','📡','🗺️','💻'], calificacion:4.6, numResenas:19, contacto:{ whatsapp:'+51 912 789 456', phone:'+51 1 630-7700', email:'proyectos@monitoreoambiental.pe' } },
+  { id:7, nombre:'Fauna Silvestre & Biodiversidad', empresa:'MARÍA ELENA QUISPE HUANCA', tipo:'servicio', persona:'natural', estado:'valido', dpto:'Madre de Dios', prov:'Tambopata', dist:'Puerto Maldonado', descripcion:'Consultora especializada en fauna silvestre, evaluaciones de impacto ambiental, rescate y reubicación de especies en proyectos de infraestructura.', tags:['Fauna silvestre','EIA','Rescate de especies','Herpetología'], exp:'EXP-2024-SERFOR-003201', fecha:'28/10/2024', vigencia:'12/11/2025', productos:4, ruc:null, palette:7, precio:'S/ 3,800.00', unidad:'contrato', cantidad:'8 contratos', periodo:'Anual', fotos:['🦜','🐊','🦋','📸'], calificacion:5.0, numResenas:11, contacto:{ whatsapp:'+51 958 001 774', phone:null, email:'mquispe.fauna@hotmail.com' } },
+  { id:8, nombre:'Maderables Selváticos del Norte', empresa:'MSN EXPORTACIONES S.A.C.', tipo:'bien', persona:'juridica', estado:'valido', dpto:'Amazonas', prov:'Bagua', dist:'Bagua', descripcion:'Exportación de madera aserrada certificada FSC: tornillo, cumala, capirona y shihuahuaco. Certificación de cadena de custodia y trazabilidad garantizada.', tags:['FSC','Madera exportación','Tornillo','Certificación cadena custodia'], exp:'EXP-2023-SERFOR-001204', fecha:'15/06/2023', vigencia:'30/06/2025', productos:15, ruc:'20567890123', palette:4, precio:'S/ 1,200.00', unidad:'m³', cantidad:'300 m³', periodo:'Semestral', fotos:['🪵','🌲','🚢','📜'], calificacion:4.4, numResenas:52, contacto:{ whatsapp:'+51 945 330 218', phone:'+51 41 475-9900', email:'exportaciones@msnperu.com' } },
+];
+
+const comentariosData = {
+  1: [{autor:'Carlos M.',email:'c***@gmail.com',fecha:'Ene 2025',estrellas:5,txt:'Excelente calidad de madera, muy puntuales en la entrega. Recomendados.',fotos:[]},
+      {autor:'Empresa Madesa',email:'v***@madesa.pe',fecha:'Nov 2024',estrellas:4,txt:'Buena experiencia general. El proceso de certificación fue ágil.',fotos:[]}],
+  2: [{autor:'Proyecto Verde',email:'p***@verde.org',fecha:'Feb 2025',estrellas:5,txt:'Semillas con alta tasa de germinación. Cumplieron todas las especificaciones.',fotos:[]}],
+  3: [{autor:'Com. Nativa Quellouno',email:'c***@quellouno.pe',fecha:'Mar 2025',estrellas:5,txt:'Excelente profesional, plan de manejo muy completo y fácil de entender.',fotos:[]},
+      {autor:'Municipalidad Echarate',email:'m***@echarate.gob.pe',fecha:'Ene 2025',estrellas:5,txt:'Trabajo muy riguroso. Entregó todo antes del plazo acordado.',fotos:[]}],
+  4: [{autor:'Naturals Peru SAC',email:'n***@naturals.pe',fecha:'Dic 2024',estrellas:4,txt:'Aceites de muy buena calidad. El empaque puede mejorar.',fotos:[]}],
+  5: [{autor:'Constructora ALEM',email:'c***@alem.pe',fecha:'Feb 2025',estrellas:4,txt:'Los paneles de bambú son resistentes. Esperando la validación de SERFOR.',fotos:[]}],
+  6: [{autor:'MINAGRI Loreto',email:'m***@minagri.gob.pe',fecha:'Mar 2025',estrellas:5,txt:'Reportes muy detallados y entregados a tiempo. Tecnología de punta.',fotos:[]}],
+  7: [{autor:'Electroperu SAC',email:'e***@electroperu.pe',fecha:'Ene 2025',estrellas:5,txt:'Rescatamos más de 200 especies gracias a su trabajo. Impecable.',fotos:[]}],
+  8: [{autor:'Importadora Chen',email:'i***@chen.com',fecha:'Feb 2025',estrellas:4,txt:'Madera de primera calidad y toda la documentación FSC en orden.',fotos:[]}],
+};
+
+// ═══════════════════════════════════════════════
+//  ESTADO
+// ═══════════════════════════════════════════════
+let proveedorActual = null;
+let starSeleccionada = 0;
+let fotosSeleccionadas = []; // {file, dataUrl}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+function init() {
+  const params = new URLSearchParams(window.location.search);
+  const id = parseInt(params.get('id')) || 1;
+  const p = proveedores.find(x => x.id === id);
+  if (!p) { document.body.innerHTML = '<div style="padding:60px;text-align:center;font-size:18px;color:#4a5a4c;">Proveedor no encontrado. <a href="index.html" style="color:#4a9e56;">Volver al catálogo</a></div>'; return; }
+  proveedorActual = p;
+  renderDetalle(p);
+}
+
+function starsHTML(n, size) {
+  let s = '';
+  for(let i=1;i<=5;i++) s += `<span style="color:${i<=n?'#c9a84c':'#d4e6d5'};font-size:${size||16}px">★</span>`;
+  return s;
+}
+
+function tipoBadgeHTML(tipo) {
+  if (tipo === 'bien') return '<span class="badge-tipo bien">📦 Bien</span>';
+  if (tipo === 'servicio') return '<span class="badge-tipo servicio">⚙️ Servicio</span>';
+  return '<span class="badge-tipo ambos">🌟 Bienes + Servicios</span>';
+}
+
+function renderDetalle(p) {
+  const pal = colorPalette[p.palette % colorPalette.length];
+  document.title = p.nombre + ' – SERFOR';
+
+  // Hero
+  document.getElementById('hero-bg').style.background = pal.bg;
+  document.getElementById('hero-ico').textContent = pal.emoji;
+  document.getElementById('det-titulo').textContent = p.nombre;
+  document.getElementById('det-empresa').textContent = `${p.empresa} · ${p.persona==='juridica'?'Persona Jurídica':'Persona Natural'} · 📍 ${p.dpto}, ${p.prov}`;
+  document.getElementById('det-precio').textContent = p.precio;
+  document.getElementById('det-unit').textContent = `por ${p.unidad}`;
+  document.getElementById('det-badges').innerHTML = tipoBadgeHTML(p.tipo) + (p.estado==='valido'?'<span class="badge-verificado">✅ Verificado SERFOR</span>':'<span class="badge-tipo" style="background:rgba(224,123,48,.2);color:#f0c070;border:1px solid rgba(224,123,48,.3);">⏳ En validación</span>');
+
+  // Tab contador reseñas
+  document.getElementById('tab-num-res').textContent = (comentariosData[p.id]||[]).length;
+
+  // ── Especificaciones ──
+  document.getElementById('ficha-general').innerHTML = `
+    <div class="fi"><div class="fi-lbl">Expediente</div><div class="fi-val" style="font-family:'DM Mono',monospace;font-size:11px">${p.exp}</div></div>
+    <div class="fi"><div class="fi-lbl">Estado</div><div class="fi-val">${p.estado==='valido'?'✅ Válido':'⏳ Pendiente validación'}</div></div>
+    <div class="fi"><div class="fi-lbl">Fecha de Registro</div><div class="fi-val">${p.fecha}</div></div>
+    <div class="fi"><div class="fi-lbl">Vigencia hasta</div><div class="fi-val">${p.vigencia}</div></div>
+    ${p.ruc?`<div class="fi"><div class="fi-lbl">RUC</div><div class="fi-val" style="font-family:'DM Mono',monospace">${p.ruc}</div></div>`:''}
+    <div class="fi"><div class="fi-lbl">N° Ofertas activas</div><div class="fi-val" style="color:var(--vh);font-weight:700">${p.productos}</div></div>`;
+
+  document.getElementById('desc-tecnica').textContent = p.descripcion + ' ' + (p.tipo==='bien'?'El producto cumple con estándares de calidad verificados por SERFOR y cuenta con certificación de procedencia legal sostenible.':'El servicio es prestado por profesionales habilitados con experiencia acreditada en el sector forestal peruano.');
+
+  document.getElementById('ficha-certs').innerHTML = `
+    <div class="fi"><div class="fi-lbl">Certificación de Calidad</div><div class="fi-val">${p.tipo==='servicio'?'Regente Forestal habilitado':'FSC – Forest Stewardship Council'}</div></div>
+    <div class="fi"><div class="fi-lbl">Norma Técnica</div><div class="fi-val">${p.tipo==='bien'?'NTP 251.104':'Ley N° 29763 – LFFS'}</div></div>
+    <div class="fi"><div class="fi-lbl">Estado</div><div class="fi-val">${p.tipo==='bien'?'Procesado / Terminado':'Servicio profesional activo'}</div></div>
+    <div class="fi"><div class="fi-lbl">Ámbito</div><div class="fi-val">${p.dpto}, ${p.prov}</div></div>`;
+
+  document.getElementById('det-tags').innerHTML = p.tags.map(t=>`<span class="modal-tag">${t}</span>`).join('');
+
+  // ── Fotos ──
+  document.getElementById('foto-gallery').innerHTML = p.fotos.map((f,i)=>`
+    <div class="foto-slot" onclick="abrirLightbox(null,'${f}')">
+      <span style="font-size:36px">${f}</span>
+      <span>Vista ${i===0?'principal':i===1?'lateral':i===2?'detalle':'empaque'}</span>
+    </div>`).join('');
+
+  // ── Oferta ──
+  document.getElementById('of-precio').innerHTML = `${p.precio} <span>/ ${p.unidad}</span>`;
+  document.getElementById('of-detalles').innerHTML = `
+    <div class="od-item"><div class="od-val">${p.cantidad}</div><div class="od-lbl">Cantidad ofertada</div></div>
+    <div class="od-item"><div class="od-val">${p.numResenas}</div><div class="od-lbl">Reseñas</div></div>
+    <div class="od-item"><div class="od-val">${p.periodo}</div><div class="od-lbl">Período</div></div>`;
+  document.getElementById('ficha-oferta').innerHTML = `
+    <div class="fi"><div class="fi-lbl">Frecuencia de ${p.tipo==='servicio'?'prestación':'entrega'}</div><div class="fi-val">Mensual / A pedido</div></div>
+    <div class="fi"><div class="fi-lbl">Lugar de entrega</div><div class="fi-val">${p.tipo==='servicio'?'En sitio del cliente':'Almacén del proveedor'}</div></div>
+    <div class="fi"><div class="fi-lbl">Descuento por volumen</div><div class="fi-val">Disponible (negociable)</div></div>
+    <div class="fi"><div class="fi-lbl">Forma de pago</div><div class="fi-val">Contado / Crédito 30 días</div></div>`;
+
+  // ── Reseñas ──
+  renderResenas(p);
+
+  // ── Proveedor aside ──
+  document.getElementById('prov-avatar').textContent = pal.emoji;
+  document.getElementById('prov-name').textContent = p.empresa;
+  document.getElementById('prov-type').textContent = (p.persona==='juridica'?'Persona Jurídica':'Persona Natural') + ' · ' + (p.tipo==='servicio'?'Servicio':'Bien');
+  document.getElementById('nota-loc').textContent = `${p.dpto} › ${p.prov} › ${p.dist}`;
+
+  // Contactos
+  const c = p.contacto || {};
+  if (c.whatsapp) {
+    const num = c.whatsapp.replace(/\D/g,'');
+    document.getElementById('contact-whatsapp').href = `https://wa.me/${num}?text=Hola, me interesa su oferta en SERFOR: ${encodeURIComponent(p.nombre)}`;
+    document.getElementById('val-whatsapp').textContent = c.whatsapp;
+  } else {
+    document.getElementById('contact-whatsapp').style.opacity = '.4';
+    document.getElementById('contact-whatsapp').style.pointerEvents = 'none';
+    document.getElementById('val-whatsapp').textContent = 'No disponible';
+  }
+  if (c.phone) {
+    document.getElementById('contact-phone').href = `tel:${c.phone.replace(/\s/g,'')}`;
+    document.getElementById('val-phone').textContent = c.phone;
+  } else {
+    document.getElementById('contact-phone').style.opacity = '.4';
+    document.getElementById('contact-phone').style.pointerEvents = 'none';
+    document.getElementById('val-phone').textContent = 'No disponible';
+  }
+  if (c.email) {
+    document.getElementById('contact-email').href = `mailto:${c.email}?subject=Consulta sobre ${encodeURIComponent(p.nombre)} – SERFOR`;
+    document.getElementById('val-email').textContent = c.email;
+  } else {
+    document.getElementById('contact-email').style.opacity = '.4';
+    document.getElementById('contact-email').style.pointerEvents = 'none';
+    document.getElementById('val-email').textContent = 'No disponible';
+  }
+
+  // Info aside rows
+  document.getElementById('info-aside-rows').innerHTML = `
+    <div class="info-aside-row"><span class="lbl">Expediente</span><span class="val" style="font-family:'DM Mono',monospace;font-size:10px">${p.exp}</span></div>
+    <div class="info-aside-row"><span class="lbl">Registro</span><span class="val">${p.fecha}</span></div>
+    <div class="info-aside-row"><span class="lbl">Vigencia</span><span class="val">${p.vigencia}</span></div>
+    <div class="info-aside-row"><span class="lbl">Estado</span><span class="val">${p.estado==='valido'?'✅ Válido':'⏳ Pendiente'}</span></div>
+    ${p.ruc?`<div class="info-aside-row"><span class="lbl">RUC</span><span class="val" style="font-family:'DM Mono',monospace">${p.ruc}</span></div>`:''}
+    <div class="info-aside-row"><span class="lbl">Calificación</span><span class="val">${starsHTML(Math.round(p.calificacion),13)} ${p.calificacion}</span></div>`;
+}
+
+function renderResenas(p) {
+  const coms = comentariosData[p.id] || [];
+  document.getElementById('res-cal').textContent = p.calificacion;
+  document.getElementById('res-stars').innerHTML = starsHTML(Math.round(p.calificacion), 18);
+  document.getElementById('res-count').textContent = `${coms.length} reseñas verificadas`;
+
+  // Barras de distribución
+  const dist = [0,0,0,0,0];
+  coms.forEach(c => { if(c.estrellas>=1&&c.estrellas<=5) dist[c.estrellas-1]++; });
+  const max = Math.max(...dist, 1);
+  document.getElementById('rating-bars').innerHTML = [5,4,3,2,1].map(n => {
+    const cnt = dist[n-1];
+    const pct = Math.round((cnt/max)*100);
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+      <span style="font-size:11px;color:var(--text-sec);width:14px;text-align:right;">${n}</span>
+      <span style="color:#c9a84c;font-size:12px;">★</span>
+      <div style="flex:1;height:6px;background:#eef5ee;border-radius:4px;overflow:hidden;">
+        <div style="width:${pct}%;height:100%;background:linear-gradient(90deg,#c9a84c,#e0c060);border-radius:4px;transition:width .6s ease;"></div>
+      </div>
+      <span style="font-size:11px;color:var(--text-muted);width:18px;">${cnt}</span>
+    </div>`;
+  }).join('');
+
+  // Lista comentarios
+  if (!coms.length) {
+    document.getElementById('comentarios-list').innerHTML = `<div class="no-resenas"><span class="ico">💬</span>Aún no hay reseñas. ¡Sé el primero en comentar!</div>`;
+    return;
+  }
+  document.getElementById('comentarios-list').innerHTML = coms.map(c => {
+    const iniciales = c.autor.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const fotosHTML = (c.fotos && c.fotos.length) ? `<div class="com-fotos">${c.fotos.map(f=>`<img class="com-foto" src="${f}" onclick="abrirLightbox('${f}',null)" alt="Foto reseña"/>`).join('')}</div>` : '';
+    return `<div class="comentario">
+      <div class="com-header">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="com-avatar">${iniciales}</div>
+          <div>
+            <div class="com-autor">${c.autor}</div>
+            <div class="com-stars-val">${starsHTML(c.estrellas,13)}</div>
+          </div>
+        </div>
+        <div class="com-fecha">${c.fecha}</div>
+      </div>
+      <div class="com-txt">${c.txt}</div>
+      ${fotosHTML}
+    </div>`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════
+function cambiarTab(btn, panelId) {
+  document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('activo'));
+  btn.classList.add('activo');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('activo'));
+  document.getElementById(panelId).classList.add('activo');
+}
+
+// ═══════════════════════════════════════════════
+//  ESTRELLAS
+// ═══════════════════════════════════════════════
+const starLabels = ['','Muy malo','Regular','Bueno','Muy bueno','Excelente'];
+function selStar(n) {
+  starSeleccionada = n;
+  document.querySelectorAll('.star-btn').forEach((btn,i) => {
+    btn.classList.toggle('sel', i < n);
+  });
+  document.getElementById('star-hint').textContent = starLabels[n] || 'Sin calificación';
+  document.getElementById('err-estrellas').classList.remove('visible');
+}
+
+// Hover preview estrellas
+document.querySelectorAll('.star-btn').forEach((btn,i) => {
+  btn.addEventListener('mouseenter', () => {
+    document.querySelectorAll('.star-btn').forEach((b,j) => b.classList.toggle('sel', j <= i));
+  });
+  btn.addEventListener('mouseleave', () => {
+    document.querySelectorAll('.star-btn').forEach((b,j) => b.classList.toggle('sel', j < starSeleccionada));
+  });
+});
+
+// ═══════════════════════════════════════════════
+//  CONTADOR CARACTERES
+// ═══════════════════════════════════════════════
+function actualizarContador() {
+  const txt = document.getElementById('nc-txt').value;
+  const n = txt.length;
+  const el = document.getElementById('char-count');
+  el.textContent = `${n} / 500`;
+  el.className = 'nc-char-count' + (n > 480 ? ' warn' : '') + (n >= 500 ? ' over' : '');
+}
+
+// ═══════════════════════════════════════════════
+//  UPLOAD FOTOS
+// ═══════════════════════════════════════════════
+function onFotoSelect(e) {
+  procesarArchivos(Array.from(e.target.files));
+  e.target.value = '';
+}
+function onDragOver(e) { e.preventDefault(); document.getElementById('upload-zone').classList.add('drag-over'); }
+function onDragLeave(e) { document.getElementById('upload-zone').classList.remove('drag-over'); }
+function onDrop(e) {
+  e.preventDefault();
+  document.getElementById('upload-zone').classList.remove('drag-over');
+  procesarArchivos(Array.from(e.dataTransfer.files));
+}
+
+function procesarArchivos(files) {
+  const errEl = document.getElementById('err-fotos');
+  const tipos = ['image/jpeg','image/png','image/webp'];
+  const maxSize = 5 * 1024 * 1024;
+
+  for (const file of files) {
+    if (fotosSeleccionadas.length >= 4) { mostrarError('err-fotos', 'Máximo 4 fotos por reseña.'); break; }
+    if (!tipos.includes(file.type)) { mostrarError('err-fotos', `Formato no permitido: ${file.name}. Use JPG, PNG o WEBP.`); continue; }
+    if (file.size > maxSize) { mostrarError('err-fotos', `La imagen "${file.name}" supera 5 MB.`); continue; }
+    errEl.classList.remove('visible');
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      fotosSeleccionadas.push({ file, dataUrl: ev.target.result });
+      renderPreviews();
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+function renderPreviews() {
+  const cont = document.getElementById('preview-fotos');
+  cont.innerHTML = fotosSeleccionadas.map((f,i) => `
+    <div class="preview-item">
+      <img src="${f.dataUrl}" alt="preview"/>
+      <div class="remove-foto" onclick="removeFoto(${i})">✕</div>
+    </div>`).join('');
+}
+
+function removeFoto(idx) {
+  fotosSeleccionadas.splice(idx, 1);
+  renderPreviews();
+  document.getElementById('err-fotos').classList.remove('visible');
+}
+
+// ═══════════════════════════════════════════════
+//  VALIDACIÓN Y ENVÍO
+// ═══════════════════════════════════════════════
+function limpiarError(inputId, errId) {
+  document.getElementById(inputId).classList.remove('error');
+  document.getElementById(errId).classList.remove('visible');
+}
+
+function mostrarError(errId, msg) {
+  const el = document.getElementById(errId);
+  if (msg) el.textContent = msg;
+  el.classList.add('visible');
+}
+
+function validarEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function enviarComentario() {
+  const nombre = document.getElementById('nc-nombre').value.trim();
+  const email = document.getElementById('nc-email').value.trim();
+  const txt = document.getElementById('nc-txt').value.trim();
+  const estrellas = starSeleccionada;
+  let valido = true;
+
+  // Validar estrellas
+  if (!estrellas) { mostrarError('err-estrellas'); valido = false; }
+  // Validar nombre
+  if (!nombre) { document.getElementById('nc-nombre').classList.add('error'); mostrarError('err-nombre'); valido = false; }
+  // Validar email
+  if (!email || !validarEmail(email)) { document.getElementById('nc-email').classList.add('error'); mostrarError('err-email', !email ? 'El correo es obligatorio.' : 'Ingrese un correo electrónico válido.'); valido = false; }
+  // Validar comentario
+  if (!txt) { document.getElementById('nc-txt').classList.add('error'); mostrarError('err-comentario'); valido = false; }
+
+  if (!valido) return;
+
+  // Simular envío
+  const btn = document.getElementById('btn-comentar');
+  btn.disabled = true;
+  btn.textContent = '⏳ Enviando…';
+
+  setTimeout(() => {
+    const p = proveedorActual;
+    if (!comentariosData[p.id]) comentariosData[p.id] = [];
+    const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const ahora = new Date();
+    const nuevoCom = {
+      autor: nombre,
+      email: email.replace(/(.{2}).*(@.*)/, '$1***$2'),
+      fecha: meses[ahora.getMonth()] + ' ' + ahora.getFullYear(),
+      estrellas,
+      txt,
+      fotos: fotosSeleccionadas.map(f => f.dataUrl)
+    };
+    comentariosData[p.id].unshift(nuevoCom);
+
+    // Recalcular calificación promedio
+    const todos = comentariosData[p.id];
+    p.calificacion = Math.round((todos.reduce((a,c)=>a+c.estrellas,0)/todos.length)*10)/10;
+    p.numResenas = todos.length;
+
+    // Limpiar form
+    document.getElementById('nc-nombre').value = '';
+    document.getElementById('nc-email').value = '';
+    document.getElementById('nc-txt').value = '';
+    starSeleccionada = 0;
+    document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('sel'));
+    document.getElementById('star-hint').textContent = 'Sin calificación';
+    document.getElementById('char-count').textContent = '0 / 500';
+    fotosSeleccionadas = [];
+    renderPreviews();
+
+    // Re-render reseñas
+    renderResenas(p);
+    document.getElementById('tab-num-res').textContent = todos.length;
+
+    btn.disabled = false;
+    btn.textContent = '📤 Publicar reseña';
+
+    mostrarToast('✅ ¡Reseña publicada exitosamente! Gracias por su opinión.');
+
+    // Scroll a comentarios
+    setTimeout(() => {
+      document.getElementById('comentarios-list').scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 300);
+  }, 900);
+}
+
+// ═══════════════════════════════════════════════
+//  TOAST
+// ═══════════════════════════════════════════════
+function mostrarToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 4500);
+}
+
+// ═══════════════════════════════════════════════
+//  LIGHTBOX
+// ═══════════════════════════════════════════════
+function abrirLightbox(src, emoji) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightbox-img');
+  if (src) {
+    img.src = src;
+    img.style.display = 'block';
+  } else {
+    // Emoji: mostrar en canvas o simplemente ocultar img
+    img.style.display = 'none';
+  }
+  lb.classList.add('visible');
+}
+function cerrarLightbox() { document.getElementById('lightbox').classList.remove('visible'); }
+document.addEventListener('keydown', e => { if(e.key==='Escape') cerrarLightbox(); });
+
+// ═══════════════════════════════════════════════
+//  PEDIDO
+// ═══════════════════════════════════════════════
+function irAPedido() {
+  const p = proveedorActual;
+  if (!p) return;
+  const sesion = sessionStorage.getItem('serfor_user');
+  if (sesion) {
+    try { const u = JSON.parse(sesion); if(u.autenticado) { window.location.href=`pedido.html?id=${p.id}`; return; } } catch(e) {}
+  }
+  window.location.href = `registro-comprador.html?id=${p.id}&redirect=${encodeURIComponent('pedido.html?id='+p.id)}`;
+}
+
+// ═══════════════════════════════════════════════
+//  ARRANCAR
+// ═══════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>

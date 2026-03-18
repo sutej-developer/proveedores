@@ -109,8 +109,40 @@
   .btn-cancel{padding:11px 20px;background:transparent;border:1.5px solid #c4d9c5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);cursor:pointer}
   .btn-cancel:hover{background:#eef5ee}
 
+  /* ── SECCIÓN USUARIOS ── */
+  .seccion{display:none;flex-direction:column;gap:22px}
+  .seccion.activo{display:flex}
+  .toolbar-usuarios{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .toolbar-usuarios .search-box input{width:240px}
+  .filtro-select{padding:9px 32px 9px 13px;border:1.5px solid #c4d9c5;border-radius:9px;background:var(--blanco);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);outline:none;cursor:pointer;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a9e56' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;transition:all .2s}
+  .filtro-select:focus{border-color:var(--vh);box-shadow:0 0 0 3px rgba(74,158,86,.1)}
+  .badge-bloqueado{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:rgba(192,57,43,.09);color:#a93226;border:1px solid rgba(192,57,43,.2)}
+  .badge-natural{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:rgba(26,111,168,.09);color:var(--azul);border:1px solid rgba(26,111,168,.18)}
+  .badge-juridica{display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;background:rgba(74,158,86,.09);color:var(--vs);border:1px solid rgba(74,158,86,.2)}
+  .btn-bloquear{background:rgba(192,57,43,.09);color:#a93226;border:1px solid rgba(192,57,43,.18)}
+  .btn-bloquear:hover{background:rgba(192,57,43,.18);border-color:rgba(192,57,43,.35)}
+  .btn-desbloquear{background:rgba(39,174,96,.1);color:#1e7a45;border:1px solid rgba(39,174,96,.2)}
+  .btn-desbloquear:hover{background:rgba(39,174,96,.2);border-color:rgba(39,174,96,.4)}
+  .u-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--blanco);flex-shrink:0}
+  .u-info{display:flex;align-items:center;gap:10px}
+  .u-nombre{font-weight:600;font-size:13px;color:var(--vb)}
+  .u-correo{font-size:11px;color:#9aac9b;margin-top:1px}
+  .empty-row td{text-align:center;padding:36px;color:#9aac9b;font-size:13px}
+
+  /* Modal confirmación bloqueo */
+  .modal-confirm{background:var(--blanco);border-radius:18px;width:100%;max-width:420px;margin:20px;box-shadow:0 20px 60px rgba(0,0,0,.35);transform:translateY(16px) scale(.98);transition:transform .3s cubic-bezier(.34,1.56,.64,1);overflow:hidden}
+  .modal-ov.visible .modal-confirm{transform:translateY(0) scale(1)}
+  .mconf-ico{font-size:48px;text-align:center;display:block;margin-bottom:12px}
+  .mconf-body{padding:28px 28px 8px;text-align:center}
+  .mconf-body h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--vb);margin-bottom:8px}
+  .mconf-body p{font-size:13px;color:#5a7a5c;line-height:1.65}
+  .mconf-footer{padding:16px 24px 24px;display:flex;gap:10px;justify-content:center}
+  .btn-confirm-si{padding:11px 28px;border:none;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+  .btn-confirm-no{padding:11px 20px;background:transparent;border:1.5px solid #c4d9c5;border-radius:9px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--vb);cursor:pointer}
+  .btn-confirm-no:hover{background:#eef5ee}
+
   @media(max-width:900px){.sidebar{display:none}.contenido{padding:20px}}
-  @media(max-width:640px){.kpi-mini-row{flex-wrap:wrap}.form-grid{grid-template-columns:1fr}.span2{grid-column:span 1}}
+  @media(max-width:640px){.kpi-mini-row{flex-wrap:wrap}.form-grid{grid-template-columns:1fr}.span2{grid-column:span 1}.toolbar-usuarios{flex-direction:column;align-items:stretch}.toolbar-usuarios .search-box,.toolbar-usuarios .search-box input,.filtro-select{width:100%}}
 </style>
 </head>
 <body>
@@ -124,23 +156,26 @@
       <div class="avatar">⚙️</div>
       <div><div style="font-size:12px;color:var(--vm)">Administrador del Sistema</div><div class="rol-chip">Admin</div></div>
     </div>
-    <button class="btn-salir" onclick="window.location.href='index.html'">Salir</button>
+    <button class="btn-salir" onclick="window.location.href='login.html'">Salir</button>
   </div>
 </header>
 
 <div class="app-body">
   <div class="sidebar">
     <div class="sidebar-titulo">Mantenimientos</div>
-    <div class="nav-item activo" onclick="irSeccion('catalogo')"><span class="ni">📋</span>Catálogo<span class="nav-badge" id="nb-total">18</span></div>
-    <div class="nav-item" onclick="irSeccion('usuarios')"><span class="ni">👥</span>Usuarios</div>
-    <div class="nav-item" onclick="irSeccion('configuracion')"><span class="ni">⚙️</span>Configuración</div>
+    <div class="nav-item activo" id="nav-catalogo" onclick="irSeccion('catalogo')"><span class="ni">📋</span>Catálogo<span class="nav-badge" id="nb-total">18</span></div>
+    <div class="nav-item" id="nav-usuarios" onclick="irSeccion('usuarios')"><span class="ni">👥</span>Usuarios<span class="nav-badge" id="nb-usuarios" style="background:#6b7a6d">0</span></div>
+    <!-- <div class="nav-item" onclick="irSeccion('configuracion')"><span class="ni">⚙️</span>Configuración</div>
     <div class="nav-item" onclick="irSeccion('reportes')"><span class="ni">📊</span>Reportes</div>
     <div class="sidebar-titulo" style="margin-top:20px">Accesos directos</div>
     <div class="nav-item" onclick="window.location.href='20_dashboard_especialista.html'"><span class="ni">🔬</span>Ver Especialista</div>
-    <div class="nav-item" onclick="window.location.href='10_dashboard_proveedor.html'"><span class="ni">🏢</span>Ver Proveedor</div>
+    <div class="nav-item" onclick="window.location.href='10_dashboard_proveedor.html'"><span class="ni">🏢</span>Ver Proveedor</div> -->
   </div>
 
   <div class="contenido">
+
+    <!-- ══ SECCIÓN CATÁLOGO ══ -->
+    <div class="seccion activo" id="seccion-catalogo">
 
     <div class="kpi-mini-row">
       <div class="kpi-mini"><div class="kmi-ico blue">📦</div><div><div class="kmi-v" id="tot-bienes">10</div><div class="kmi-l">Bienes en catálogo</div></div></div>
@@ -216,6 +251,69 @@
       </div>
     </div>
 
+    </div><!-- /seccion-catalogo -->
+
+    <!-- ══ SECCIÓN USUARIOS ══ -->
+    <div class="seccion" id="seccion-usuarios">
+
+      <!-- KPIs usuarios -->
+      <div class="kpi-mini-row">
+        <div class="kpi-mini"><div class="kmi-ico blue">👤</div><div><div class="kmi-v" id="u-tot">0</div><div class="kmi-l">Total usuarios</div></div></div>
+        <div class="kpi-mini"><div class="kmi-ico green">✅</div><div><div class="kmi-v" id="u-activos">0</div><div class="kmi-l">Activos</div></div></div>
+        <div class="kpi-mini"><div class="kmi-ico red">🔒</div><div><div class="kmi-v" id="u-bloqueados">0</div><div class="kmi-l">Bloqueados</div></div></div>
+        <div class="kpi-mini"><div class="kmi-ico gold">🏛️</div><div><div class="kmi-v" id="u-juridicas">0</div><div class="kmi-l">Personas Jurídicas</div></div></div>
+      </div>
+
+      <!-- Toolbar búsqueda y filtro -->
+      <div class="toolbar-usuarios">
+        <div class="search-box">
+          <span class="si">🔍</span>
+          <input type="text" id="u-buscar" placeholder="Buscar por nombre…" oninput="filtrarUsuarios()"/>
+        </div>
+        <select class="filtro-select" id="u-filtro-tipo" onchange="filtrarUsuarios()">
+          <option value="">Todos los tipos</option>
+          <option value="natural">Persona Natural</option>
+          <option value="juridica">Persona Jurídica</option>
+        </select>
+        <div style="margin-left:auto;font-size:12px;color:#6b7a6d" id="u-info-resultados"></div>
+      </div>
+
+      <!-- Tabla usuarios -->
+      <div class="tabla-card">
+        <div style="overflow-x:auto">
+          <table id="tabla-usuarios">
+            <thead>
+              <tr>
+                <th style="width:48px">N°</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Tipo de Persona</th>
+                <th>Estado</th>
+                <th style="width:140px">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-usuarios"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /seccion-usuarios -->
+
+  </div><!-- /contenido -->
+</div><!-- /app-body -->
+
+<!-- MODAL CONFIRMACIÓN BLOQUEO/DESBLOQUEO -->
+<div class="modal-ov" id="modal-confirm" onclick="cerrarConfirm(event)">
+  <div class="modal-confirm">
+    <div class="mconf-body">
+      <span class="mconf-ico" id="mconf-ico">🔒</span>
+      <h3 id="mconf-titulo">¿Bloquear usuario?</h3>
+      <p id="mconf-desc">Esta acción impedirá que el usuario pueda iniciar sesión en el sistema.</p>
+    </div>
+    <div class="mconf-footer">
+      <button class="btn-confirm-no" onclick="cerrarConfirmModal()">Cancelar</button>
+      <button class="btn-confirm-si" id="mconf-btn-si" onclick="ejecutarToggle()">Confirmar</button>
+    </div>
   </div>
 </div>
 
@@ -484,11 +582,151 @@ function guardarItem() {
 
 function cerrarModal() { document.getElementById('modal-form').classList.remove('visible'); }
 function cerrarSiOv(e) { if (e.target===document.getElementById('modal-form')) cerrarModal(); }
-function irSeccion(s) { if (s==='catalogo') return; alert('Sección "'+s+'" en construcción.'); }
-document.addEventListener('keydown', e => { if (e.key==='Escape') cerrarModal(); });
+
+// ── Navegación secciones ─────────────────────────────────────────────────────
+function irSeccion(s) {
+  // Actualizar secciones
+  document.querySelectorAll('.seccion').forEach(sec => sec.classList.remove('activo'));
+  const sec = document.getElementById('seccion-' + s);
+  if (sec) sec.classList.add('activo');
+
+  // Actualizar nav
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('activo'));
+  const navEl = document.getElementById('nav-' + s);
+  if (navEl) navEl.classList.add('activo');
+
+  if (s === 'usuarios') renderUsuarios(usuarios);
+}
+
+// ── Datos usuarios ────────────────────────────────────────────────────────────
+const usuarios = [
+  {id:1, nombre:'Carlos',     apellidos:'Mendoza Ríos',       tipo:'natural',  estado:'activo',    correo:'cmendoza@gmail.com'},
+  {id:2, nombre:'Forestal',   apellidos:'Amazónica S.A.C.',   tipo:'juridica', estado:'activo',    correo:'ventas@forestalamazonica.pe'},
+  {id:3, nombre:'María Elena',apellidos:'Quispe Huanca',      tipo:'natural',  estado:'activo',    correo:'mquispe.fauna@hotmail.com'},
+  {id:4, nombre:'BIP',        apellidos:'Industrias S.A.',    tipo:'juridica', estado:'bloqueado', correo:'ventas@bipindustrias.pe'},
+  {id:5, nombre:'Juan Carlos',apellidos:'Flores Quispe',      tipo:'natural',  estado:'activo',    correo:'jcflores.forestal@gmail.com'},
+  {id:6, nombre:'Amazonía',   apellidos:'Verde S.A.C.',       tipo:'juridica', estado:'activo',    correo:'contacto@amazoniaverde.pe'},
+  {id:7, nombre:'Rosa',       apellidos:'Huanca Mamani',      tipo:'natural',  estado:'bloqueado', correo:'rhuanca@outlook.com'},
+  {id:8, nombre:'Monitoreo',  apellidos:'Ambiental S.A.C.',   tipo:'juridica', estado:'activo',    correo:'proyectos@monitoreoambiental.pe'},
+  {id:9, nombre:'Pedro',      apellidos:'Zárate Chuquimia',   tipo:'natural',  estado:'activo',    correo:'pzarate@yahoo.com'},
+  {id:10,nombre:'MSN',        apellidos:'Exportaciones S.A.C',tipo:'juridica', estado:'activo',    correo:'exportaciones@msnperu.com'},
+  {id:11,nombre:'Ana Lucía',  apellidos:'Torres Villanueva',  tipo:'natural',  estado:'activo',    correo:'aluciat@gmail.com'},
+  {id:12,nombre:'Semillas',   apellidos:'del Bosque E.I.R.L.',tipo:'juridica', estado:'bloqueado', correo:'info@semillasbosque.pe'},
+];
+
+const avatarColors = ['#4a9e56','#2d6a35','#1a6fa8','#c9a84c','#8e44ad','#e67e22','#c0392b','#16a085'];
+
+let confirmUserId = null;
+
+// ── Render usuarios ───────────────────────────────────────────────────────────
+function renderUsuarios(data) {
+  const tbody = document.getElementById('tbody-usuarios');
+  if (!data.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="6">🔍 No se encontraron usuarios con esos criterios.</td></tr>';
+  } else {
+    tbody.innerHTML = data.map((u, i) => {
+      const iniciales = (u.nombre[0] + (u.apellidos[0] || '')).toUpperCase();
+      const color = avatarColors[(u.id - 1) % avatarColors.length];
+      const esBloqueado = u.estado === 'bloqueado';
+      const tipoBadge = u.tipo === 'juridica'
+        ? '<span class="badge-juridica">🏛️ Jurídica</span>'
+        : '<span class="badge-natural">👤 Natural</span>';
+      const estadoBadge = esBloqueado
+        ? '<span class="badge-bloqueado"><span class="dot"></span>Bloqueado</span>'
+        : '<span class="badge-activo"><span class="dot"></span>Activo</span>';
+      const btnToggle = esBloqueado
+        ? `<button class="btn-accion btn-desbloquear" onclick="pedirConfirm(${u.id})">🔓 Desbloquear</button>`
+        : `<button class="btn-accion btn-bloquear" onclick="pedirConfirm(${u.id})">🔒 Bloquear</button>`;
+      return `<tr id="row-u-${u.id}">
+        <td style="font-weight:600;color:#9aac9b;font-size:12px">${i + 1}</td>
+        <td>
+          <div class="u-info">
+            <div class="u-avatar" style="background:${color}">${iniciales}</div>
+            <div>
+              <div class="u-nombre">${u.nombre}</div>
+              <div class="u-correo">${u.correo}</div>
+            </div>
+          </div>
+        </td>
+        <td style="font-size:13px;color:var(--vb)">${u.apellidos}</td>
+        <td>${tipoBadge}</td>
+        <td>${estadoBadge}</td>
+        <td><div class="acciones-btns">${btnToggle}</div></td>
+      </tr>`;
+    }).join('');
+  }
+  actualizarKPIsUsuarios();
+  const total = data.length;
+  document.getElementById('u-info-resultados').innerHTML =
+    `Mostrando <strong>${total}</strong> de <strong>${usuarios.length}</strong> usuarios`;
+}
+
+function actualizarKPIsUsuarios() {
+  document.getElementById('u-tot').textContent = usuarios.length;
+  document.getElementById('u-activos').textContent = usuarios.filter(u => u.estado === 'activo').length;
+  document.getElementById('u-bloqueados').textContent = usuarios.filter(u => u.estado === 'bloqueado').length;
+  document.getElementById('u-juridicas').textContent = usuarios.filter(u => u.tipo === 'juridica').length;
+  document.getElementById('nb-usuarios').textContent = usuarios.length;
+}
+
+// ── Filtrar usuarios ──────────────────────────────────────────────────────────
+function filtrarUsuarios() {
+  const q = document.getElementById('u-buscar').value.toLowerCase().trim();
+  const tipo = document.getElementById('u-filtro-tipo').value;
+  const filtrado = usuarios.filter(u => {
+    const textoCompleto = (u.nombre + ' ' + u.apellidos + ' ' + u.correo).toLowerCase();
+    const coincideBusqueda = !q || textoCompleto.includes(q);
+    const coincideTipo = !tipo || u.tipo === tipo;
+    return coincideBusqueda && coincideTipo;
+  });
+  renderUsuarios(filtrado);
+}
+
+// ── Confirmación bloqueo/desbloqueo ──────────────────────────────────────────
+function pedirConfirm(id) {
+  const u = usuarios.find(x => x.id === id);
+  if (!u) return;
+  confirmUserId = id;
+  const esBloqueado = u.estado === 'bloqueado';
+  document.getElementById('mconf-ico').textContent = esBloqueado ? '🔓' : '🔒';
+  document.getElementById('mconf-titulo').textContent = esBloqueado
+    ? '¿Desbloquear usuario?' : '¿Bloquear usuario?';
+  document.getElementById('mconf-desc').textContent = esBloqueado
+    ? `El usuario "${u.nombre} ${u.apellidos}" podrá volver a iniciar sesión en el sistema.`
+    : `El usuario "${u.nombre} ${u.apellidos}" no podrá iniciar sesión hasta que sea desbloqueado.`;
+  const btn = document.getElementById('mconf-btn-si');
+  btn.textContent = esBloqueado ? '🔓 Desbloquear' : '🔒 Bloquear';
+  btn.style.background = esBloqueado
+    ? 'linear-gradient(135deg,#27ae60,#1e7a45)'
+    : 'linear-gradient(135deg,#c0392b,#922b21)';
+  btn.style.color = '#fff';
+  document.getElementById('modal-confirm').classList.add('visible');
+}
+
+function ejecutarToggle() {
+  const u = usuarios.find(x => x.id === confirmUserId);
+  if (!u) return;
+  u.estado = u.estado === 'activo' ? 'bloqueado' : 'activo';
+  cerrarConfirmModal();
+  filtrarUsuarios();
+}
+
+function cerrarConfirmModal() {
+  document.getElementById('modal-confirm').classList.remove('visible');
+  confirmUserId = null;
+}
+
+function cerrarConfirm(e) {
+  if (e.target === document.getElementById('modal-confirm')) cerrarConfirmModal();
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { cerrarModal(); cerrarConfirmModal(); }
+});
 
 renderBienes(bienes);
 renderServicios(servicios);
+actualizarKPIsUsuarios();
 </script>
 </body>
 </html>
